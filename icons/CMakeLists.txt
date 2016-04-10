@@ -1,0 +1,31 @@
+if (NOT WIN32 AND NOT APPLE)
+    macro (update_iconcache ICON_THEME)
+        # Update mtime of hicolor icon theme dir.
+        # We don't always have touch command (e.g. on Windows), so instead create
+        #  and delete a temporary file in the theme dir.
+        install(CODE "
+        set(DESTDIR_VALUE \"\$ENV{DESTDIR}\")
+        if (NOT DESTDIR_VALUE)
+            file(WRITE \"${CMAKE_INSTALL_PREFIX}/share/icons/${ICON_THEME}/temp.txt\" \"update\")
+            file(REMOVE \"${CMAKE_INSTALL_PREFIX}/share/icons/${ICON_THEME}/temp.txt\")
+        endif (NOT DESTDIR_VALUE)
+        ")
+    endmacro (update_iconcache)
+endif ()
+
+if (WIN32 OR APPLE)
+    install(FILES app.svg DESTINATION ${ICON_INSTALL_PREFIX}/svg RENAME ${CMAKE_PROJECT_NAME}.svg)
+    install(FILES app16.png DESTINATION ${ICON_INSTALL_PREFIX}/16 RENAME ${CMAKE_PROJECT_NAME}.png)
+    install(FILES app22.png DESTINATION ${ICON_INSTALL_PREFIX}/22 RENAME ${CMAKE_PROJECT_NAME}.png)
+    install(FILES app32.png DESTINATION ${ICON_INSTALL_PREFIX}/32 RENAME ${CMAKE_PROJECT_NAME}.png)
+    install(FILES app48.png DESTINATION ${ICON_INSTALL_PREFIX}/48 RENAME ${CMAKE_PROJECT_NAME}.png)
+    install(FILES app64.png DESTINATION ${ICON_INSTALL_PREFIX}/64 RENAME ${CMAKE_PROJECT_NAME}.png)
+else ()
+    install(FILES app.svg DESTINATION ${ICON_INSTALL_PREFIX}/scalable/apps RENAME ${CMAKE_PROJECT_NAME}.svg)
+    install(FILES app16.png DESTINATION ${ICON_INSTALL_PREFIX}/16x16/apps RENAME ${CMAKE_PROJECT_NAME}.png)
+    install(FILES app22.png DESTINATION ${ICON_INSTALL_PREFIX}/22x22/apps RENAME ${CMAKE_PROJECT_NAME}.png)
+    install(FILES app24.png DESTINATION ${ICON_INSTALL_PREFIX}/24x24/apps RENAME ${CMAKE_PROJECT_NAME}.png)
+    install(FILES app32.png DESTINATION ${ICON_INSTALL_PREFIX}/32x32/apps RENAME ${CMAKE_PROJECT_NAME}.png)
+    install(FILES app48.png DESTINATION ${ICON_INSTALL_PREFIX}/48x48/apps RENAME ${CMAKE_PROJECT_NAME}.png)
+    install(FILES app64.png DESTINATION ${ICON_INSTALL_PREFIX}/64x64/apps RENAME ${CMAKE_PROJECT_NAME}.png)
+endif ()

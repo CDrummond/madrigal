@@ -1,0 +1,17 @@
+- MediaServers
+  - handle notifications
+  - if item deleted, remove from command
+
+- Renderers
+  - Shuffle queue; shuffle tracks, shuffle albums
+  - Sort queue; by artist, album, or track
+  - UPnP renderers?
+  - OpenHome source
+    - Radio
+    - SongCast
+
+- General
+  - Windows build
+  - Mac build
+  - QML UI
+  - System tray?

@@ -1,0 +1,17 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+<file alias="fa.otf">FontAwesome.otf</file>
+<file alias="media-next">media-next.svg</file>
+<file alias="media-pause">media-pause.svg</file>
+<file alias="media-play">media-play.svg</file>
+<file alias="media-play-rtl">media-play-rtl.svg</file>
+<file alias="media-prev">media-prev.svg</file>
+<file alias="media-stop">media-stop.svg</file>
+<file alias="cd">mono-cd.svg</file>
+<file alias="cd32">mono-cd32.svg</file>
+<file alias="optical">media-optical.svg</file>
+<file alias="optical32">media-optical32.svg</file>
+<file alias="radio">radio.svg</file>
+</qresource>
+</RCC>
+
