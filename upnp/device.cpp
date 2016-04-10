@@ -33,15 +33,21 @@
 #include <QXmlStreamWriter>
 #include <QTimer>
 
+const char * Upnp::Device::constTrackClass="object.item.audioItem.musicTrack";
+const char * Upnp::Device::constBroadcastClass="object.item.audioItem.audioBroadcast";
+const char * Upnp::Device::constObjectIdListMimeType=APP_REV_URL"/track-list";
+const char * Upnp::Device::constMsgServiceProperty="service";
+const char * Upnp::Device::constMsgTypeProperty="type";
+const char * constIsPingProperty="isping";
 static const int constSubTimeout=1800;
 static const int constSubRenewTimeout=1740;
-
 static QColor monoIconColor=Qt::black;
 QMap<Core::MonoIcon::Type, QIcon> monoIcons;
 
 Upnp::Device::MusicTrack::MusicTrack(const QMap<QString, QString> &values, Item *p, int r)
     : Upnp::Device::Item(values["title"], p, r)
 {
+    isBroadcast=QLatin1String(constBroadcastClass)==values["class"];
     url=values["res"];
     artist=values["artist"];
     albumArtist=values["albumArtist"];
@@ -50,8 +56,12 @@ Upnp::Device::MusicTrack::MusicTrack(const QMap<QString, QString> &values, Item 
     genre=values["genre"];
     track=values["originalTrackNumber"].toUInt();
     artUrl=values["albumArtURI"];
+
+    if (!isBroadcast && !name.isEmpty() && artist.isEmpty() && album.isEmpty() && 0==track && genre.isEmpty() && creator.isEmpty()) {
+        isBroadcast=true;
+    }
     if (artUrl.isEmpty()) {
-        artUrl=Core::Images::self()->constCdCover;
+        artUrl=isBroadcast ? Core::Images::self()->constStreamCover : Core::Images::self()->constCdCover;
     }
     if (values["date"].contains("-")) {
         year=values["date"].split("-").first().toUInt();
@@ -70,6 +80,16 @@ Upnp::Device::MusicTrack::MusicTrack(const QMap<QString, QString> &values, Item 
     }
 }
 
+Core::ImageDetails Upnp::Device::MusicTrack::cover() const {
+    if (isBroadcast) {
+        if (artUrl.isEmpty()) {
+            return Core::ImageDetails();
+        }
+        return Core::ImageDetails(artUrl, name, name, true);
+    }
+    return Core::ImageDetails(artUrl, artistName().isEmpty() ? name : artistName(), album);
+}
+
 QString Upnp::Device::MusicTrack::mainText() const {
     return (track>0 ? (track>9 ? QString::number(track)+QLatin1Char(' ') : (QLatin1Char('0')+QString::number(track)+QLatin1Char(' '))) : QString())+
            name+
@@ -78,7 +98,7 @@ QString Upnp::Device::MusicTrack::mainText() const {
 
 QString Upnp::Device::MusicTrack::artistAndAlbum() const {
     if (album.isEmpty() && artist.isEmpty()) {
-        return name.isEmpty() ? QString() : QObject::tr("Unknown");
+        return name.isEmpty() || isBroadcast ? QString() : QObject::tr("Unknown");
     } else if (album.isEmpty()) {
         return artist;
     } else {
@@ -91,11 +111,6 @@ QString Upnp::Device::MusicTrack::describe() const {
             ? QObject::tr("%1 on %2").arg(name).arg(album)
             : QObject::tr("%1 by %2 on %3").arg(name).arg(artist).arg(album);
 }
-
-const char * Upnp::Device::constObjectIdListMimeType=APP_REV_URL"/track-list";
-const char * Upnp::Device::constMsgServiceProperty="service";
-const char * Upnp::Device::constMsgTypeProperty="type";
-const char * constIsPingProperty="isping";
 
 void Upnp::Device::setMonoIconCol(const QColor &col) {
     if (col!=monoIconColor) {

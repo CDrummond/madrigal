@@ -100,8 +100,7 @@ private:
     SqueezedTextLabel *artist;
     TimeLabel *time;
     PosSlider *slider;
-    QString currentArtist;
-    QString currentAlbum;
+    Core::ImageDetails currentCover;
 };
 }
 

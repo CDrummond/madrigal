@@ -24,6 +24,7 @@
 #include "upnp/mediaserver.h"
 #include "core/networkaccessmanager.h"
 #include "core/debug.h"
+#include "core/roles.h"
 #include <QXmlStreamReader>
 #include <QRegularExpression>
 #include <QMimeData>
@@ -126,6 +127,28 @@ int Upnp::MediaServer::rowCount(const QModelIndex &parent) const {
     const QList<Item *> *list = children(parent);
 //    DBUG(MediaServers) << (list ? list->count() : 0);
     return list ? list->count() : 0;
+}
+
+QVariant Upnp::MediaServer::data(const QModelIndex &index, int role) const {
+    const Item *item = toItem(index);
+
+    //    DBUG(Devices) << index.row() << (void *)item << role;
+    if (!item) {
+        return QVariant();
+    }
+
+    switch (role) {
+    case Core::Role_ImageDetails: {
+        Core::ImageDetails cvr=item->cover();
+        QVariant var;
+        if (Item::Type_MusicTrack!=item->type() || !static_cast<const MusicTrack *>(item)->isBroadcast || Core::Images::constStreamCover!=cvr.url) {
+            var.setValue<Core::ImageDetails>(cvr);
+        }
+        return var;
+    }
+    default:
+        return Device::data(index, role);
+    }
 }
 
 bool Upnp::MediaServer::hasChildren(const QModelIndex &index) const {
@@ -556,7 +579,8 @@ void Upnp::MediaServer::parseBrowse(QXmlStreamReader &reader) {
                             } else if (QLatin1String("object.container.album.musicAlbum")==type) {
                                 item=new Album(values["title"], values[values.contains("artist") ? "artist" : "creator"],
                                         albumArt(values["albumArtURI"]), id, parentItem, list->count());
-                            } else if (QLatin1String("object.item.audioItem.musicTrack")==type) {
+                            } else if (QLatin1String(constTrackClass)==type ||
+                                       QLatin1String(constBroadcastClass)==type) {
                                 item=new Track(id, values, parentItem, list->count());
                             } else if (QLatin1String("object.container.playlistContainer")==type) {
                                 item=new Playlist(values["title"], id, parentItem, list->count());
@@ -621,7 +645,7 @@ void Upnp::MediaServer::parseSearch(QXmlStreamReader &reader) {
                     if (reader.isStartElement() && (QLatin1String("container")==reader.name() ||
                                                     QLatin1String("item")==reader.name())) {
                         QMap<QString, QString> values=objectValues(reader);
-                        if (QLatin1String("object.item.audioItem.musicTrack")==values["class"]) {
+                        if (QLatin1String(constTrackClass)==values["class"]) {
                             Track *track=new Track(QByteArray(), values);
                             Album *use=0;
                             QModelIndex useIndex;

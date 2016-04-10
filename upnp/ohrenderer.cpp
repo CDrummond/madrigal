@@ -439,9 +439,7 @@ void Upnp::OhRenderer::handleReadList(QXmlStreamReader &reader) {
                                 track->year=meta.year;
                                 track->duration=meta.duration;
                                 track->artUrl=meta.artUrl;
-                                if (track->artUrl.isEmpty()) {
-                                    track->artUrl=Core::Images::self()->constCdCover;
-                                }
+                                track->isBroadcast=meta.isBroadcast;
                                 QModelIndex idx=createIndex(row, 0, track);
                                 emit dataChanged(idx, idx);
 
@@ -725,7 +723,7 @@ void Upnp::OhRenderer::addTrack(const MusicTrack *track, quint32 after) {
         meta.writeEndElement();
     }
     meta.writeStartElement("upnp:class");
-    meta.writeCharacters("object.item.audioItem.musicTrack");
+    meta.writeCharacters(track->isBroadcast ? constBroadcastClass : constTrackClass);
     meta.writeEndElement();
 
     meta.writeEndElement();

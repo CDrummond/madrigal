@@ -278,7 +278,7 @@ void Ui::NowPlayingWidget::update(const QModelIndex &idx) {
     } else {
         track->setText(song->name);
         artist->setText(song->artistAndAlbum());
-        if (currentAlbum!=song->album || currentArtist!=song->artistName()) {
+        if (song->isBroadcast!=currentCover.isBroadcast || currentCover.album!=song->album || currentCover.artist!=song->artistName()) {
             updateCover(song);
         }
     }
@@ -316,12 +316,12 @@ void Ui::NowPlayingWidget::showEvent(QShowEvent *e) {
 void Ui::NowPlayingWidget::updateCover(const Upnp::Device::MusicTrack *song) {
     QImage *img=0;
     if (song) {
-        img=Core::Images::self()->get(song->cover(), cover->height());
-        currentAlbum=song->album;
-        currentArtist=song->artistName();
+        currentCover=song->cover();
+        img=Core::Images::self()->get(currentCover, cover->height());
     } else {
-        currentAlbum=QString();
-        currentArtist=QString();
+        currentCover.album=QString();
+        currentCover.artist=QString();
+        currentCover.isBroadcast=false;
         img=Core::Images::self()->get(Core::ImageDetails(), cover->height(), true);
     }
 
@@ -337,7 +337,7 @@ void Ui::NowPlayingWidget::sliderReleased() {
 }
 
 void Ui::NowPlayingWidget::coverLoaded(const Core::ImageDetails &image) {
-    if (image.artist==currentArtist && image.album==currentAlbum) {
+    if (image.isBroadcast==currentCover.isBroadcast && image.artist==currentCover.artist && image.album==currentCover.album) {
         QImage *img=Core::Images::self()->get(image, cover->height(), true);
         if (img) {
             cover->setPixmap(QPixmap::fromImage(*img));

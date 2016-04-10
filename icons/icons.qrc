@@ -12,6 +12,7 @@
 <file alias="optical">media-optical.svg</file>
 <file alias="optical32">media-optical32.svg</file>
 <file alias="radio">radio.svg</file>
+<file alias="stream">stream.png</file>
 </qresource>
 </RCC>
 

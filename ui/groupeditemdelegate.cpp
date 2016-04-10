@@ -54,7 +54,7 @@ static quint32 totalDuration(const QModelIndex &index) {
     QModelIndex next=index.sibling(index.row()+1, 0);
     while (next.isValid()) {
         Upnp::Device::MusicTrack *song=static_cast<Upnp::Device::MusicTrack *>(next.internalPointer());
-        if (!song || song->artistName()!=currentSong->artistName() || song->album!=currentSong->album) {
+        if (!song || song->artistName()!=currentSong->artistName() || song->album!=currentSong->album || song->isBroadcast!=currentSong->isBroadcast) {
             break;
         }
         total+=song->duration;
@@ -132,6 +132,8 @@ void Ui::GroupedItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
           title=song->artistName();
           if (!song->album.isEmpty()) {
               title+=QLatin1String(" - ")+song->album;
+          } else if (title.isEmpty() && song->isBroadcast) {
+              title=QObject::tr("Stream");
           }
       }
 

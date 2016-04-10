@@ -274,10 +274,18 @@ void Ui::RendererView::goBack() {
 void Ui::RendererView::updateStats(quint32 num, quint32 dur) {
     if (0==num) {
         queueInfo->setText(tr("No Tracks"));
-    } else if (1==num) {
-        queueInfo->setText(tr("1 Track (%1)").arg(Core::Utils::formatTime(dur)));
+    } else if (0==dur) {
+        if (1==num) {
+            queueInfo->setText(tr("1 Track"));
+        } else {
+            queueInfo->setText(tr("%1 Tracks").arg(num));
+        }
     } else {
-        queueInfo->setText(tr("%1 Tracks (%2)").arg(num).arg(Core::Utils::formatTime(dur)));
+        if (1==num) {
+            queueInfo->setText(tr("1 Track (%1)").arg(Core::Utils::formatTime(dur)));
+        } else {
+            queueInfo->setText(tr("%1 Tracks (%2)").arg(num).arg(Core::Utils::formatTime(dur)));
+        }
     }
     clearAction->setEnabled(num>0);
 }

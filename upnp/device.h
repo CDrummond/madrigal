@@ -76,13 +76,15 @@ public:
     struct MusicTrack : public Item {
         MusicTrack(const QMap<QString, QString> &values, Item *p=0, int r=0);
         MusicTrack(const QString &n=QString(), Item *p=0, int r=0)
-            : Item(n, p, r), track(0), year(0), duration(0) { }
+            : Item(n, p, r), isBroadcast(false), track(0), year(0), duration(0) { }
         virtual ~MusicTrack() { }
         virtual int type() const { return Type_MusicTrack; }
         virtual QString mainText() const;
         virtual QString subText() const { return 0==duration ? QString() : Core::Utils::formatTime(duration); }
         const QString & artistName() const { return albumArtist.isEmpty() ? artist : albumArtist; }
-        virtual Core::ImageDetails cover() const { return Core::ImageDetails(artUrl, artistName().isEmpty() ? name : artistName(), album); }
+        virtual Core::ImageDetails cover() const;
+        virtual Core::MonoIcon::Type icon() const { return isBroadcast ? Core::MonoIcon::ex_radio : Core::MonoIcon::music; }
+        bool isBroadcast;
         QString artistAndAlbum() const;
         QString describe() const;
         QString url;
@@ -100,6 +102,8 @@ public:
     };
 
 public:
+    static const char * constTrackClass;
+    static const char * constBroadcastClass;
     static const char * constObjectIdListMimeType;
     static const char * constMsgTypeProperty;
     static const char * constMsgServiceProperty;

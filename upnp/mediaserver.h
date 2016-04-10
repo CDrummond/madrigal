@@ -134,7 +134,9 @@ public:
         virtual ~Track() { }
         virtual QVariant actions() const {
             QVariant v;
-            v.setValue< QList<int> >(QList<int>() << Core::Actions::Action_Play << Core::Actions::Action_Add);
+            v.setValue< QList<int> >(isBroadcast
+                                        ? QList<int>() << Core::Actions::Action_Play
+                                        : QList<int>() << Core::Actions::Action_Play << Core::Actions::Action_Add);
             return v;
         }
         QByteArray id;
@@ -174,6 +176,7 @@ public:
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;
     int rowCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role) const;
     bool hasChildren(const QModelIndex &index) const;
     bool canFetchMore(const QModelIndex &index) const;
     void fetchMore(const QModelIndex &index);
