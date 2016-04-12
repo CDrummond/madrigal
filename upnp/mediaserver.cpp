@@ -139,10 +139,9 @@ QVariant Upnp::MediaServer::data(const QModelIndex &index, int role) const {
 
     switch (role) {
     case Core::Role_ImageDetails: {
-        Core::ImageDetails cvr=item->cover();
         QVariant var;
-        if (Item::Type_MusicTrack!=item->type() && !static_cast<const MusicTrack *>(item)->isBroadcast) {
-            var.setValue<Core::ImageDetails>(cvr);
+        if (Item::Type_MusicTrack!=item->type() || static_cast<const MusicTrack *>(item)->isBroadcast) {
+            var.setValue<Core::ImageDetails>(item->cover());
         }
         return var;
     }
