@@ -30,15 +30,14 @@
 
 GLOBAL_STATIC(Core::Images, instance)
 
-const char * Core::Images::constCdCover=PACKAGE_NAME"://cd-cover";
-const char * Core::Images::constStreamCover=PACKAGE_NAME"://stream-cover";
+const char * Core::Images::constDefaultImage=PACKAGE_NAME"://cd-cover";
 const char * Core::Images::constCacheFilename="cache-filename";
 
 static const QString constCacheDir=QLatin1String("images/");
 static const int constMaxCoverSize=400;
 
-static QString cacheKey(const Core::ImageDetails &cover, int size, bool isStream=false) {
-    return (isStream ? Core::Images::constStreamCover : (cover.artist+"-"+cover.album))+"-"+QString::number(size);
+static QString cacheKey(const Core::ImageDetails &cover, int size) {
+    return cover.artist+"-"+cover.album+"-"+QString::number(size);
 }
 
 static QString fixString(QString str) {
@@ -243,7 +242,7 @@ Core::Images::Images()
 
 QImage * Core::Images::get(const ImageDetails &details, int size, bool urgent) {
     DBUG(Images) << details.artist << details.album << size << details.url;
-    if (!details.url.isEmpty() && !details.artist.isEmpty() && details.url!=constCdCover && details.url!=constStreamCover) {
+    if (!details.url.isEmpty() && !details.artist.isEmpty() && details.url!=constDefaultImage) {
         // Check memory cache...
         QString key=cacheKey(details, size);
         QImage *img=cache.object(key);
@@ -288,15 +287,14 @@ QImage * Core::Images::get(const ImageDetails &details, int size, bool urgent) {
     }
     // Return default cover...
     // TODO: Artist images?
-    bool isStream=details.url==constStreamCover;
-    QString defKey=cacheKey(ImageDetails(), size, isStream);
+    QString defKey=cacheKey(ImageDetails(), size);
     QImage *defImg=cache.object(defKey);
     if (defImg) {
         DBUG(Images) << details.artist << details.album << size << defKey << "use default";
         return defImg;
     }
 
-    defImg=new QImage(QImage(isStream ? ":stream" : size<=32 ? ":optical32" : ":optical").scaled(size, size, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    defImg=new QImage(QImage(":no-cover").scaled(size, size, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     cache.insert(defKey, defImg, defImg->width()*defImg->height());
     DBUG(Images) << details.artist << details.album << size << defKey << "use newly created default";
     return defImg;

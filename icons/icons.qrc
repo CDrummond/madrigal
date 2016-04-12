@@ -9,10 +9,8 @@
 <file alias="media-stop">media-stop.svg</file>
 <file alias="cd">mono-cd.svg</file>
 <file alias="cd32">mono-cd32.svg</file>
-<file alias="optical">media-optical.svg</file>
-<file alias="optical32">media-optical32.svg</file>
+<file alias="no-cover">no-cover.svg</file>
 <file alias="radio">radio.svg</file>
-<file alias="stream">stream.png</file>
 </qresource>
 </RCC>
 

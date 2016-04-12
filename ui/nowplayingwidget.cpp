@@ -278,8 +278,9 @@ void Ui::NowPlayingWidget::update(const QModelIndex &idx) {
     } else {
         track->setText(song->name);
         artist->setText(song->artistAndAlbum());
-        if (song->isBroadcast!=currentCover.isBroadcast || currentCover.album!=song->album || currentCover.artist!=song->artistName()) {
-            updateCover(song);
+        Core::ImageDetails cover=song->cover();
+        if (currentCover.isBroadcast!=cover.isBroadcast || currentCover.artist!=cover.artist || currentCover.album!=cover.album) {
+            updateCover(&cover);
         }
     }
 }
@@ -313,10 +314,10 @@ void Ui::NowPlayingWidget::showEvent(QShowEvent *e) {
     }
 }
 
-void Ui::NowPlayingWidget::updateCover(const Upnp::Device::MusicTrack *song) {
+void Ui::NowPlayingWidget::updateCover(const Core::ImageDetails *cvr) {
     QImage *img=0;
-    if (song) {
-        currentCover=song->cover();
+    if (cvr) {
+        currentCover=*cvr;
         img=Core::Images::self()->get(currentCover, cover->height());
     } else {
         currentCover.album=QString();

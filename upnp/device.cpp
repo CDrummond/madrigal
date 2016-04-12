@@ -61,7 +61,7 @@ Upnp::Device::MusicTrack::MusicTrack(const QMap<QString, QString> &values, Item 
         isBroadcast=true;
     }
     if (artUrl.isEmpty()) {
-        artUrl=isBroadcast ? Core::Images::self()->constStreamCover : Core::Images::self()->constCdCover;
+        artUrl=Core::Images::self()->constDefaultImage;
     }
     if (values["date"].contains("-")) {
         year=values["date"].split("-").first().toUInt();
@@ -85,7 +85,7 @@ Core::ImageDetails Upnp::Device::MusicTrack::cover() const {
         if (artUrl.isEmpty()) {
             return Core::ImageDetails();
         }
-        return Core::ImageDetails(artUrl, name, name, true);
+        return Core::ImageDetails(artUrl, name, QString(), true);
     }
     return Core::ImageDetails(artUrl, artistName().isEmpty() ? name : artistName(), album);
 }

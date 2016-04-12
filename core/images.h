@@ -97,8 +97,7 @@ private:
 class Images : public QObject {
     Q_OBJECT
 public:
-    static const char * constCdCover;
-    static const char * constStreamCover;
+    static const char * constDefaultImage;
     static const char * constCacheFilename;
     static Images * self();
 

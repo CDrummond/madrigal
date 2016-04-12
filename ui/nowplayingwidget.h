@@ -91,7 +91,7 @@ private Q_SLOTS:
 
 private:
     void showEvent(QShowEvent *e);
-    void updateCover(const Upnp::Device::MusicTrack *song);
+    void updateCover(const Core::ImageDetails *cvr);
 
 private:
     bool shown;

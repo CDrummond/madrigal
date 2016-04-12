@@ -141,7 +141,7 @@ QVariant Upnp::MediaServer::data(const QModelIndex &index, int role) const {
     case Core::Role_ImageDetails: {
         Core::ImageDetails cvr=item->cover();
         QVariant var;
-        if (Item::Type_MusicTrack!=item->type() || !static_cast<const MusicTrack *>(item)->isBroadcast || Core::Images::constStreamCover!=cvr.url) {
+        if (Item::Type_MusicTrack!=item->type() && !static_cast<const MusicTrack *>(item)->isBroadcast) {
             var.setValue<Core::ImageDetails>(cvr);
         }
         return var;
@@ -494,7 +494,7 @@ void Upnp::MediaServer::notification(const QByteArray &sid, const QByteArray &da
 }
 
 static inline QString albumArt(const QString &a) {
-    return a.isEmpty() ? Core::Images::self()->constCdCover : a;
+    return a.isEmpty() ? Core::Images::self()->constDefaultImage : a;
 }
 
 static void fixFolder(Upnp::MediaServer::Folder *folder, Upnp::MediaServer::Manufacturer man) {
