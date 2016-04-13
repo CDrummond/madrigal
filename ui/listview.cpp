@@ -103,7 +103,7 @@ void Ui::ListView::coverFound(const Core::ImageDetails &cover) {
             QModelIndex idx=model()->index(i, 0, rootIndex());
             if (idx.internalPointer()) {
                 Core::ImageDetails cvr=static_cast<Upnp::Device::Item *>(idx.internalPointer())->cover();
-                if (cover.isBroadcast==cvr.isBroadcast && cvr.album==cover.album && cvr.artist==cover.artist) {
+                if (cvr.artist==cover.artist && cvr.album==cover.album) {
                     update(idx);
                 }
             }

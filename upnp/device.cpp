@@ -85,7 +85,7 @@ Core::ImageDetails Upnp::Device::MusicTrack::cover() const {
         if (artUrl.isEmpty()) {
             return Core::ImageDetails();
         }
-        return Core::ImageDetails(artUrl, name, QString(), true);
+        return Core::ImageDetails(artUrl, name);
     }
     return Core::ImageDetails(artUrl, artistName().isEmpty() ? name : artistName(), album);
 }

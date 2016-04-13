@@ -36,13 +36,12 @@ class NetworkJob;
 class Thread;
 
 struct ImageDetails {
-    ImageDetails(const QString &u=QString(), const QString &ar=QString(), const QString &al=QString(), bool bc=false)
-        : url(u), artist(ar), album(al), isBroadcast(bc) { }
+    ImageDetails(const QString &u=QString(), const QString &ar=QString(), const QString &al=QString())
+        : url(u), artist(ar), album(al) { }
     bool operator==(const ImageDetails &o) const { return o.url==url; }
     QString url;
     QString artist;
     QString album;
-    bool isBroadcast;
 };
 
 class ImageLocator : public QObject {
