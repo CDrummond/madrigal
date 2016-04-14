@@ -172,7 +172,7 @@ public:
 
     virtual void clear();
     virtual void setActive(bool a);
-    virtual Core::MonoIcon::Type icon() const { return Core::MonoIcon::no_icon==details.icon ? Core::MonoIcon::volumeup : details.icon; }
+    virtual Core::MonoIcon::Type icon() const { return Core::MonoIcon::no_icon==details.icon ? Core::MonoIcon::server : details.icon; }
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;
     int rowCount(const QModelIndex &parent) const;
