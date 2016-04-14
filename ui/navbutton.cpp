@@ -77,7 +77,7 @@ Ui::NavButton::ProxyStyle *Ui::NavButton::proxyStyle=0;
 
 static const char *constIdxProperty="idx";
 static const char *constIdProperty="id";
-static const char *constPathProperty="id";
+static const char *constPathProperty="path";
 
 static QString actPath(QAction *act) {
     if (!act->property(constPathProperty).toString().isEmpty()) {
