@@ -110,10 +110,10 @@ Ui::RendererView::RendererView(QWidget *p)
     mainLayout->addWidget(stack);
     setMinimumWidth(450);
 
-    QColor col=Utils::clampColor(palette().foreground().color());
     QColor red(220, 0, 0);
-    repeatAction=ActionCollection::get()->createAction("repeat", tr("Repeat"), Core::MonoIcon::icon(Core::MonoIcon::retweet, col, col));
-    shuffleAction=ActionCollection::get()->createAction("random", tr("Random"), Core::MonoIcon::icon(Core::MonoIcon::random, col, col));
+    iconColor=Utils::clampColor(palette().foreground().color());
+    repeatAction=ActionCollection::get()->createAction("repeat", tr("Repeat"), Core::MonoIcon::icon(Core::MonoIcon::retweet, iconColor, iconColor));
+    shuffleAction=ActionCollection::get()->createAction("random", tr("Random"), Core::MonoIcon::icon(Core::MonoIcon::random, iconColor, iconColor));
     clearAction=ActionCollection::get()->createAction("clear", tr("Clear"), Core::MonoIcon::icon(Core::MonoIcon::remove, red, red));
     removeAction=ActionCollection::get()->createAction("remove", tr("Remove Selected Tracks"), Core::MonoIcon::icon(Core::MonoIcon::trash, red, red));
     clearAction->setShortcut(Qt::ControlModifier+Qt::Key_K);
@@ -141,8 +141,7 @@ Ui::RendererView::RendererView(QWidget *p)
     toolbar->addSpacer(Utils::layoutSpacing(this), false);
     toolbar->addWidget(removeButton, false);
     toolbar->addWidget(clearButton, false);
-    backIcon=Core::MonoIcon::icon(Qt::LeftToRight==layoutDirection() ? Core::MonoIcon::chevronleft : Core::MonoIcon::chevronright, col, col);
-    homeIcon=Core::MonoIcon::icon(Core::MonoIcon::volumeup, col, col);
+    backIcon=Core::MonoIcon::icon(Qt::LeftToRight==layoutDirection() ? Core::MonoIcon::chevronleft : Core::MonoIcon::chevronright, iconColor, iconColor);
     connect(Core::Images::self(), SIGNAL(found(Core::ImageDetails)), queue, SLOT(coverFound(Core::ImageDetails)));
     updateStats(0, 0);
     removeAction->setEnabled(false);
@@ -193,8 +192,8 @@ void Ui::RendererView::updateItems() {
 void Ui::RendererView::setActive(const QModelIndex &idx) {
     nav->clear();
     if (idx.isValid()) {
-        Upnp::Renderer *renderer=(Upnp::Renderer *)idx.internalPointer();
-        queue->setModel((QAbstractItemModel *)idx.internalPointer());
+        Upnp::Renderer *renderer=static_cast<Upnp::Renderer *>(idx.internalPointer());
+        queue->setModel(renderer);
         connect(renderer, SIGNAL(queueDetails(quint32,quint32)), this, SLOT(updateStats(quint32,quint32)));
         connect(renderer, SIGNAL(repeat(bool)), repeatAction, SLOT(setChecked(bool)));
         connect(renderer, SIGNAL(shuffle(bool)), shuffleAction, SLOT(setChecked(bool)));
@@ -204,9 +203,9 @@ void Ui::RendererView::setActive(const QModelIndex &idx) {
         connect(queue, SIGNAL(doubleClicked(QModelIndex)), renderer, SLOT(play(QModelIndex)));
         connect(queue, SIGNAL(activated(QModelIndex)), renderer, SLOT(play(QModelIndex)));
         updateItems();
-        nav->add(idx.data().toString(), QModelIndex(), homeIcon);
+        nav->add(idx.data().toString(), QModelIndex(), Core::MonoIcon::icon(renderer->icon(), iconColor, iconColor));
     } else {
-        Upnp::Renderer *renderer=(Upnp::Renderer *)queue->model();
+        Upnp::Renderer *renderer=static_cast<Upnp::Renderer *>(queue->model());
         if (renderer) {
             disconnect(renderer, SIGNAL(queueDetails(quint32,quint32)), this, SLOT(updateStats(quint32,quint32)));
             disconnect(renderer, SIGNAL(repeat(bool)), repeatAction, SLOT(setChecked(bool)));

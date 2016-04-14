@@ -98,8 +98,8 @@ private:
     Action *searchAction;
     QLineEdit *searchText;
     QTimer *searchTimer;
+    QColor iconColor;
     QIcon backIcon;
-    QIcon homeIcon;
     AnimatedIcon *spinner;
 };
 

@@ -83,8 +83,8 @@ private:
     Action *clearAction;
     Action *removeAction;
     SqueezedTextLabel *queueInfo;
+    QColor iconColor;
     QIcon backIcon;
-    QIcon homeIcon;
 };
 
 }

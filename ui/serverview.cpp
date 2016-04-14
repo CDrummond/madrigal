@@ -128,8 +128,8 @@ Ui::ServerView::ServerView(QWidget *p)
     toolbar->addWidget(spinner, false);
 
     searchButton=new FlatToolButton(toolbar);
-    QColor col=Utils::clampColor(palette().foreground().color());
-    searchAction=ActionCollection::get()->createAction("search", "Search", Core::MonoIcon::icon(Core::MonoIcon::search, col, col));
+    iconColor=Utils::clampColor(palette().foreground().color());
+    searchAction=ActionCollection::get()->createAction("search", "Search", Core::MonoIcon::icon(Core::MonoIcon::search, iconColor, iconColor));
     searchAction->setShortcut(Qt::ControlModifier+Qt::Key_F);
     searchButton->setDefaultAction(searchAction);
     toolbar->addWidget(searchButton, false);
@@ -137,9 +137,8 @@ Ui::ServerView::ServerView(QWidget *p)
     searchText->setVisible(false);
     searchText->setClearButtonEnabled(true);
     setMinimumWidth(300);
-    backIcon=Core::MonoIcon::icon(Qt::LeftToRight==layoutDirection() ? Core::MonoIcon::chevronleft : Core::MonoIcon::chevronright, col, col);
-    homeIcon=Core::MonoIcon::icon(Core::MonoIcon::server, col, col);
-    Core::Actions::setColor(col);
+    backIcon=Core::MonoIcon::icon(Qt::LeftToRight==layoutDirection() ? Core::MonoIcon::chevronleft : Core::MonoIcon::chevronright, iconColor, iconColor);
+    Core::Actions::setColor(iconColor);
     connect(searchAction, SIGNAL(triggered(bool)), SLOT(toggleSearch()));
     connect(searchText, SIGNAL(textChanged(QString)), SLOT(startSearchTimer()));
     connect(searchText, SIGNAL(returnPressed()), SLOT(doSearch()));
@@ -194,9 +193,10 @@ void Ui::ServerView::setActive(const QModelIndex &idx) {
         emit info(QString(),0);
     }
     if (idx.isValid()) {
-        media->setModel((QAbstractItemModel *)idx.internalPointer());
+        Upnp::Device *dev=static_cast<Upnp::Device *>(idx.internalPointer());
+        media->setModel(dev);
         updateItems();
-        nav->add(idx.data().toString(), QModelIndex(), homeIcon);
+        nav->add(idx.data().toString(), QModelIndex(), Core::MonoIcon::icon(dev->icon(), iconColor, iconColor));
         if (media->model()) {
             connect(media->model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateView(QModelIndex)));
             connect(media->model(), SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(aboutToRemove(QModelIndex,int,int)));
