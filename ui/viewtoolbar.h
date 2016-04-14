@@ -39,6 +39,7 @@ public:
     void addWidget(QWidget *w, bool left=true);
     void addSpacer(int space, bool left=true);
     void showEvent(QShowEvent *ev);
+    void paintEvent(QPaintEvent *ev);
     void showTitle(bool s) { setCurrentIndex(s ? 0 : 1); }
 private:
     QHBoxLayout *layout;

@@ -42,6 +42,14 @@ void Ui::ViewToolBar::showEvent(QShowEvent *ev) {
     QStackedWidget::showEvent(ev);
 }
 
+void Ui::ViewToolBar::paintEvent(QPaintEvent *ev) {
+    QPainter p(this);
+    QColor col(Qt::black);
+    col.setAlphaF(0.06);
+    p.fillRect(rect(), col);
+    QStackedWidget::paintEvent(ev);
+}
+
 void Ui::ViewToolBar::setTitle(const QString &str) {
     title->setText("  "+str);
 }
