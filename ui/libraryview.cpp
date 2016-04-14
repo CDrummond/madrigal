@@ -36,6 +36,7 @@ void Ui::LibraryView::setIconMode(bool i) {
     setViewMode(i ? QListView::IconMode : QListView::ListMode);
     setResizeMode(i ? QListView::Adjust : QListView::Fixed);
     setGridSize(i ? itemDelegate()->sizeHint(QStyleOptionViewItem(), QModelIndex()) : QSize(-1, -1));
+    setDragDropMode(QAbstractItemView::DragOnly);
 }
 
 void Ui::LibraryView::setModel(QAbstractItemModel *m) {
