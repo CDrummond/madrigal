@@ -23,6 +23,7 @@
 
 #include "ui/libraryview.h"
 #include "ui/listitemdelegate.h"
+#include <QStyle>
 
 Ui::LibraryView::LibraryView(QWidget *p)
     : ListView(p)
@@ -65,7 +66,9 @@ void Ui::LibraryView::checkItemClicked(const QModelIndex &index) {
         return;
     }
 
-    emit itemClicked(index);
+    if (!style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick, 0, this)) {
+        emit itemClicked(index);
+    }
 }
 
 Core::Actions::Type Ui::LibraryView::getAction(const QModelIndex &index) {
