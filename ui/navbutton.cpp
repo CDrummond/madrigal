@@ -49,7 +49,7 @@ void Ui::NavButton::ProxyStyle::drawComplexControl(ComplexControl control, const
                 textRect.adjust(frameWidth+4, frameWidth, -(iconWidth+8+frameWidth), -frameWidth);
             }
             QFontMetrics fm(painter->fontMetrics());
-            QString text=fm.elidedText(toolbutton->text, ltr ? Qt::ElideLeft : Qt::ElideRight, textRect.width());
+            QString text=fm.elidedText(Core::Utils::strippedText(toolbutton->text), ltr ? Qt::ElideLeft : Qt::ElideRight, textRect.width());
             copy.text=QString();
             copy.icon=QIcon();
             if (option->state&State_Sunken || option->state&State_MouseOver) {
@@ -100,7 +100,8 @@ Ui::NavButton::NavButton(QWidget *p)
     setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 }
 
-QAction * Ui::NavButton::add(const QString &str, int id, const QIcon &icon) {
+QAction * Ui::NavButton::add(QString str, int id, const QIcon &icon) {
+    str.replace("&", "&&");
     QAction *act=menu()->addAction(str);
     act->setProperty(constIdProperty, id);
     act->setIcon(icon);
@@ -109,7 +110,8 @@ QAction * Ui::NavButton::add(const QString &str, int id, const QIcon &icon) {
     return act;
 }
 
-QAction * Ui::NavButton::add(const QString &str, const QModelIndex &idx, const QIcon &icon) {
+QAction * Ui::NavButton::add(QString str, const QModelIndex &idx, const QIcon &icon) {
+    str.replace("&", "&&");
     QAction *act=menu()->addAction(str);
     act->setProperty(constIdxProperty, idx);
     act->setIcon(icon);
@@ -127,6 +129,7 @@ QAction *Ui::NavButton::add(const QModelIndex &idx, const QIcon &icon) {
         path=i.data().toString()+QLatin1String(" / ")+path;
         i=i.parent();
     }
+    path.replace("&", "&&");
     act->setProperty(constPathProperty, path);
     setText(path);
     return act;

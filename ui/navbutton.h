@@ -47,8 +47,8 @@ public:
     NavButton(QWidget *p);
     ~NavButton() { }
 
-    QAction * add(const QString &str, int id, const QIcon &icon=QIcon());
-    QAction *add(const QString &str, const QModelIndex &idx, const QIcon &icon=QIcon());
+    QAction * add(QString str, int id, const QIcon &icon=QIcon());
+    QAction * add(QString str, const QModelIndex &idx, const QIcon &icon=QIcon());
     QAction * add(const QModelIndex &idx, const QIcon &icon=QIcon());
     void remove(const QModelIndex &idx);
     void removeFrom(const QModelIndex &idx);
