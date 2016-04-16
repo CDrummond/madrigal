@@ -32,8 +32,8 @@
 #include "ui/application_single.h"
 #else
 #include "ui/application_dbus.h"
-#define APP_CLASS Ui::Application
 #endif
+#define APP_CLASS Ui::Application
 
 #ifdef Q_OS_MAC
 #include "mac/notify.h"

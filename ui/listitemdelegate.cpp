@@ -53,6 +53,7 @@ static int standardIconSize(int v) {
     } else if (v<=40) {
         return 32;
     }
+    return v;
 }
 
 static void setupSizes() {

@@ -29,6 +29,9 @@
 #include "core/utils.h"
 #include "core/images.h"
 #include "core/roles.h"
+#ifdef Q_OS_MAC
+#include "mac/osxstyle.h"
+#endif
 #include <QApplication>
 #include <QPainter>
 
@@ -153,8 +156,8 @@ void Ui::GroupedItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
               border.adjust(0, (border.height()/2)+1, 0, 0);
           }
           #ifdef Q_OS_MAC
-          QColor gradCol(OSXStyle::self()->viewPalette().color(QPalette::Highlight));
-          QColor borderCol(OSXStyle::self()->viewPalette().color(selected ? QPalette::HighlightedText : QPalette::Highlight));
+          QColor gradCol(Mac::OSXStyle::self()->viewPalette().color(QPalette::Highlight));
+          QColor borderCol(Mac::OSXStyle::self()->viewPalette().color(selected ? QPalette::HighlightedText : QPalette::Highlight));
           #else
           QColor gradCol(QApplication::palette().color(QPalette::Highlight));
           QColor borderCol(QApplication::palette().color(selected ? QPalette::HighlightedText : QPalette::Highlight));

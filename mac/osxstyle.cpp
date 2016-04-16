@@ -21,7 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "ui/osxstyle.h"
+#include "mac/osxstyle.h"
 #include "core/globalstatic.h"
 #include "ui/actioncollection.h"
 #include "ui/action.h"
@@ -36,7 +36,7 @@
 #include <QMainWindow>
 #include <qnamespace.h>
 
-GLOBAL_STATIC(OSXStyle, instance)
+GLOBAL_STATIC(Mac::OSXStyle, instance)
 
 Mac::OSXStyle::OSXStyle()
     : view(0)
@@ -68,9 +68,9 @@ QColor Mac::OSXStyle::monoIconColor() {
 void Mac::OSXStyle::initWindowMenu(QMainWindow *mw) {
     if (!windowMenu && mw) {
         windowMenu=new QMenu(tr("&Window"), mw);
-        closeAct=ActionCollection::get()->createAction("close-window", tr("Close"));
-        minAct=ActionCollection::get()->createAction("minimize-window", tr("Minimize"));
-        zoomAct=ActionCollection::get()->createAction("zoom-window", tr("Zoom"));
+        closeAct=Ui::ActionCollection::get()->createAction("close-window", tr("Close"));
+        minAct=Ui::ActionCollection::get()->createAction("minimize-window", tr("Minimize"));
+        zoomAct=Ui::ActionCollection::get()->createAction("zoom-window", tr("Zoom"));
         windowMenu->addAction(closeAct);
         windowMenu->addAction(minAct);
         windowMenu->addAction(zoomAct);
@@ -120,7 +120,7 @@ void Mac::OSXStyle::showWindow() {
 
     for (; it!=end; ++it) {
         if (it.value()==act) {
-            Utils::raiseWindow(it.key());
+            Ui::Utils::raiseWindow(it.key());
         }
         act->setChecked(it.value()==act);
     }

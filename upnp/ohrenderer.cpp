@@ -27,6 +27,12 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QFont>
+#ifdef Q_OS_MAC
+#include <libkern/OSByteOrder.h>
+#define be32toh(x) OSSwapBigToHostInt32(x)
+#else
+#include <endian.h>
+#endif
 
 const char * Upnp::OhRenderer::constPlaylistService="urn:av-openhome-org:service:Playlist:1";
 const char * Upnp::OhRenderer::constRadioService="urn:av-openhome-org:service:Radio:1";

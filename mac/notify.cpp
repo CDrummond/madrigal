@@ -28,66 +28,14 @@
 #include "core/globalstatic.h"
 #include "upnp/model.h"
 #include "upnp/renderers.h"
-#include "notificationsinterface.h"
 #include "config.h"
 #include <QCoreApplication>
 #include <QImage>
 
 GLOBAL_STATIC(Mac::Notify, instance)
 
-QDBusArgument& operator<< (QDBusArgument &arg, const QImage &image) {
-    if (image.isNull()) {
-        // Sometimes this gets called with a null QImage for no obvious reason.
-        arg.beginStructure();
-        arg << 0 << 0 << 0 << false << 0 << 0 << QByteArray();
-        arg.endStructure();
-        return arg;
-    }
-    QImage scaled = image.scaledToHeight(128, Qt::SmoothTransformation).convertToFormat(QImage::Format_ARGB32);
-
-    #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-    // ABGR -> ARGB
-    QImage i = scaled.rgbSwapped();
-    #else
-    // ABGR -> GBAR
-    QImage i(scaled.size(), scaled.format());
-    for (int y = 0; y < i.height(); ++y) {
-        QRgb *p = (QRgb*) scaled.scanLine(y);
-        QRgb *q = (QRgb*) i.scanLine(y);
-        QRgb *end = p + scaled.width();
-        while (p < end) {
-            *q = qRgba(qGreen(*p), qBlue(*p), qAlpha(*p), qRed(*p));
-            p++;
-            q++;
-        }
-    }
-    #endif
-
-    arg.beginStructure();
-    arg << i.width();
-    arg << i.height();
-    arg << i.bytesPerLine();
-    arg << i.hasAlphaChannel();
-    int channels = i.isGrayscale() ? 1 : (i.hasAlphaChannel() ? 4 : 3);
-    arg << i.depth() / channels;
-    arg << channels;
-    arg << QByteArray(reinterpret_cast<const char*>(i.bits()), i.byteCount());
-    arg.endStructure();
-    return arg;
-}
-
-const QDBusArgument& operator>> (const QDBusArgument &arg, QImage &image) {
-  // This is needed to link but shouldn't be called.
-  Q_ASSERT(0);
-  Q_UNUSED(image)
-  return arg;
-}
-
-static const int constTimeout=5000;
-
 Mac::Notify::Notify(QObject *p)
     : QObject(p)
-    , lastId(0)
     , renderer(0)
 {
     connect(Upnp::Model::self()->renderersModel(), SIGNAL(activeDevice(QModelIndex)), this, SLOT(setRenderer(QModelIndex)));

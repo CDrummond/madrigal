@@ -18,6 +18,7 @@
 #define APP_REV_URL "@APP_REV_URL@"
 #cmakedefine ENABLE_QTWIDGETS_UI 
 #cmakedefine QT_QTDBUS_FOUND
+#cmakedefine QT_MAC_EXTRAS_FOUND 1
 
 #define SYS_CONFIG_DIR Core::Utils::systemDir(QLatin1String("config"))
 #define SYS_ICONS_DIR  Core::Utils::systemDir(QLatin1String("icons"))

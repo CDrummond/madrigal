@@ -231,8 +231,9 @@ void Ui::VolumeSlider::set(const Upnp::Renderer::Volume &vol) {
     isMuted=vol.muted;
     setMaximum(vol.max>0 ? vol.max : 100);
     blockSignals(true);
-    if (vol.current<0) {
+    if (vol.max<=0) {
         setValue(0);
+        setEnabled(false);
     } else {
         setEnabled(true);
         int pc=((vol.current*100.0)/vol.max)+0.5;

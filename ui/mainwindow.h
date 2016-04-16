@@ -27,6 +27,7 @@
 #include <QMainWindow>
 
 namespace Ui {
+class ToolBar;
 class ThinSplitter;
 class StatusLabel;
 class RendererView;
@@ -45,6 +46,7 @@ private Q_SLOTS:
     void showAbout();
 
 private:
+    ToolBar *toolBar;
     ThinSplitter *splitter;
     StatusLabel *msg;
     RendererView *renderer;

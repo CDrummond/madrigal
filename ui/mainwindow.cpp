@@ -31,6 +31,9 @@
 #include "ui/statuslabel.h"
 #include "ui/utils.h"
 #include "ui/preferencesdialog.h"
+#ifdef Q_OS_MAC
+#include "ui/windowmanager.h"
+#endif
 #include "upnp/device.h"
 #include "core/configuration.h"
 #include "core/debug.h"
@@ -44,6 +47,7 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QMessageBox>
+#include <QApplication>
 
 Ui::MainWindow::MainWindow(QWidget *p)
     : QMainWindow(p)
@@ -61,7 +65,8 @@ Ui::MainWindow::MainWindow(QWidget *p)
     splitter=new ThinSplitter(mainWidget);
     ServerView *server=new ServerView(splitter);
     renderer=new RendererView(splitter);
-    ToolBar *toolBar=new ToolBar(this);
+    toolBar=new ToolBar(this);
+
     mainLayout->setMargin(0);
     mainLayout->setSpacing(0);
     mainLayout->addWidget(toolBar);
@@ -100,7 +105,20 @@ Ui::MainWindow::MainWindow(QWidget *p)
         toolBar->addMenuButton(mnu);
     }
     #endif
+    #ifdef Q_OS_MAC
+    addToolBar(toolBar);
+    WindowManager *wm=new WindowManager(toolBar);
+    wm->initialize(WindowManager::WM_DRAG_MENU_AND_TOOLBAR);
+    wm->registerWidgetAndChildren(toolBar);
+    toolBar->setMovable(false);
+    toolBar->setContextMenuPolicy(Qt::PreventContextMenu);
+    setUnifiedTitleAndToolBarOnMac(true);
+    // For Mac, dont set a Window Icon - as this is draggable.
+    // Set icon on toolbar, and use that as parent for about dialog
+    toolBar->setWindowIcon(QIcon::fromTheme(PACKAGE_NAME));
+    #else
     setWindowIcon(QIcon::fromTheme(PACKAGE_NAME));
+    #endif
 }
 
 Ui::MainWindow::~MainWindow() {
@@ -122,7 +140,12 @@ void Ui::MainWindow::showPreferences() {
 }
 
 void Ui::MainWindow::showAbout() {
-    QMessageBox::about(this, tr("About %1").arg(PACKAGE_NAME_CASE),
+    #ifdef Q_OS_MAC
+    QWidget *p=toolBar;
+    #else
+    QWidget *p=this;
+    #endif
+    QMessageBox::about(p, tr("About %1").arg(PACKAGE_NAME_CASE),
                        tr("<b>%1 %2</b><br/><br/>OpenHome control point.<br/><br/>"
                           "&copy; 2016 Craig Drummond<br/>"
                           "Released under the <a href=\"http://www.gnu.org/licenses/gpl.html\">GPLv3</a>").

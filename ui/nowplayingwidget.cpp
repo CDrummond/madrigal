@@ -27,7 +27,7 @@
 #include "core/utils.h"
 #include "core/configuration.h"
 #ifdef Q_OS_MAC
-#include "ui/osxstyle.h"
+#include "mac/osxstyle.h"
 #endif
 #include <QGridLayout>
 #include <QProxyStyle>
@@ -109,7 +109,7 @@ bool Ui::TimeLabel::event(QEvent *e) {
     case QEvent::HoverEnter:
         if (isEnabled()) {
             #ifdef Q_OS_MAC
-            setStyleSheet(QString("QLabel{color:%1;}").arg(OSXStyle::self()->viewPalette().highlight().color().name()));
+            setStyleSheet(QString("QLabel{color:%1;}").arg(Mac::OSXStyle::self()->viewPalette().highlight().color().name()));
             #else
             setStyleSheet(QLatin1String("QLabel{color:palette(highlight);}"));
             #endif
@@ -155,7 +155,7 @@ void Ui::PosSlider::updateStyleSheet() {
     lbl.ensurePolished();
     QColor textColor=lbl.palette().color(QPalette::Active, QPalette::Text);
     #ifdef Q_OS_MAC
-    QColor fillColor=OSXStyle::self()->viewPalette().highlight().color();
+    QColor fillColor=Mac::OSXStyle::self()->viewPalette().highlight().color();
     #else
     QColor fillColor=lbl.palette().highlight().color();
     #endif
@@ -245,11 +245,7 @@ Ui::NowPlayingWidget::NowPlayingWidget(QWidget *p)
     QGridLayout *layout=new QGridLayout(this);
     int space=Utils::layoutSpacing(this);
     int pad=qMax(space, Utils::scaleForDpi(8));
-    #ifdef Q_OS_MAC
-    layout->setContentsMargins(pad, 0, pad, 0);
-    #else
     layout->setContentsMargins(pad, space, pad, space);
-    #endif
     layout->setSpacing(space/2);
     layout->addWidget(cover, 0, 0, 3, 1);
     layout->addItem(new QSpacerItem(space, 1, QSizePolicy::Fixed, QSizePolicy::Fixed), 0, 1, 1, 1);

@@ -3,7 +3,7 @@ set(CAMEL_CASE_PROJECT Madrigal)
 
 cmake_minimum_required(VERSION 2.8)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 set(CPACK_GENERATOR "DEB;RPM;TBZ2")
@@ -50,14 +50,22 @@ if (WIN32)
     endif (MINGW)
 
 elseif (APPLE)
-    # TODO
-    message("WARNING: This app has not been fully ported to OSX - and probably does not even compile!")
+    find_package(Foundation REQUIRED)
+    set(APP_LIBRARIES ${APP_LIBRARIES} ${FOUNDATION_LIBRARY})
+    find_package(Qt5MacExtras)
+    if (Qt5MacExtras_FOUND)
+        include_directories(${Qt5MacExtras_INCLUDE_DIRS})
+        set(APP_LIBRARIES ${APP_LIBRARIES} ${Qt5MacExtras_LIBRARIES})
+        add_definitions(${Qt5MacExtras_DEFINITIONS})
+        set(QT_MAC_EXTRAS_FOUND 1)
+    endif (Qt5MacExtras_FOUND)
+
     set(MACOSX_BUNDLE_BUNDLE_NAME ${CAMEL_CASE_PROJECT})
     set(MACOSX_BUNDLE_EXECUTABLE ${CMAKE_PROJECT_NAME})
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION})
     set(MACOSX_BUNDLE_VERSION ${PROJECT_VERSION})
     set(MACOSX_BUNDLE_LONG_VERSION_STRING ${PROJECT_VERSION_WITH_SPIN})
-    set(MACOSX_BUNDLE_ICON_FILE ${CMAKE_PROJECT_NAME}.icns)
+    set(MACOSX_BUNDLE_ICON_FILE app.icns)
     set(APP_CONTENTS_DIR ${CMAKE_INSTALL_PREFIX}/${CAMEL_CASE_PROJECT}.app/Contents)
     set(MACOSX_BUNDLE_RESOURCES ${APP_CONTENTS_DIR}/Resources)
     set(MACOSX_BUNDLE_APP_DIR ${APP_CONTENTS_DIR}/MacOS)
@@ -94,14 +102,14 @@ include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOUR
 set(APP_RCS icons/icons.qrc)
 qt5_add_resources(APP_RC_SRCS ${APP_RCS})
 
-set(APP_SRCS ${APP_RC_SRCS}
+set(APP_SRCS ${APP_SRCS} ${APP_RC_SRCS}
     core/main.cpp core/debug.cpp core/thread.cpp core/utils.cpp core/networkaccessmanager.cpp
     core/configuration.cpp core/monoicon.cpp core/images.cpp core/actions.cpp core/mediakeys.cpp
     upnp/ssdp.cpp upnp/device.cpp upnp/devicesmodel.cpp upnp/mediaservers.cpp upnp/mediaserver.cpp
     upnp/renderers.cpp upnp/ohrenderer.cpp upnp/httpserver.cpp upnp/httpconnection.cpp
     upnp/model.cpp upnp/renderer.cpp)
 
-set(APP_MOC_HDRS
+set(APP_MOC_HDRS ${APP_MOC_HDRS}
     core/thread.h core/networkaccessmanager.h core/images.h core/mediakeys.h
     upnp/ssdp.h upnp/device.h upnp/devicesmodel.h upnp/mediaservers.h upnp/mediaserver.h
     upnp/renderers.h upnp/renderer.h upnp/renderer.h upnp/ohrenderer.h upnp/httpserver.h
@@ -109,6 +117,7 @@ set(APP_MOC_HDRS
 
 if (ENABLE_QTWIDGETS_UI)
     if (WIN32 OR APPLE)
+        add_subdirectory(3rdparty/qtsingleapplication)
         set(APP_LIBRARIES ${APP_LIBRARIES} qtsingleapplication)
         set(APP_SRCS ${APP_SRCS} ui/application_single.cpp)
         set(APP_MOC_HDRS ${APP_MOC_HDRS} ui/application_single.h)
@@ -164,10 +173,26 @@ configure_file(config.h.cmake ${CMAKE_BINARY_DIR}/config.h)
 add_subdirectory(icons)
 
 qt5_wrap_cpp(APP_MOC_SRCS ${APP_MOC_HDRS})
-add_executable(${CMAKE_PROJECT_NAME} ${APP_SRCS} ${APP_MOC_SRCS})
-target_link_libraries(${PROJECT_NAME} ${Qt5Core_LIBRARIES} ${Qt5Network_LIBRARIES} ${Qt5Xml_LIBRARIES} ${Qt5Svg_LIBRARIES} ${APP_LIBRARIES})
 
-install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+if (WIN32)
+    add_executable(${CMAKE_PROJECT_NAME} WIN32 ${APP_SRCS} ${APP_MOC_SRCS}) # TODO: APP_PO
+    install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
+elseif (APPLE)
+    add_executable(${CMAKE_PROJECT_NAME} MACOSX_BUNDLE ${APP_SRCS} ${APP_MOC_SRCS})  # TODO: APP_PO
+    add_subdirectory(mac)
+    include(DeployQt5)
+    install(PROGRAMS ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.app/Contents/MacOS/${CMAKE_PROJECT_NAME} DESTINATION ${MACOSX_BUNDLE_APP_DIR})
+    # Create our own plist file to enable HighDPI support
+    configure_file(mac/Info.plist.cmake ${CMAKE_CURRENT_BINARY_DIR}/mac/Info.plist)
+    configure_file(mac/dmg/create-dmg.sh.in ${CMAKE_CURRENT_BINARY_DIR}/mac/create-dmg.sh)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/mac/Info.plist DESTINATION ${APP_CONTENTS_DIR})
+    install_qt5_executable(${CMAKE_PROJECT_NAME}.app "qjpeg;qsvg;qsvgicon;qcocoa")
+else()
+    add_executable(${CMAKE_PROJECT_NAME} ${APP_SRCS} ${APP_MOC_SRCS}) # TODO: APP_PO
+    install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+endif()
+
+target_link_libraries(${PROJECT_NAME} ${Qt5Core_LIBRARIES} ${Qt5Network_LIBRARIES} ${Qt5Xml_LIBRARIES} ${Qt5Svg_LIBRARIES} ${APP_LIBRARIES})
 
 if (UNIX AND NOT APPLE)
     configure_file(app.desktop.cmake ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.desktop)

@@ -45,7 +45,7 @@ private Q_SLOTS:
 
 private:
     RendererView *rendererView;
-    #ifdef QT_QTDBUS_FOUND
+    #if defined QT_QTDBUS_FOUND || defined Q_OS_MAC
     QCheckBox *showNotifications;
     #endif
     QCheckBox *autoScrollPlayQueue;

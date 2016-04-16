@@ -26,20 +26,13 @@
 #include "core/utils.h"
 #include "config.h"
 #include <QIcon>
-
+#include <QDebug>
 Ui::Application::Application(int &argc, char **argv)
     : QtSingleApplication(argc, argv)
 {
     setAttribute(Qt::AA_DontShowIconsInMenus, true);
     //setAttribute(Qt::AA_UseHighDpiPixmaps);
-
-    // Setup icon path...
-    QStringList paths=QIcon::themeSearchPaths();
-    QString path=Core::Utils::systemDir("icons");
-    if (!paths.contains(path)) {
-        QIcon::setThemeSearchPaths(QStringList() << path << paths);
-    }
-
+    QIcon::setThemeSearchPaths(QStringList() << Core::Utils::systemDir("icons") << QIcon::themeSearchPaths());
     QIcon::setThemeName(PACKAGE_NAME);
 }
 
@@ -58,6 +51,6 @@ bool Ui::Application::start() {
 void Ui::Application::message(const QString &msg) {
     Ui::MainWindow *mw=qobject_cast<Ui::MainWindow *>(activationWindow());
     if (mw) {
-        mw->restoreWindow();
+        mw->raise();
     }
 }
