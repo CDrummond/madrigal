@@ -1,7 +1,3 @@
-- MediaServers
-  - handle notifications
-  - if item deleted, remove from command
-
 - Renderers
   - Shuffle queue; shuffle tracks, shuffle albums
   - Sort queue; by artist, album, or track

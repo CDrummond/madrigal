@@ -198,6 +198,7 @@ Q_SIGNALS:
     void addTracks(Upnp::Command *cmd);
     void info(const QString &msg, int timeout);
     void searching(bool);
+    void systemUpdated();
 
 private:
     void search(quint32 start);
@@ -214,6 +215,8 @@ private:
     void checkCommand();
     void checkCommand(const QModelIndex &idx);
     void removeSearchItem();
+    void cancelCommands();
+    void updated(const QByteArray &id);
 
 private:
     Manufacturer manufacturer;
@@ -223,6 +226,7 @@ private:
     quint32 searchStart;
     QTimer *searchTimer;
     PlayCommand command;
+    quint32 updateId;
 };
 
 }

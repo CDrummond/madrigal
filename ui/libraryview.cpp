@@ -46,16 +46,22 @@ void Ui::LibraryView::setModel(QAbstractItemModel *m) {
 }
 
 void Ui::LibraryView::setRootIndex(const QModelIndex &index) {
+    if (!index.isValid()) {
+        prevRows.clear();
+        ListView::setRootIndex(index);
+        return;
+    }
     QModelIndex prevTop=indexAt(QPoint(8, 8));
     QModelIndex prevRoot=rootIndex();
     ListView::setRootIndex(index);
     if (index.isValid() && index.parent()==prevRoot) {
         // Gone 1 level down tree
         prevRows.append(prevTop.row());
-    } else if (!prevRows.isEmpty()) {
-        QModelIndex idx=model()->index(prevRows.last(), 0, index);
+    } else if (!prevRows.isEmpty() && index==prevRoot.parent()) {
         // Gone 1 level up tree
         scrollTo(model()->index(prevRows.takeLast(), 0, index), QAbstractItemView::PositionAtTop);
+    } else {
+        prevRows.clear();
     }
 }
 

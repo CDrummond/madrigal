@@ -289,16 +289,21 @@ void Ui::ServerView::updateView(const QModelIndex &idx, bool force) {
 }
 
 void Ui::ServerView::aboutToRemove(const QModelIndex &idx, int from, int to) {
-    QModelIndex root=media->rootIndex();
-    if (idx==root.parent()) {
-        int start=qMin(from, to);
-        int end=qMax(from, to);
-
-        for (int r=start; r<=end; ++r) {
-            if (r==root.row()) {
-                goBack();
-                break;
-            }
+    Q_UNUSED(from)
+    Q_UNUSED(to)
+    // If the view's current root, or one of its parents, etc, is removed
+    // then reset to top level
+    QModelIndex r=media->rootIndex();
+    while (r.isValid()) {
+        if (r==idx) {
+            Upnp::Device *dev=static_cast<Upnp::Device *>(media->model());
+            nav->clear();
+            media->setRootIndex(QModelIndex());
+            nav->add(dev->name(), QModelIndex(), Core::MonoIcon::icon(dev->icon(), iconColor, iconColor));
+            updateView(QModelIndex());
+            return;
+        } else {
+            r=r.parent();
         }
     }
 }

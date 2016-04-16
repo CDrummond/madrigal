@@ -76,6 +76,7 @@ Upnp::MediaServer::MediaServer(const Ssdp::Device &device, DevicesModel *parent)
     , searchItem(0)
     , searchStart(0)
     , searchTimer(0)
+    , updateId(0)
 {
     manufacturer=QLatin1String("minimserver.com")==device.manufacturer ? Man_Minim : Man_Other;
 }
@@ -84,20 +85,13 @@ Upnp::MediaServer::~MediaServer() {
 }
 
 void Upnp::MediaServer::clear() {
-    if (searchTimer && searchTimer->isActive()) {
-        searchTimer->stop();
-        cancelCommands("Search");
-        emit searching(false);
-    }
-    command.reset();
+    cancelCommands();
     Device::clear();
 }
 
 void Upnp::MediaServer::setActive(bool a) {
-    if (!a && searchTimer && searchTimer->isActive()) {
-        searchTimer->stop();
-        cancelCommands("Search");
-        emit searching(false);
+    if (!a) {
+        cancelCommands();
     }
     Device::setActive(a);
 }
@@ -383,7 +377,7 @@ void Upnp::MediaServer::search(const QString &text) {
 
 void Upnp::MediaServer::searchTimeout() {
     emit searching(false);
-    cancelCommands("Search");
+    Device::cancelCommands("Search");
 }
 
 void Upnp::MediaServer::search(quint32 start) {
@@ -487,9 +481,46 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
 void Upnp::MediaServer::notification(const QByteArray &sid, const QByteArray &data) {
     Q_UNUSED(sid)
     DBUG(MediaServers) << data;
-    // TODO: Handle additions
-    // TODO: Handle removals - need to take command into accont!
-    // Also, update row values if necessary!
+
+    QXmlStreamReader reader(data);
+    while (!reader.atEnd()) {
+        reader.readNext();
+        if (reader.isStartElement() && QLatin1String("propertyset")==reader.name()) {
+            while (!reader.atEnd()) {
+                reader.readNext();
+                if (reader.isStartElement() && QLatin1String("property")==reader.name()) {
+                    while (!reader.atEnd()) {
+                        reader.readNext();
+                        if (reader.isStartElement()) {
+                            if (QLatin1String("SystemUpdateID")==reader.name()) {
+                                quint32 id=reader.readElementText().toUInt();
+                                if (id!=updateId) {
+                                    updateId=id;
+                                    emit systemUpdated();
+                                }
+                            } else if (QLatin1String("ContainerUpdateIDs")==reader.name()) {
+                                // Contents is comma separated list of ids and version values
+                                // e.g. ida,vera,idb,verb
+
+                                // First cancel any play, or search, commands...
+                                cancelCommands();
+
+                                // Now update modified IDs...
+                                QStringList update=reader.readElementText().split(',');
+                                if (!update.isEmpty() && 0==update.count()%2) {
+                                    for (int i=0; i<update.count(); i+=2) {
+                                        updated(update.at(i).toLatin1());
+                                    }
+                                }
+                            }
+                        } else if (reader.isEndElement() && QLatin1String("property")==reader.name()) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 static inline QString albumArt(const QString &a) {
@@ -812,5 +843,32 @@ void Upnp::MediaServer::removeSearchItem() {
         delete searchItem;
         searchItem=0;
         endRemoveRows();
+    }
+}
+
+void Upnp::MediaServer::cancelCommands() {
+    if (searchTimer && searchTimer->isActive()) {
+        searchTimer->stop();
+        Device::cancelCommands("Search");
+        emit searching(false);
+    }
+    command.reset();
+}
+
+void Upnp::MediaServer::updated(const QByteArray &id) {
+    DBUG(MediaServers) << id;
+
+    // See if this id is know to our model
+    QModelIndex idx=findItem(id, QModelIndex());
+    if (idx.isValid() && static_cast<Item *>(idx.internalPointer())->isCollection()) {
+        // Found, remove child items (if it has any) and repopulate
+        Collection *col=static_cast<Collection *>(idx.internalPointer());
+        if (!col->children.isEmpty()) {
+            beginRemoveRows(idx, 0, col->children.count()-1);
+            qDeleteAll(col->children);
+            col->children.clear();
+            endRemoveRows();
+            populate(idx);
+        }
     }
 }
