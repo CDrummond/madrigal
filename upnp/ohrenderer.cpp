@@ -223,7 +223,7 @@ void Upnp::OhRenderer::notification(const QByteArray &sid, const QByteArray &dat
                                     QXmlStreamReader xmlReader(reader.readElementText());
                                     handleSourceXml(xmlReader);
                                 }
-                           } if (reader.isEndElement() && QLatin1String("property")==reader.name()) {
+                           } else if (reader.isEndElement() && QLatin1String("property")==reader.name()) {
                                break;
                            }
                       }
