@@ -30,6 +30,9 @@
 #ifdef Q_OS_MAC
 #include <libkern/OSByteOrder.h>
 #define be32toh(x) OSSwapBigToHostInt32(x)
+#elif defined Q_OS_WIN
+#include <QtEndian>
+#define be32toh(x) qFromBigEndian(x)
 #else
 #include <endian.h>
 #endif

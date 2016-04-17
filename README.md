@@ -12,6 +12,46 @@ Qt5 OpenHome Control Point.
 5. sudo make install
 
 
+## Windows
+
+Icon created under Linux using the createicon.sh in the windows folder.
+
+The following steps are used to compile, and create the windows installer.
+
+This assumes the following folder structure:
+
+    z:\app\src          [ Checkout of source code ]
+    z:\app\build
+    z:\app\install      [ make install will place target files here ]
+    z:\dev\Qt
+
+1. Install Qt (5.6 or later), cmake.
+
+2. Set (or amend) the following environemnt variables:
+       QTDIR=z:\dev\Qt\5.6\mingw482_32
+       PATH=z:\dev\Qt\5.6\mingw482_32\bin;z:\dev\Qt\Tools\mingw482_32\bin;z:\dev\cmake\bin
+
+3. Load top-level CMakeLists.txt in QtCreator, and pass the following to cmake:
+
+    ../src -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=z:/app/install
+
+4. Build via QtCreator
+
+5. Create an 'install' project in QtCreator
+  - Projects
+  - Add/Clone Selected
+  - Expand Build Steps, and select install
+
+6. Build 'install' project via QtCreator
+
+
+### Create Installer
+
+Run Nullsoft Scriptable Install System, and use the nsi that has been generated
+in the install folder. This will place the setup exe into the install folder as
+well.
+
+
 ## Mac
 
 Icon created under OSX using the createicon.sh in the mac folder.
@@ -25,14 +65,14 @@ These steps assume the following structure:
     build/
     install/
 
-1. Install Qt5.3.1 (or later) from https://qt-project.org/downloads
+1. Install Qt5.4 (or later) from https://qt-project.org/downloads
 
 2. Install HomeBrew
 
 3. brew install cmake
 
 4. Load the top-level CMakeLists.txt in QtCreator, and pass the following to cmake:
-     ../src -DCMAKE_PREFIX_PATH=/Users/$USER/Qt/5.3/clang_64/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=`pwd`/../install
+     ../src -DCMAKE_PREFIX_PATH=/Users/$USER/Qt/5.4/clang_64/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=`pwd`/../install
 
 5. Build via QtCreator
 

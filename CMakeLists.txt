@@ -28,8 +28,6 @@ set(APP_REV_URL "${ORGANIZATION_NAME}.${CMAKE_PROJECT_NAME}")
 set(ENABLE_QTWIDGETS_UI ON)
 
 if (WIN32)
-    # TODO
-    message("WARNING: This app has not been fully ported to Windows - and probably does not even compile!")
     set(ICON_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/icons/${CMAKE_PROJECT_NAME})
     set(SHARE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
     install(FILES upnp/mapping DESTINATION ${SHARE_INSTALL_PREFIX}/config)
@@ -192,7 +190,7 @@ else()
     install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 endif()
 
-target_link_libraries(${PROJECT_NAME} ${Qt5Core_LIBRARIES} ${Qt5Network_LIBRARIES} ${Qt5Xml_LIBRARIES} ${Qt5Svg_LIBRARIES} ${APP_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${APP_LIBRARIES} ${Qt5Core_LIBRARIES} ${Qt5Network_LIBRARIES} ${Qt5Xml_LIBRARIES} ${Qt5Svg_LIBRARIES})
 
 if (UNIX AND NOT APPLE)
     configure_file(app.desktop.cmake ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.desktop)

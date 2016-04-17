@@ -13,7 +13,7 @@ set(SINGLEAPP-MOC-HEADERS
     qtsinglecoreapplication.h
 )
 
-include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${QTINCLUDES} )
+include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${Qt5Network_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS} )
 
 if(WIN32)
   set(SINGLEAPP-SOURCES ${SINGLEAPP-SOURCES} qtlockedfile_win.cpp)

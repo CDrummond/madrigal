@@ -9,6 +9,7 @@ configure_file(app.nsi.cmake ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.n
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.nsi DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/app.ico DESTINATION ${CMAKE_INSTALL_PREFIX} RENAME ${CMAKE_PROJECT_NAME}.ico)
+install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION ${CMAKE_INSTALL_PREFIX} RENAME LICENSE.txt)
 
 # Qt image formats...
 install(FILES ${QT_PLUGINS_DIR}/imageformats/qjpeg.dll ${QT_PLUGINS_DIR}/imageformats/qsvg.dll DESTINATION ${CMAKE_INSTALL_PREFIX}/imageformats/)
@@ -23,7 +24,7 @@ install(FILES ${QT_PLUGINS_DIR}/platforms/qwindows.dll DESTINATION ${CMAKE_INSTA
 set(EXTRA_WIN_LIBS ${EXTRA_WIN_LIBS}
     ${QT_BINARY_DIR}/Qt5Core.dll ${QT_BINARY_DIR}/Qt5Gui.dll ${QT_BINARY_DIR}/Qt5Network.dll ${QT_BINARY_DIR}/Qt5Svg.dll ${QT_BINARY_DIR}/Qt5Xml.dll
     ${QT_BINARY_DIR}/Qt5Widgets.dll
-    ${CMAKE_CURRENT_SOURCE_DIR}/icu/icudt52.dll ${QT_BINARY_DIR}/icuin52.dll ${QT_BINARY_DIR}/icuuc52.dll
+    # ${CMAKE_CURRENT_SOURCE_DIR}/icu/icudt52.dll ${QT_BINARY_DIR}/icuuc52.dll ${QT_BINARY_DIR}/icuin52.dll
     ${QT_BINARY_DIR}/libgcc_s_dw2-1.dll ${QT_BINARY_DIR}/libstdc++-6.dll ${QT_BINARY_DIR}/libwinpthread-1.dll)
 
 # Qt translation files...

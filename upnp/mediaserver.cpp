@@ -28,6 +28,7 @@
 #include <QXmlStreamReader>
 #include <QRegularExpression>
 #include <QMimeData>
+#include <QByteArrayList>
 
 const char * Upnp::MediaServer::constContentDirService="urn:schemas-upnp-org:service:ContentDirectory:1";
 static const int constBrowseChunkSize=1000;
@@ -177,7 +178,7 @@ Qt::ItemFlags Upnp::MediaServer::flags(const QModelIndex &index) const {
 const char constMimeSep('\r');
 
 static QByteArray toHeirarchy(QModelIndex index) {
-    QList<QByteArray> ids;
+    QByteArrayList ids;
     while (index.isValid()) {
         if (Upnp::Device::Item::Type_MusicTrack==static_cast<Upnp::Device::Item *>(index.internalPointer())->type()) {
             ids.prepend(static_cast<Upnp::MediaServer::Track *>(index.internalPointer())->id);
