@@ -81,6 +81,10 @@ void Core::NetworkJob::connectJob() {
 void Core::NetworkJob::cancelJob() {
     DBUG(Network) << (void *)this << (void *)job;
     if (job) {
+        QNetworkAccessManager *mgr=job->manager();
+        if (mgr && qobject_cast<NetworkAccessManager *>(mgr)) {
+            static_cast<NetworkAccessManager *>(mgr)->stopTimer(this);
+        }
         disconnect(job, SIGNAL(finished()), this, SLOT(jobFinished()));
         disconnect(job, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
         disconnect(job, SIGNAL(error(QNetworkReply::NetworkError)), this, SIGNAL(error(QNetworkReply::NetworkError)));
@@ -227,15 +231,20 @@ Core::NetworkJob * Core::NetworkAccessManager::sendCustomRequest(QNetworkRequest
 void Core::NetworkAccessManager::replyFinished() {
     NetworkJob *job = qobject_cast<NetworkJob *>(sender());
     DBUG(Network) << (void *)job;
-    if (timers.contains(job)) {
-        killTimer(timers.take(job));
-    }
+    stopTimer(job);
 }
 
 void Core::NetworkAccessManager::timerEvent(QTimerEvent *e) {
     NetworkJob *job = timers.key(e->timerId());
     DBUG(Network) << (void *)job;
     if (job) {
+        stopTimer(job);
         job->abortJob();
+    }
+}
+
+void Core::NetworkAccessManager::stopTimer(NetworkJob *job) {
+    if (timers.contains(job)) {
+        killTimer(timers.take(job));
     }
 }

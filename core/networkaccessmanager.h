@@ -119,6 +119,9 @@ private Q_SLOTS:
     void replyFinished();
 
 private:
+    void stopTimer(NetworkJob *job);
+
+private:
     bool enabled;
     QMap<NetworkJob *, int> timers;
     friend class NetworkJob;
