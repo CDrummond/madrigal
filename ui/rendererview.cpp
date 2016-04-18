@@ -191,6 +191,8 @@ void Ui::RendererView::updateItems() {
 
 void Ui::RendererView::setActive(const QModelIndex &idx) {
     nav->clear();
+    removeAction->setEnabled(false);
+    clearAction->setEnabled(false);
     if (idx.isValid()) {
         Upnp::Renderer *renderer=static_cast<Upnp::Renderer *>(idx.internalPointer());
         queue->setModel(renderer);
