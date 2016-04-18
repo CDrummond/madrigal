@@ -145,11 +145,12 @@ void Upnp::DevicesModel::lostDevice() {
 }
 
 void Upnp::DevicesModel::removed(const QByteArray &uuid) {
-    DBUG(Debug::Devices) << uuid;
+    DBUG(Devices) << uuid;
     for (int i=0; i<devices.count() ; ++i) {
         Device *dev=devices.at(i);
         if (dev->uuid()==uuid) {
-            beginRemoveRows(QModelIndex(), devices.size(), devices.size());
+            DBUG(Devices) << i;
+            beginRemoveRows(QModelIndex(), i, i);
             devices.removeAt(i);
             endRemoveRows();
             dev->setLost(true);
