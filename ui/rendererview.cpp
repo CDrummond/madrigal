@@ -191,8 +191,6 @@ void Ui::RendererView::updateItems() {
 
 void Ui::RendererView::setActive(const QModelIndex &idx) {
     nav->clear();
-    removeAction->setEnabled(false);
-    clearAction->setEnabled(false);
     if (idx.isValid()) {
         Upnp::Renderer *renderer=static_cast<Upnp::Renderer *>(idx.internalPointer());
         queue->setModel(renderer);
@@ -206,6 +204,7 @@ void Ui::RendererView::setActive(const QModelIndex &idx) {
         connect(queue, SIGNAL(activated(QModelIndex)), renderer, SLOT(play(QModelIndex)));
         updateItems();
         nav->add(idx.data().toString(), QModelIndex(), Core::MonoIcon::icon(renderer->icon(), iconColor, iconColor));
+        removeAction->setEnabled(!queue->selectedIndexes().isEmpty());
     } else {
         Upnp::Renderer *renderer=static_cast<Upnp::Renderer *>(queue->model());
         if (renderer) {
@@ -219,6 +218,7 @@ void Ui::RendererView::setActive(const QModelIndex &idx) {
             disconnect(queue, SIGNAL(activated(QModelIndex)), renderer, SLOT(play(QModelIndex)));
         }
         updateStats(0, 0);
+        removeAction->setEnabled(false);
         queue->setModel(0);
     }
 }
