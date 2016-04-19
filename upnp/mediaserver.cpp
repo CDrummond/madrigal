@@ -654,7 +654,7 @@ void Upnp::MediaServer::parseSearchCapabilities(QXmlStreamReader &reader) {
         if (reader.isStartElement() && QLatin1String("SearchCaps")==reader.name()) {
             QStringList caps=reader.readElementText().split(',');
             foreach (QString cap, caps) {
-                if (-1!=cap.indexOf(':') && -1==cap.indexOf('[') && QLatin1String("dc:date")!=cap && QLatin1String("upnp:actor")!=cap &&
+                if (-1!=cap.indexOf(':') && QLatin1String("dc:date")!=cap && QLatin1String("upnp:actor")!=cap &&
                     QLatin1String("upnp:class")!=cap && QLatin1String("upnp:genre")!=cap) {
                     searchCap.append(cap.replace("\"", "&quot;").toLatin1());
                 }
