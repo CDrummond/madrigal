@@ -143,10 +143,10 @@ if (ENABLE_QTWIDGETS_UI)
         ui/listview.cpp ui/toolbar.cpp ui/toolbutton.cpp ui/volumeslider.cpp ui/nowplayingwidget.cpp
         ui/squeezedtextlabel.cpp ui/action.cpp ui/actioncollection.cpp ui/viewtoolbar.cpp
         ui/libraryview.cpp ui/listitemdelegate.cpp ui/albuminfo.cpp ui/animatedicon.cpp
-        ui/statuslabel.cpp ui/groupeditemdelegate.cpp ui/menubutton.cpp ui/preferencesdialog.cpp)
+        ui/notification.cpp ui/groupeditemdelegate.cpp ui/menubutton.cpp ui/preferencesdialog.cpp)
     set(APP_MOC_HDRS ${APP_MOC_HDRS} ui/mainwindow.h ui/serverview.h ui/rendererview.h
         ui/navbutton.h ui/listview.h ui/volumeslider.h ui/nowplayingwidget.h ui/action.h ui/actioncollection.h
-        ui/toolbar.h ui/libraryview.h ui/listitemdelegate.h ui/albuminfo.h ui/animatedicon.h ui/statuslabel.h
+        ui/toolbar.h ui/libraryview.h ui/listitemdelegate.h ui/albuminfo.h ui/animatedicon.h ui/notification.h
         ui/preferencesdialog.h)
 endif()
 

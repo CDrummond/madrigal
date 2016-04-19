@@ -28,7 +28,7 @@
 #include "ui/rendererview.h"
 #include "ui/toolbar.h"
 #include "ui/actioncollection.h"
-#include "ui/statuslabel.h"
+#include "ui/notification.h"
 #include "ui/utils.h"
 #include "ui/preferencesdialog.h"
 #ifdef Q_OS_MAC
@@ -61,7 +61,7 @@ Ui::MainWindow::MainWindow(QWidget *p)
     ActionCollection::get()->setMainWidget(this);
     QWidget *mainWidget=new QWidget(this);
     QVBoxLayout *mainLayout=new QVBoxLayout(mainWidget);
-    msg=new StatusLabel(this);
+    notif=new Notification(this);
     splitter=new ThinSplitter(mainWidget);
     ServerView *server=new ServerView(splitter);
     renderer=new RendererView(splitter);
@@ -70,7 +70,6 @@ Ui::MainWindow::MainWindow(QWidget *p)
     mainLayout->setMargin(0);
     mainLayout->setSpacing(0);
     mainLayout->addWidget(toolBar);
-    mainLayout->addWidget(msg);
     mainLayout->addWidget(splitter);
     setCentralWidget(mainWidget);
     setWindowTitle(PACKAGE_NAME_CASE);
@@ -87,7 +86,9 @@ Ui::MainWindow::MainWindow(QWidget *p)
         move(pos);
     }
 
-    connect(server, SIGNAL(info(QString,int)), msg, SLOT(setText(QString,int)));
+    connect(server, SIGNAL(info(QString,int)), notif, SLOT(show(QString,int)));
+    toolBar->adjustSize();
+    notif->setOffset(toolBar->height()+32);
 
     QMenu *mnu=new QMenu(PACKAGE_NAME_CASE, this);
     mnu->addAction(tr("Preferences..."), this, SLOT(showPreferences()))->setMenuRole(QAction::PreferencesRole);

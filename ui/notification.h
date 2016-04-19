@@ -21,29 +21,44 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef UI_STATUS_LABEL_H
-#define UI_STATUS_LABEL_H
+#ifndef UI_NOTIFICATION_H
+#define UI_NOTIFICATION_H
 
-#include "ui/squeezedtextlabel.h"
+#include <QWidget>
+#include <QPropertyAnimation>
 
 class QTimer;
+
 namespace Ui {
 
-class StatusLabel : public SqueezedTextLabel {
+class Notification : public QWidget {
     Q_OBJECT
+    Q_PROPERTY(float opacity READ opacity WRITE setOpacity)
 public:
-    StatusLabel(QWidget *p);
-    virtual ~StatusLabel();
+    Notification(QWidget *p);
+    virtual ~Notification() { }
+    void setOffset(int off) { offset=off; }
 
 public Q_SLOTS:
-    void setText(const QString &text, int time);
-
-private Q_SLOTS:
-    void timeout();
+    void show(const QString &msg, int timeout=-1);
+    void close();
 
 private:
+    void paintEvent(QPaintEvent *);
+    bool eventFilter(QObject *obj, QEvent *ev);
+    void setVisible(bool visible);
+    float opacity() const { return opacityValue; }
+    void setOpacity(float v);
+    void setSizeAndPosition();
+    void startAnimation(float end);
+
+private:
+    int offset;
+    int spacing;
+    QString text;
     QTimer *timer;
+    QPropertyAnimation anim;
+    float opacityValue;
 };
 }
-
 #endif

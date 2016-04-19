@@ -29,7 +29,7 @@
 namespace Ui {
 class ToolBar;
 class ThinSplitter;
-class StatusLabel;
+class Notification;
 class RendererView;
 
 class MainWindow : public QMainWindow {
@@ -48,7 +48,7 @@ private Q_SLOTS:
 private:
     ToolBar *toolBar;
     ThinSplitter *splitter;
-    StatusLabel *msg;
+    Notification *notif;
     RendererView *renderer;
 };
 }
