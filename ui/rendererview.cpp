@@ -65,7 +65,6 @@ Ui::RendererView::RendererView(QWidget *p)
     proxy=new QSortFilterProxyModel(this);
     proxy->setSourceModel(model);
     QFrame *info=new QFrame(stack);
-    info->setFrameStyle(QFrame::Panel|QFrame::Sunken);
     QVBoxLayout *infoLayout=new QVBoxLayout(info);
     infoLabel=new QLabel(info);
     cancelButton=new QPushButton(info);

@@ -70,7 +70,6 @@ Ui::ServerView::ServerView(QWidget *p)
     QFrame *info=new QFrame(stack);
     QVBoxLayout *infoLayout=new QVBoxLayout(info);
     infoLabel=new QLabel(info);
-    info->setFrameStyle(QFrame::Panel|QFrame::Sunken);
     cancelButton=new QPushButton(info);
     cancelButton->setText(tr("Use first server found"));
     infoLayout->addWidget(infoLabel);
