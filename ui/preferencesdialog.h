@@ -28,6 +28,8 @@
 #include "config.h"
 
 class QCheckBox;
+class QDialogButtonBox;
+class QAbstractButton;
 
 namespace Ui {
 
@@ -41,9 +43,11 @@ public:
 
 private Q_SLOTS:
     void clearCache();
+    void buttonClicked(QAbstractButton *btn);
     void save();
 
 private:
+    QDialogButtonBox *box;
     RendererView *rendererView;
     #if defined QT_QTDBUS_FOUND || defined Q_OS_MAC
     QCheckBox *showNotifications;

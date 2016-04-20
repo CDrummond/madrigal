@@ -75,18 +75,18 @@ Ui::PreferencesDialog::PreferencesDialog(QWidget *p, RendererView *rv)
 
     lay->addWidget(behaviour);
     lay->addWidget(covers);
+    lay->addItem(new QSpacerItem(0, 0, QSizePolicy::Preferred, QSizePolicy::MinimumExpanding));
 
-    QDialogButtonBox *box=new QDialogButtonBox(this);
+    box=new QDialogButtonBox(this);
     #if defined Q_OS_MAC
     box->setStandardButtons(QDialogButtonBox::Close);
     box->button(QDialogButtonBox::Close)->setFocus();
     #elif defined Q_OS_WIN
-    box->setStandardButtons(QDialogButtonBox::Save|QDialogButtonBox::Cancel);
+    box->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Apply|QDialogButtonBox::Cancel);
     box->button(QDialogButtonBox::Cancel)->setFocus();
-    connect(box, SIGNAL(accepted()), this, SLOT(save()));
     #else
     if (Utils::KDE==Utils::currentDe()) {
-        box->setStandardButtons(QDialogButtonBox::Save|QDialogButtonBox::Cancel);
+        box->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Apply|QDialogButtonBox::Cancel);
         box->button(QDialogButtonBox::Cancel)->setFocus();
         connect(box, SIGNAL(accepted()), this, SLOT(save()));
     } else {
@@ -94,9 +94,9 @@ Ui::PreferencesDialog::PreferencesDialog(QWidget *p, RendererView *rv)
         box->button(QDialogButtonBox::Close)->setFocus();
     }
     #endif
-    connect(box, SIGNAL(rejected()), this, SLOT(close()));
+    connect(box, SIGNAL(clicked(QAbstractButton*)), this, SLOT(buttonClicked(QAbstractButton*)));
     lay->addWidget(box);
-    setMinimumWidth(400);
+    setMinimumWidth(480);
     if (box->button(QDialogButtonBox::Close)) {
         // Instant apply
         #ifdef QT_QTDBUS_FOUND
@@ -109,6 +109,22 @@ Ui::PreferencesDialog::PreferencesDialog(QWidget *p, RendererView *rv)
 void Ui::PreferencesDialog::clearCache() {
     if (QMessageBox::Yes==QMessageBox::question(this, tr("Clear Cache"), tr("Clear all cached album covers?"))) {
         Core::Images::self()->clearDiskCache();
+    }
+}
+
+void Ui::PreferencesDialog::buttonClicked(QAbstractButton *btn) {
+    switch (box->standardButton(btn)) {
+    case QDialogButtonBox::Apply:
+        save();
+        break;
+    case QDialogButtonBox::Ok:
+        save();
+        accept();
+        break;
+    case QDialogButtonBox::Cancel:
+    case QDialogButtonBox::Close:
+        reject();
+        break;
     }
 }
 
