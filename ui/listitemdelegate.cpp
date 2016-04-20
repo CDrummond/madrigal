@@ -25,6 +25,7 @@
 #include "ui/listview.h"
 #include "ui/gtkstyle.h"
 #include "ui/utils.h"
+#include "ui/viewtoolbar.h"
 #include "core/actions.h"
 #include "core/roles.h"
 #include "core/images.h"
@@ -42,19 +43,8 @@ static int borderSize=1;
 static int actionBorder = 4;
 static int actionIconSize = 16;
 
-static int standardIconSize(int v) {
-    if (v>48) {
-        static const int constStep=4;
-        return (((int)(v/constStep))*constStep)+((v%constStep) ? constStep : 0);
-    } else if (v<19) {
-        return 16;
-    } else if (v<=28) {
-        return 22;
-    } else if (v<=40) {
-        return 32;
-    }
-    return v;
-}
+static int standardIconSize(int v) { return (v/8)*8; }
+
 
 static void setupSizes() {
     if (-1==listCoverSize) {
@@ -63,15 +53,8 @@ static void setupSizes() {
         listCoverSize=qMax(32, standardIconSize(2.5*height));
         gridCoverSize=qMax(128, standardIconSize(8.5*height));
         borderSize=listCoverSize>48 ? 2 : 1;
-
-        if (height>22) {
-            actionIconSize=standardIconSize(((int)(height/4))*4);
-            actionBorder=actionIconSize>32 ? 8 : 6;
-        } else {
-            actionBorder=6;
-            actionIconSize=22;
-            borderSize=1;
-        }
+        actionIconSize=Ui::ViewToolBar::iconSize();
+        actionBorder=Ui::ViewToolBar::buttonSize()-actionIconSize;
     }
 }
 

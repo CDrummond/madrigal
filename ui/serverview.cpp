@@ -124,6 +124,8 @@ Ui::ServerView::ServerView(QWidget *p)
     spinner=new AnimatedIcon(this);
     spinner->setIcon(Core::MonoIcon::spinner);
     spinner->setIconSize(ViewToolBar::iconSize());
+    int bSize=ViewToolBar::buttonSize();
+    spinner->setFixedSize(QSize(bSize, bSize));
     spinner->setVisible(false);
     toolbar->addWidget(spinner, false);
 

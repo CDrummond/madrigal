@@ -35,8 +35,8 @@ Ui::AlbumInfo::AlbumInfo(QWidget *p)
     QGridLayout *layout=new QGridLayout(this);
     QWidget *controls=new QWidget(this);
     QVBoxLayout *controlLayout=new QVBoxLayout(controls);
-    layout->setMargin(4); // TODO: hiDPI ???
-    layout->setSpacing(qMin(4, layout->spacing())); // TODO: hiDPI ???
+    layout->setMargin(Utils::scaleForDpi(4));
+    layout->setSpacing(qMin(Utils::scaleForDpi(4), layout->spacing()));
     controlLayout->setMargin(0);
     name=new SqueezedTextLabel(this);
     artist=new SqueezedTextLabel(this);
@@ -74,10 +74,13 @@ Ui::AlbumInfo::AlbumInfo(QWidget *p)
     playButton->setIcon(Core::MonoIcon::icon(Core::MonoIcon::ex_mediaplay, iconCol, iconCol));
     addButton->setIcon(Core::MonoIcon::icon(Core::MonoIcon::plus, iconCol, iconCol));
     int iconSize=Ui::ViewToolBar::iconSize();
+    int buttonSize=Ui::ViewToolBar::buttonSize();
     playButton->setIconSize(QSize(iconSize, iconSize));
     addButton->setIconSize(QSize(iconSize, iconSize));
-    playButton->setText(Core::Actions::toolTip(Core::Actions::Action_Play));
-    addButton->setText(Core::Actions::toolTip(Core::Actions::Action_Add));
+    playButton->setFixedSize(QSize(buttonSize, buttonSize));
+    addButton->setFixedSize(QSize(buttonSize, buttonSize));
+    playButton->setToolTip(Core::Actions::toolTip(Core::Actions::Action_Play));
+    addButton->setToolTip(Core::Actions::toolTip(Core::Actions::Action_Add));
 }
 
 void Ui::AlbumInfo::update(const Upnp::MediaServer::Album *info) {
