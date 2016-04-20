@@ -80,6 +80,7 @@ Ui::ToolBar::ToolBar(QWidget *parent)
     addWidget(controls);
     addSpacer();
     addWidget(nowPlaying);
+    addSpacer();
     addWidget(volumeSlider);
     addSpacer();
 
@@ -92,6 +93,9 @@ Ui::ToolBar::ToolBar(QWidget *parent)
     volumeSlider->setEnabled(false);
 
     connect(Upnp::Model::self()->renderersModel(), SIGNAL(activeDevice(QModelIndex)), SLOT(setRenderer(QModelIndex)));
+
+    layout()->setSpacing(0);
+    layout()->setMargin(0);
 }
 
 void Ui::ToolBar::addMenuButton(QMenu *mnu) {

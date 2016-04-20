@@ -240,12 +240,13 @@ Ui::NowPlayingWidget::NowPlayingWidget(QWidget *p)
     track->setFont(f);
     artist->setFont(small);
     time->setFont(small);
-    cover->setFixedSize(QSize(60, 60));
+    int coverSize=Utils::scaleForDpi(56);
+    cover->setFixedSize(QSize(coverSize, coverSize));
     slider->setOrientation(Qt::Horizontal);
     QGridLayout *layout=new QGridLayout(this);
     int space=Utils::layoutSpacing(this);
-    int pad=qMax(space, Utils::scaleForDpi(8));
-    layout->setContentsMargins(pad, space, pad, space);
+    int pad=Utils::scaleForDpi(2);
+    layout->setContentsMargins(pad, pad, pad, pad);
     layout->setSpacing(space/2);
     layout->addWidget(cover, 0, 0, 3, 1);
     layout->addItem(new QSpacerItem(space, 1, QSizePolicy::Fixed, QSizePolicy::Fixed), 0, 1, 1, 1);
