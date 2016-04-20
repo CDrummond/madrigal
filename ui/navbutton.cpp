@@ -124,9 +124,10 @@ QAction *Ui::NavButton::add(const QModelIndex &idx, const QIcon &icon) {
     QAction *act=add(idx.data().toString(), idx, icon);
     QString path=idx.data().toString();
     QModelIndex i=idx.parent();
+    QString sep=QLatin1String("  ")+QChar(Qt::LeftToRight==layoutDirection() ? 0x25B8 : 0x25C2)+QLatin1String("  ");
 
     while (i.isValid()) {
-        path=i.data().toString()+QLatin1String(" / ")+path;
+        path=i.data().toString()+sep+path;
         i=i.parent();
     }
     path.replace("&", "&&");
