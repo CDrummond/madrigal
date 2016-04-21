@@ -47,6 +47,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QMessageBox>
+#include <QMenu>
 
 enum Pages {
     Page_Info,
@@ -82,6 +83,8 @@ Ui::RendererView::RendererView(QWidget *p)
     renderers=new ListView(stack);
     stack->addWidget(renderers);
     nav=new NavButton(toolbar);
+    nav->setToolTip(tr("Select Renderer"));
+    nav->menu()->deleteLater();
     toolbar->addWidget(nav);
     viewLayout->addWidget(queue);
     viewLayout->setMargin(0);
@@ -93,12 +96,8 @@ Ui::RendererView::RendererView(QWidget *p)
     connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(updateItems()));
     connect(model, SIGNAL(activeDevice(QModelIndex)), SLOT(setActive(QModelIndex)));
     connect(cancelButton, SIGNAL(pressed()), SLOT(useFirst()));
-    connect(queue, SIGNAL(clicked(QModelIndex)), SLOT(itemClicked(QModelIndex)));
     connect(renderers, SIGNAL(clicked(QModelIndex)), SLOT(rendererSelected(QModelIndex)));
-    connect(nav, SIGNAL(selected(int)), SLOT(navSelected(int)));
-    connect(nav, SIGNAL(selected(QModelIndex)), SLOT(navSelected(QModelIndex)));
-    connect(nav, SIGNAL(clicked(bool)), SLOT(goBack()));
-    nav->add(tr("Select Renderer..."), -1);
+    connect(nav, SIGNAL(clicked(bool)), SLOT(selectRenderer()));
     setInfoLabel();
     queue->setItemDelegate(new GroupedItemDelegate(queue));
     queue->setUniformItemSizes(false);
@@ -189,7 +188,6 @@ void Ui::RendererView::updateItems() {
 }
 
 void Ui::RendererView::setActive(const QModelIndex &idx) {
-    nav->clear();
     if (idx.isValid()) {
         Upnp::Renderer *renderer=static_cast<Upnp::Renderer *>(idx.internalPointer());
         queue->setModel(renderer);
@@ -202,7 +200,8 @@ void Ui::RendererView::setActive(const QModelIndex &idx) {
         connect(queue, SIGNAL(doubleClicked(QModelIndex)), renderer, SLOT(play(QModelIndex)));
         connect(queue, SIGNAL(activated(QModelIndex)), renderer, SLOT(play(QModelIndex)));
         updateItems();
-        nav->add(idx.data().toString(), QModelIndex(), Core::MonoIcon::icon(renderer->icon(), iconColor, iconColor));
+        nav->setText(idx.data().toString());
+        nav->setIcon(Core::MonoIcon::icon(renderer->icon(), iconColor, iconColor));
         removeAction->setEnabled(!queue->selectedIndexes().isEmpty());
     } else {
         Upnp::Renderer *renderer=static_cast<Upnp::Renderer *>(queue->model());
@@ -240,35 +239,10 @@ void Ui::RendererView::useFirst() {
     rendererSelected(proxy->index(0, 0));
 }
 
-void Ui::RendererView::itemClicked(const QModelIndex &idx) {
-    if (idx.isValid() && !static_cast<Upnp::Device::Item *>(idx.internalPointer())->isCollection()) {
-        return;
-    }
-    queue->setRootIndex(idx);
-    nav->add(idx, backIcon);
-}
-
-void Ui::RendererView::navSelected(int id) {
-    if (-1==id) {
-        nav->clear();
-        queue->setRootIndex(QModelIndex());
-        stack->setCurrentIndex(Page_Renderers);
-        toolbar->showTitle(true);
-    }
-}
-
-void Ui::RendererView::navSelected(const QModelIndex &idx) {
-    nav->removeFrom(idx);
-    queue->setRootIndex(idx);
-}
-
-void Ui::RendererView::goBack() {
-    if (QModelIndex()!=queue->rootIndex()) {
-        navSelected(queue->rootIndex().parent());
-    } else {
-//        nav->showMenu();
-        navSelected(-1);
-    }
+void Ui::RendererView::selectRenderer() {
+    queue->setRootIndex(QModelIndex());
+    stack->setCurrentIndex(Page_Renderers);
+    toolbar->showTitle(true);
 }
 
 void Ui::RendererView::updateStats(quint32 num, quint32 dur) {

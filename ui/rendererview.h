@@ -58,10 +58,7 @@ private Q_SLOTS:
     void setActive(const QModelIndex &idx);
     void rendererSelected(const QModelIndex &idx);
     void useFirst();
-    void itemClicked(const QModelIndex &idx);
-    void navSelected(const QModelIndex &idx);
-    void navSelected(int id);
-    void goBack();
+    void selectRenderer();
     void updateStats(quint32 num, quint32 dur);
     void clearQueue();
     void removeSelectedTracks();
