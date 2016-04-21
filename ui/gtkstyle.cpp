@@ -29,6 +29,8 @@
 #include <QPainter>
 #include <QStyleOptionViewItemV4>
 #include <QApplication>
+#include <QMainWindow>
+#include <QMenuBar>
 #include <QCache>
 #include <QProcess>
 #include <QTextStream>
@@ -262,8 +264,11 @@ void Ui::GtkStyle::applyTheme(QWidget *widget) {
                     if (line.startsWith(QLatin1String("/*"))) {
                         if (!wm && line.contains("drag:toolbar")) {
                             wm=new WindowManager(widget);
-                            wm->initialize(WindowManager::WM_DRAG_MENU_AND_TOOLBAR);
                             wm->registerWidgetAndChildren(widget);
+                            QMainWindow *win=qobject_cast<QMainWindow *>(widget->window());
+                            if (win && win->menuBar()) {
+                                wm->registerWidgetAndChildren(win->menuBar());
+                            }
                         }
                         if (line.contains("scrollbar:overlay") || line.contains("scrollbar:thin")) {
                             thinSbar=true;

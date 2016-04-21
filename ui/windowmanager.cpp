@@ -38,23 +38,16 @@
 
 #include "windowmanager.h"
 #include <QApplication>
-#include <QComboBox>
 #include <QDialog>
+#include <QComboBox>
 #include <QDockWidget>
-#include <QGroupBox>
 #include <QLabel>
-#include <QListView>
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QMouseEvent>
-#include <QStatusBar>
 #include <QStyle>
-#include <QStyleOptionGroupBox>
-#include <QTabBar>
-#include <QTabWidget>
 #include <QToolBar>
 #include <QToolButton>
-#include <QTreeView>
 #include <QProgressBar>
 
 static inline bool isToolBar(QWidget *w) {
@@ -68,7 +61,6 @@ static inline void addEventFilter(QObject *object, QObject *filter) {
 
 Ui::WindowManager::WindowManager(QObject *parent)
     : QObject(parent)
-    , _dragMode(WM_DRAG_NONE)
     , _dragDistance(QApplication::startDragDistance())
     , _dragDelay(QApplication::startDragTime())
     , _dragAboutToStart(false)
@@ -83,11 +75,6 @@ Ui::WindowManager::WindowManager(QObject *parent)
     qApp->installEventFilter(_appEventFilter);
 }
 
-void Ui::WindowManager::initialize(int windowDrag) {
-    setDragMode(windowDrag);
-    setDragDelay(QApplication::startDragTime());
-}
-
 void Ui::WindowManager::registerWidgetAndChildren(QWidget *w) {
     QObjectList children=w->children();
 
@@ -100,9 +87,7 @@ void Ui::WindowManager::registerWidgetAndChildren(QWidget *w) {
 }
 
 void Ui::WindowManager::registerWidget(QWidget *widget) {
-    if (isBlackListed(widget)) {
-        addEventFilter(widget, this);
-    } else if (isDragable(widget)) {
+    if (isDragable(widget)) {
         addEventFilter(widget, this);
     }
 }
@@ -114,12 +99,7 @@ void Ui::WindowManager::unregisterWidget(QWidget *widget) {
 }
 
 bool Ui::WindowManager::eventFilter(QObject *object, QEvent *event) {
-    if (!enabled()) {
-        return false;
-    }
-
-    switch (event->type())
-    {
+    switch (event->type()) {
     case QEvent::MouseButtonPress:
         return mousePressEvent(object, event);
         break;
@@ -168,7 +148,7 @@ bool Ui::WindowManager::mousePressEvent(QObject *object, QEvent *event) {
     QWidget *widget = static_cast<QWidget*>(object);
 
     // check if widget can be dragged from current position
-    if (isBlackListed(widget) || !canDrag(widget)) {
+    if (!canDrag(widget)) {
         return false;
     }
 
@@ -249,13 +229,12 @@ bool Ui::WindowManager::isDragable(QWidget *widget) {
     }
 
     // accepted default types
-    if ((qobject_cast<QDialog*>(widget) && widget->isWindow()) || (qobject_cast<QMainWindow*>(widget) && widget->isWindow()) || qobject_cast<QGroupBox*>(widget)) {
+    if (qobject_cast<QDialog*>(widget) && widget->isWindow() || qobject_cast<QMainWindow*>(widget) && widget->isWindow()) {
         return true;
     }
 
     // more accepted types, provided they are not dock widget titles
-    if ((qobject_cast<QMenuBar*>(widget) || qobject_cast<QTabBar*>(widget) || qobject_cast<QStatusBar*>(widget) || isToolBar(widget)) &&
-         !isDockWidgetTitle(widget)) {
+    if ((qobject_cast<QMenuBar*>(widget) || isToolBar(widget)) && !isDockWidgetTitle(widget)) {
         return true;
     }
 
@@ -266,58 +245,10 @@ bool Ui::WindowManager::isDragable(QWidget *widget) {
         }
     }
 
-    // viewports
-    /*
-        one needs to check that
-        1/ the widget parent is a scrollarea
-        2/ it matches its parent viewport
-        3/ the parent is not blacklisted
-        */
-    if (QListView *listView = qobject_cast<QListView*>(widget->parentWidget())) {
-        if (listView->viewport() == widget && !isBlackListed(listView)) {
-            return true;
-        }
-    }
-
-    if (QTreeView *treeView = qobject_cast<QTreeView*>(widget->parentWidget())) {
-        if (treeView->viewport() == widget && !isBlackListed(treeView)) {
-            return true;
-        }
-    }
-
-    /*
-        catch labels in status bars.
-        this is because of kstatusbar
-        who captures buttonPress/release events
-        */
-    if (QLabel *label = qobject_cast<QLabel*>(widget)) {
-        if (label->textInteractionFlags().testFlag(Qt::TextSelectableByMouse)) {
-            return false;
-        }
-
-        QWidget *parent = label->parentWidget();
-        while (parent) {
-            if (qobject_cast<QStatusBar*>(parent)) {
-                return true;
-            }
-            parent = parent->parentWidget();
-        }
-    }
-
     return false;
 }
 
-bool Ui::WindowManager::isBlackListed(QWidget *widget) {
-    QVariant propertyValue(widget->property("_kde_no_window_grab"));
-    return propertyValue.isValid() && propertyValue.toBool();
-}
-
 bool Ui::WindowManager::canDrag(QWidget *widget) {
-    // check if enabled
-    if (!enabled()) {
-        return false;
-    }
-
     // assume isDragable widget is already passed
     // check some special cases where drag should not be effective
 
@@ -355,7 +286,7 @@ bool Ui::WindowManager::canDrag(QWidget *widget, QWidget *child, const QPoint &p
 
     // tool buttons
     if (QToolButton *toolButton = qobject_cast<QToolButton*>(widget)) {
-        if (dragMode() < WM_DRAG_ALL && !isToolBar(widget->parentWidget())) {
+        if (!isToolBar(widget->parentWidget())) {
             return false;
         }
         return toolButton->autoRaise() && !toolButton->isEnabled();
@@ -382,97 +313,7 @@ bool Ui::WindowManager::canDrag(QWidget *widget, QWidget *child, const QPoint &p
         return true;
     }
 
-    bool toolbar=isToolBar(widget);
-    if (dragMode() < WM_DRAG_MENU_AND_TOOLBAR && toolbar) {
-        return false;
-    }
-
-    /*
-        in MINIMAL mode, anything that has not been already accepted
-        and does not come from a toolbar is rejected
-        */
-    if (dragMode() < WM_DRAG_ALL) {
-        return toolbar;
-    }
-
-    /* following checks are relevant only for WD_FULL mode */
-
-    // tabbar. Make sure no tab is under the cursor
-    if (QTabBar *tabBar = qobject_cast<QTabBar*>(widget)) {
-        return -1==tabBar->tabAt(position);
-    }
-
-    /*
-        check groupboxes
-        prevent drag if unchecking grouboxes
-        */
-    if (QGroupBox *groupBox = qobject_cast<QGroupBox*>(widget)) {
-        // non checkable group boxes are always ok
-        if (!groupBox->isCheckable()) {
-            return true;
-        }
-        // gather options to retrieve checkbox subcontrol rect
-        QStyleOptionGroupBox opt;
-        opt.initFrom(groupBox);
-        if (groupBox->isFlat()) {
-            opt.features |= QStyleOptionFrameV2::Flat;
-        }
-        opt.lineWidth = 1;
-        opt.midLineWidth = 0;
-        opt.text = groupBox->title();
-        opt.textAlignment = groupBox->alignment();
-        opt.subControls = (QStyle::SC_GroupBoxFrame | QStyle::SC_GroupBoxCheckBox);
-        if (!groupBox->title().isEmpty()) {
-            opt.subControls |= QStyle::SC_GroupBoxLabel;
-        }
-
-        opt.state |= (groupBox->isChecked() ? QStyle::State_On : QStyle::State_Off);
-
-        // check against groupbox checkbox
-        if (groupBox->style()->subControlRect(QStyle::CC_GroupBox, &opt, QStyle::SC_GroupBoxCheckBox, groupBox).contains(position)) {
-            return false;
-        }
-
-        // check against groupbox label
-        if (!groupBox->title().isEmpty() && groupBox->style()->subControlRect(QStyle::CC_GroupBox, &opt, QStyle::SC_GroupBoxLabel, groupBox).contains(position)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    // labels
-    if (QLabel *label = qobject_cast<QLabel*>(widget)) { if (label->textInteractionFlags().testFlag(Qt::TextSelectableByMouse)) {
-            return false;
-        }
-    }
-
-    // abstract item views
-    QAbstractItemView *itemView(NULL);
-    if ((itemView = qobject_cast<QListView*>(widget->parentWidget())) || (itemView = qobject_cast<QTreeView*>(widget->parentWidget()))) {
-        if (widget == itemView->viewport()) {
-            // QListView
-            if (QFrame::NoFrame!=itemView->frameShape()) {
-                return false;
-            } else if (QAbstractItemView::NoSelection!=itemView->selectionMode() &&
-                       QAbstractItemView::SingleSelection!=itemView->selectionMode() &&
-                       itemView->model() && itemView->model()->rowCount()) {
-                return false;
-            } else if (itemView->model() && itemView->indexAt(position).isValid()) {
-                return false;
-            }
-        }
-    } else if ((itemView = qobject_cast<QAbstractItemView*>(widget->parentWidget()))) {
-        if (widget == itemView->viewport()) {
-            // QAbstractItemView
-            if (QFrame::NoFrame!=itemView->frameShape()) {
-                return false;
-            } else if (itemView->indexAt(position).isValid()) {
-                return false;
-            }
-        }
-    }
-    return true;
+    return isToolBar(widget);
 }
 
 void Ui::WindowManager::resetDrag() {
@@ -495,9 +336,6 @@ void Ui::WindowManager::resetDrag() {
 }
 
 void Ui::WindowManager::startDrag(QWidget *widget, const QPoint &position) {
-    if (!(enabled() && widget)) {
-        return;
-    }
     if (QWidget::mouseGrabber()) {
         return;
     }
@@ -513,18 +351,8 @@ void Ui::WindowManager::startDrag(QWidget *widget, const QPoint &position) {
     return;
 }
 
-bool Ui::WindowManager::isDockWidgetTitle(const QWidget *widget) const {
-    if (!widget) {
-        return false;
-    }
-    if (const QDockWidget *dockWidget = qobject_cast<const QDockWidget*>(widget->parent())) {
-        return widget == dockWidget->titleBarWidget();
-    } else {
-       return false;
-    }
-}
-
 bool Ui::WindowManager::AppEventFilter::eventFilter(QObject *object, QEvent *event) {
+    Q_UNUSED(object)
     if (QEvent::MouseButtonRelease==event->type()) {
         // stop drag timer
         if (_parent->_dragTimer.isActive()) {
@@ -537,11 +365,18 @@ bool Ui::WindowManager::AppEventFilter::eventFilter(QObject *object, QEvent *eve
         }
     }
 
-    if (!_parent->enabled()) {
+    return false;
+}
+
+bool Ui::WindowManager::isDockWidgetTitle(const QWidget *widget) const {
+    if (!widget) {
         return false;
     }
-
-    return false;
+    if (const QDockWidget *dockWidget = qobject_cast<const QDockWidget*>(widget->parent())) {
+        return widget == dockWidget->titleBarWidget();
+    } else {
+       return false;
+    }
 }
 
 bool Ui::WindowManager::AppEventFilter::appMouseEvent(QObject *object, QEvent *event) {

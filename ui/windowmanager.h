@@ -52,17 +52,9 @@ class WindowManager: public QObject {
     Q_OBJECT
 
 public:
-    enum DragMode {
-        WM_DRAG_NONE             = 0,
-        WM_DRAG_MENUBAR          = 1,
-        WM_DRAG_MENU_AND_TOOLBAR = 2,
-        WM_DRAG_ALL              = 3
-    };
-
     explicit WindowManager(QObject *);
     virtual ~WindowManager() { }
 
-    void initialize(int windowDrag);
     void registerWidgetAndChildren(QWidget *w);
     void registerWidget(QWidget *);
     void unregisterWidget(QWidget *);
@@ -75,10 +67,6 @@ protected:
     bool mousePressEvent(QObject *, QEvent *);
     bool mouseMoveEvent(QObject *, QEvent *);
     bool mouseReleaseEvent(QObject *, QEvent *);
-    bool enabled(void) const { return WM_DRAG_NONE!=_dragMode; }
-
-    int dragMode(void) const { return _dragMode; }
-    void setDragMode(int value) { _dragMode = value; }
 
     //! drag distance (pixels)
     void setDragDistance(int value)  { _dragDistance = value; }
@@ -88,9 +76,6 @@ protected:
 
     //! returns true if widget is dragable
     bool isDragable(QWidget *);
-
-    //! returns true if widget is dragable
-    bool isBlackListed(QWidget *);
 
     //! returns true if drag can be started from current widget
     bool canDrag(QWidget *);
@@ -105,14 +90,12 @@ protected:
     //! start drag
     void startDrag(QWidget *, const QPoint &);
 
-    //! utility function
-    bool isDockWidgetTitle(const QWidget *) const;
+    bool isDockWidgetTitle(const QWidget *widget) const;
 
     void setLocked(bool value) { _locked = value; }
     bool isLocked(void) const  { return _locked; }
 
 private:
-    int _dragMode;
     int _dragDistance;
     int _dragDelay;
 
