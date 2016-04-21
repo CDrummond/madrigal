@@ -96,7 +96,7 @@ Ui::PreferencesDialog::PreferencesDialog(QWidget *p, RendererView *rv)
     #endif
     connect(box, SIGNAL(clicked(QAbstractButton*)), this, SLOT(buttonClicked(QAbstractButton*)));
     lay->addWidget(box);
-    setMinimumWidth(480);
+    setMinimumWidth(Utils::scaleForDpi(480));
     if (box->button(QDialogButtonBox::Close)) {
         // Instant apply
         #ifdef QT_QTDBUS_FOUND

@@ -71,7 +71,7 @@ Ui::RendererView::RendererView(QWidget *p)
     cancelButton=new QPushButton(info);
     cancelButton->setText(tr("Use first renderer found"));
     infoLayout->addWidget(infoLabel);
-    infoLayout->addItem(new QSpacerItem(0, 32));
+    infoLayout->addItem(new QSpacerItem(0, Utils::scaleForDpi(32)));
     infoLayout->addWidget(cancelButton);
     infoLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
     infoLabel->setWordWrap(true);
@@ -106,7 +106,7 @@ Ui::RendererView::RendererView(QWidget *p)
     mainLayout->setSpacing(0);
     mainLayout->addWidget(toolbar);
     mainLayout->addWidget(stack);
-    setMinimumWidth(450);
+    setMinimumWidth(Utils::scaleForDpi(450));
 
     QColor red(220, 0, 0);
     iconColor=Utils::clampColor(palette().foreground().color());

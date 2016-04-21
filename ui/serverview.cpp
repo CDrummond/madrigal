@@ -73,7 +73,7 @@ Ui::ServerView::ServerView(QWidget *p)
     cancelButton=new QPushButton(info);
     cancelButton->setText(tr("Use first server found"));
     infoLayout->addWidget(infoLabel);
-    infoLayout->addItem(new QSpacerItem(0, 32));
+    infoLayout->addItem(new QSpacerItem(0, Utils::scaleForDpi(32)));
     infoLayout->addWidget(cancelButton);
     infoLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
     infoLabel->setWordWrap(true);
@@ -137,7 +137,7 @@ Ui::ServerView::ServerView(QWidget *p)
     searchButton->setVisible(false);
     searchText->setVisible(false);
     searchText->setClearButtonEnabled(true);
-    setMinimumWidth(300);
+    setMinimumWidth(Utils::scaleForDpi(300));
     backIcon=Core::MonoIcon::icon(Qt::LeftToRight==layoutDirection() ? Core::MonoIcon::chevronleft : Core::MonoIcon::chevronright, iconColor, iconColor);
     Core::Actions::setColor(iconColor);
     connect(searchAction, SIGNAL(triggered(bool)), SLOT(toggleSearch()));
