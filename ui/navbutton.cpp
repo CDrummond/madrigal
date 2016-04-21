@@ -130,6 +130,12 @@ QAction *Ui::NavButton::add(const QModelIndex &idx, const QIcon &icon) {
         path=i.data().toString()+sep+path;
         i=i.parent();
     }
+    if (idx.model()) {
+        QString modelName=idx.model()->data(QModelIndex()).toString();
+        if (!modelName.isEmpty()) {
+            path=modelName+sep+path;
+        }
+    }
     path.replace("&", "&&");
     act->setProperty(constPathProperty, path);
     setText(path);

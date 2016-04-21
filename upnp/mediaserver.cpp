@@ -129,6 +129,9 @@ QVariant Upnp::MediaServer::data(const QModelIndex &index, int role) const {
 
     //    DBUG(Devices) << index.row() << (void *)item << role;
     if (!item) {
+        if (Qt::DisplayRole==role) {
+            return details.name;
+        }
         return QVariant();
     }
 
