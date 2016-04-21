@@ -117,8 +117,7 @@ void Ui::VolumeSlider::showEvent(QShowEvent *ev) {
 void Ui::VolumeSlider::paintEvent(QPaintEvent *) {
     bool reverse=isRightToLeft();
     QPainter p(this);
-    bool muted=false; // TODO MPDConnection::self()->isMuted();
-    if (muted || !isEnabled()) {
+    if (isMuted || !isEnabled()) {
         p.setOpacity(0.25);
     }
 
@@ -154,7 +153,7 @@ void Ui::VolumeSlider::paintEvent(QPaintEvent *) {
     }
     #endif
 
-    if (!muted) {
+    if (!isMuted) {
         p.setOpacity(p.opacity()*0.75);
         p.setPen(textCol);
         QFont f(font());
