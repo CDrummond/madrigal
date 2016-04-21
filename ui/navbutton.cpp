@@ -22,6 +22,7 @@
  */
 
 #include "ui/navbutton.h"
+#include "ui/utils.h"
 #include "core/utils.h"
 #include <QApplication>
 #include <QStyle>
@@ -43,10 +44,12 @@ void Ui::NavButton::ProxyStyle::drawComplexControl(ComplexControl control, const
             int frameWidth=baseStyle()->pixelMetric(PM_DefaultFrameWidth, option, widget);
             QRect textRect(toolbutton->rect);
             bool ltr=Qt::LeftToRight==qApp->layoutDirection();
+            int space=Utils::scaleForDpi(8);
+            int menuSpace=toolbutton->features&QStyleOptionToolButton::HasMenu ? space*2 : 0;
             if (ltr) {
-                textRect.adjust(iconWidth+8+frameWidth, frameWidth, -(frameWidth+4), -frameWidth);
+                textRect.adjust(iconWidth+space+frameWidth, frameWidth, -(frameWidth+menuSpace), -frameWidth);
             } else {
-                textRect.adjust(frameWidth+4, frameWidth, -(iconWidth+8+frameWidth), -frameWidth);
+                textRect.adjust(frameWidth+menuSpace, frameWidth, -(iconWidth+space+frameWidth), -frameWidth);
             }
             QFontMetrics fm(painter->fontMetrics());
             QString text=fm.elidedText(Core::Utils::strippedText(toolbutton->text), ltr ? Qt::ElideLeft : Qt::ElideRight, textRect.width());
