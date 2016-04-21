@@ -46,11 +46,14 @@ Ui::AlbumInfo::AlbumInfo(QWidget *p)
     addButton=new FlatToolButton(controls);
     controlLayout->addWidget(playButton);
     controlLayout->addWidget(addButton);
-    layout->addWidget(cover, 0, 0, 3, 1);
-    layout->addWidget(name, 0, 1, 1, 1);
-    layout->addWidget(artist, 1, 1, 1, 1);
-    layout->addWidget(details, 2, 1, 1, 1);
-    layout->addWidget(controls, 0, 2, 3, 1);
+    layout->addWidget(cover, 0, 0, 5, 1);
+    layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Minimum), 0, 1, 1, 1);
+    layout->addWidget(name, 1, 1, 1, 1);
+    layout->addWidget(artist, 2, 1, 1, 1);
+    layout->addWidget(details, 3, 1, 1, 1);
+    layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Minimum), 4, 1, 1, 1);
+    layout->addWidget(controls, 0, 2, 5, 1);
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
     QFont nameFont(artist->font());
     nameFont.setBold(true);
