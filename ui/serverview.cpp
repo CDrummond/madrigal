@@ -286,17 +286,16 @@ void Ui::ServerView::updateView(const QModelIndex &idx, bool force) {
         } else {
             albumInfo->update(0);
         }
+        showButtons();
     }
 }
 
 void Ui::ServerView::aboutToRemove(const QModelIndex &idx, int from, int to) {
-    Q_UNUSED(from)
-    Q_UNUSED(to)
     // If the view's current root, or one of its parents, etc, is removed
     // then reset to top level
     QModelIndex r=media->rootIndex();
     while (r.isValid()) {
-        if (r==idx) {
+        if (r.parent()==idx && r.row()>=from && r.row()<=to) {
             Upnp::Device *dev=static_cast<Upnp::Device *>(media->model());
             nav->clear();
             media->setRootIndex(QModelIndex());
