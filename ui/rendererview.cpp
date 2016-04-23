@@ -23,7 +23,7 @@
 
 #include "ui/rendererview.h"
 #include "ui/listview.h"
-#include "ui/navbutton.h"
+#include "ui/flattoolbutton.h"
 #include "ui/listitemdelegate.h"
 #include "ui/groupeditemdelegate.h"
 #include "ui/viewtoolbar.h"
@@ -82,10 +82,10 @@ Ui::RendererView::RendererView(QWidget *p)
     queue->setDragDropMode(QAbstractItemView::DragDrop);
     renderers=new ListView(stack);
     stack->addWidget(renderers);
-    nav=new NavButton(toolbar);
-    nav->setToolTip(tr("Select Renderer"));
-    nav->menu()->deleteLater();
-    toolbar->addWidget(nav);
+    rendererSelect=new FlatToolButton(toolbar);
+    rendererSelect->setToolTip(tr("Select Renderer"));
+    rendererSelect->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    toolbar->addWidget(rendererSelect);
     viewLayout->addWidget(queue);
     viewLayout->setMargin(0);
     viewLayout->setSpacing(0);
@@ -97,7 +97,7 @@ Ui::RendererView::RendererView(QWidget *p)
     connect(model, SIGNAL(activeDevice(QModelIndex)), SLOT(setActive(QModelIndex)));
     connect(cancelButton, SIGNAL(pressed()), SLOT(useFirst()));
     connect(renderers, SIGNAL(clicked(QModelIndex)), SLOT(rendererSelected(QModelIndex)));
-    connect(nav, SIGNAL(clicked(bool)), SLOT(selectRenderer()));
+    connect(rendererSelect, SIGNAL(clicked(bool)), SLOT(selectRenderer()));
     setInfoLabel();
     queue->setItemDelegate(new GroupedItemDelegate(queue));
     queue->setUniformItemSizes(false);
@@ -200,8 +200,8 @@ void Ui::RendererView::setActive(const QModelIndex &idx) {
         connect(queue, SIGNAL(doubleClicked(QModelIndex)), renderer, SLOT(play(QModelIndex)));
         connect(queue, SIGNAL(activated(QModelIndex)), renderer, SLOT(play(QModelIndex)));
         updateItems();
-        nav->setText(idx.data().toString());
-        nav->setIcon(Core::MonoIcon::icon(renderer->icon(), iconColor, iconColor));
+        rendererSelect->setText(idx.data().toString());
+        rendererSelect->setIcon(Core::MonoIcon::icon(renderer->icon(), iconColor, iconColor));
         removeAction->setEnabled(!queue->selectedIndexes().isEmpty());
     } else {
         Upnp::Renderer *renderer=static_cast<Upnp::Renderer *>(queue->model());

@@ -37,7 +37,7 @@ class DevicesModel;
 namespace Ui {
 class Action;
 class ListView;
-class NavButton;
+class FlatToolButton;
 class ViewToolBar;
 class SqueezedTextLabel;
 
@@ -69,7 +69,7 @@ private:
     Upnp::DevicesModel *model;
     ViewToolBar *toolbar;
     QStackedWidget *stack;
-    NavButton *nav;
+    FlatToolButton *rendererSelect;
     ListView *renderers;
     ListView *queue;
     QSortFilterProxyModel *proxy;

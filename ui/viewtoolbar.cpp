@@ -1,7 +1,6 @@
 #include "ui/viewtoolbar.h"
 #include "ui/squeezedtextlabel.h"
 #include "ui/utils.h"
-#include "ui/navbutton.h"
 #include <QHBoxLayout>
 #include <QPainter>
 #include <QFont>
@@ -64,7 +63,7 @@ void Ui::ViewToolBar::addWidget(QWidget *w, bool left) {
         QToolButton *tb=static_cast<QToolButton *>(w);
         int iSize=iconSize();
         tb->setIconSize(QSize(iSize, iSize));
-        if (qobject_cast<NavButton *>(w)) {
+        if (Qt::ToolButtonTextBesideIcon==tb->toolButtonStyle()) {
             tb->setFixedHeight(buttonSize());
         } else {
             int bSize=buttonSize();
