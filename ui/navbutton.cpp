@@ -205,7 +205,7 @@ void Ui::NavButton::clear() {
 }
 
 QSize Ui::NavButton::sizeHint() const {
-    return FlatToolButton::sizeHint()+QSize(16, 8);
+    return FlatToolButton::sizeHint()+QSize(Utils::scaleForDpi(16), Utils::scaleForDpi(8));
 }
 
 void Ui::NavButton::itemSelected(QAction *act) {
