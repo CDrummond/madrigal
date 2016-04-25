@@ -92,9 +92,11 @@ private:
     void moveRows(const QList<quint32> &rows, qint32 to);
     void removeTracks(const QModelIndexList &indexes);
     void play(const QModelIndex &idx);
+    void emitAddedTracksNotif();
 
 private:
     Command *currentCmd;
+    int addedCount;
     QSet<quint32> ids;
     qint32 sourceIndex;
     QList<Source> sources;

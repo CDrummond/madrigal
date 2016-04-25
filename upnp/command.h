@@ -7,7 +7,8 @@ struct Command {
     enum Type {
         Append,
         ReplaceAndPlay,
-        Insert
+        Insert,
+        Move
     };
     virtual ~Command() { qDeleteAll(tracks); }
     QList<const Device::MusicTrack *> tracks;

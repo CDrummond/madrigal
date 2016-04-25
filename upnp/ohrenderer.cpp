@@ -72,6 +72,7 @@ static inline bool toBool(const QString &str) {
 Upnp::OhRenderer::OhRenderer(const Ssdp::Device &device, DevicesModel *parent)
     : Renderer(device, parent)
     , currentCmd(0)
+    , addedCount(0)
     , sourceIndex(0)
 {
     QList<QByteArray> toRemove;
@@ -157,7 +158,7 @@ void Upnp::OhRenderer::failedCommand(Core::NetworkJob *job, const QByteArray &ty
             if (Command::ReplaceAndPlay==currentCmd->type) {
                 sendCommand("", "Play", constPlaylistService);
             }
-            emit info(QString(), Notif_PlayCommand);
+            emitAddedTracksNotif();
             clearCommand();
         }
     }
@@ -326,9 +327,10 @@ void Upnp::OhRenderer::handleInsert(QXmlStreamReader &reader) {
                 sendCommand("<Value>"+QByteArray::number(id)+"</Value>", "SeekId", constPlaylistService);
                 sendCommand("", "Play", constPlaylistService);
             }
+            addedCount++;
             if (currentCmd->tracks.isEmpty()) {
+                emitAddedTracksNotif();
                 clearCommand();
-                emit info(QString(), Notif_PlayCommand);
             } else {
                 const MusicTrack *track=currentCmd->tracks.takeFirst();
                 addTrack(track, id);
@@ -656,9 +658,11 @@ void Upnp::OhRenderer::addTracks(Command *cmd) {
     if (Command::ReplaceAndPlay==cmd->type) {
         clearQueue();
     }
-    emit info(tr("Adding tracks..."), Notif_PlayCommand);
+    if (Command::Move!=currentCmd->type) {
+        emit info(tr("Adding tracks..."), Notif_PlayCommand);
+    }
     quint32 after=0;
-    if (Command::Insert==cmd->type && currentCmd->pos>=0 && currentCmd->pos<items.count()) {
+    if ((Command::Insert==cmd->type || Command::Move==cmd->type) && currentCmd->pos>=0 && currentCmd->pos<items.count()) {
         after=static_cast<Track *>(items.at(currentCmd->pos))->id;
     } else if (Command::Append==cmd->type && !items.isEmpty())  {
         after=static_cast<Track *>(items.at(items.count()-1))->id;
@@ -760,6 +764,7 @@ void Upnp::OhRenderer::addTrack(const MusicTrack *track, quint32 after) {
 void Upnp::OhRenderer::clearCommand() {
     delete currentCmd;
     currentCmd=0;
+    addedCount=0;
 }
 
 void Upnp::OhRenderer::moveRows(const QList<quint32> &rows, qint32 to) {
@@ -782,7 +787,7 @@ void Upnp::OhRenderer::moveRows(const QList<quint32> &rows, qint32 to) {
         if (rows.count()>1) {
             Command *cmd=new Command;
             cmd->pos=to;
-            cmd->type=Command::Insert;
+            cmd->type=Command::Move;
             foreach (quint32 r, rows) {
                 Track *track=static_cast<Track *>(items.at(r));
                 sendCommand("<Value>"+QByteArray::number(track->id)+"</Value>", "DeleteId", constPlaylistService);
@@ -807,4 +812,15 @@ void Upnp::OhRenderer::removeTracks(const QModelIndexList &indexes) {
 void Upnp::OhRenderer::play(const QModelIndex &idx) {
     DBUG(Renderers) << idx.data().toString();
     sendCommand("<Value>"+QByteArray::number(static_cast<Track *>(idx.internalPointer())->id)+"</Value>", "SeekId", constPlaylistService);
+}
+
+void Upnp::OhRenderer::emitAddedTracksNotif() {
+    if (Command::Move!=currentCmd->type) {
+        emit info(0==addedCount
+                    ? tr("No tracks added")
+                    : 1==addedCount
+                      ? tr("1 track added")
+                      : tr("%1 tracks added").arg(addedCount),
+                Notif_PlayCommand, 3);
+    }
 }

@@ -33,6 +33,7 @@ Core::NotificationManager::NotificationManager(QObject *p)
     , renderer(0)
 {
     timer=new QTimer(this);
+    timer->setSingleShot(true);
     connect(timer, SIGNAL(timeout()), this, SLOT(timeout()));
     connect(Upnp::Model::self()->serversModel(), SIGNAL(activeDevice(QModelIndex)), this, SLOT(activeServer(QModelIndex)));
     connect(Upnp::Model::self()->renderersModel(), SIGNAL(activeDevice(QModelIndex)), this, SLOT(activeRenderer(QModelIndex)));
@@ -44,14 +45,13 @@ Core::NotificationManager::~NotificationManager() {
 
 void Core::NotificationManager::add(const QString &text, quint8 id, int timeout) {
     Upnp::Device *dev=static_cast<Upnp::Device *>(sender());
-    quint16 msgid=(dev==renderer ? 0x0100 : 0x0000)+id;
     // Remove any previous notif with the same ID
     QList<QList<Notif>::iterator> toRemove;
     QList<Notif>::iterator it=notifs.begin();
     QList<Notif>::iterator end=notifs.end();
 
     for (; it!=end; ++it) {
-        if (it->id==msgid) {
+        if ((it->id&0x00FF)==id) {
             toRemove.append(it);
         }
     }
@@ -61,10 +61,13 @@ void Core::NotificationManager::add(const QString &text, quint8 id, int timeout)
     }
 
     // Add and send new notif
-    Notif notif(text, msgid);
+    if (timeout<0) {
+        timeout=30;
+    }
+    Notif notif(text, id+(renderer==dev ? 0x0100 : 0x0000));
     if (timeout>0) {
         notif.expiry=QDateTime::currentDateTime();
-        notif.expiry.addSecs(timeout);
+        notif.expiry=notif.expiry.addSecs(timeout);
         if (!timer->isActive() || timer->remainingTime()>(timeout*1000)) {
             timer->start(timeout*1000);
         }
@@ -79,7 +82,7 @@ void Core::NotificationManager::timeout() {
     QList<Notif>::iterator it=notifs.begin();
     QList<Notif>::iterator end=notifs.end();
     QDateTime cur=QDateTime::currentDateTime();
-    cur.addMSecs(500);
+    cur=cur.addMSecs(500);
 
     for (; it!=end; ++it) {
         if (it->expiry<cur) {
