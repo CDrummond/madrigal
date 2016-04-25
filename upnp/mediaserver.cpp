@@ -42,6 +42,7 @@ static const QByteArray & itemId(Upnp::Device::Item * item) {
                                        : static_cast<Upnp::MediaServer::Track *>(item)->id
                 : constRoot;
 }
+
 Upnp::MediaServer::Track::Track(const QByteArray &i, const QMap<QString, QString> &values, Item *p, int r)
     : Upnp::Device::MusicTrack(values, p, r)
     , id(i)
@@ -281,6 +282,8 @@ void Upnp::MediaServer::play(const QModelIndexList &indexes, qint32 pos, PlayCom
         command.reset();
     }
 
+    emit info(tr("Locating tracks..."), Notif_PlayCommand);
+
     command.pos=pos;
     command.type=type;
     foreach (const QModelIndex &idx, indexes) {
@@ -457,7 +460,7 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
     if ("Search"==type) {
         if (0==total && 0==returned) {
             emit searching(false);
-            emit info(tr("No songs found!"), 5);
+            emit info(tr("No songs found!"), Notif_SearchResult, 3);
             removeSearchItem();
             if (searchTimer) {
                 searchTimer->stop();
@@ -472,7 +475,7 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
             }
 
             if (total>constMaxSearchResults) {
-                emit info(tr("Too many matches. Only display first %1 tracks.").arg(constMaxSearchResults), 5);
+                emit info(tr("Too many matches. Only display first %1 tracks.").arg(constMaxSearchResults), Notif_SearchResult, 3);
             }
             emit searching(false);
             if (searchTimer) {
@@ -825,6 +828,7 @@ void Upnp::MediaServer::checkCommand() {
             cmd->pos=command.pos;
             cmd->type=command.type;
             DBUG(MediaServers) << cmd->tracks.count();
+            emit info(1==cmd->tracks.count() ? tr("Located 1 track") : tr("Located %1 tracks").arg(cmd->tracks.count()), Notif_PlayCommand, 2);
             emit addTracks(cmd);
         }
         command.reset();

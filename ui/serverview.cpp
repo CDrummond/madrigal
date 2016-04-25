@@ -190,8 +190,6 @@ void Ui::ServerView::setActive(const QModelIndex &idx) {
     if (media->model()) {
         disconnect(media->model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateView(QModelIndex)));
         disconnect(media->model(), SIGNAL(searching(bool)), this, SLOT(searching(bool)));
-        disconnect(media->model(), SIGNAL(info(QString,int)), this, SIGNAL(info(QString,int)));
-        emit info(QString(),0);
     }
     if (idx.isValid()) {
         Upnp::Device *dev=static_cast<Upnp::Device *>(idx.internalPointer());
@@ -202,7 +200,6 @@ void Ui::ServerView::setActive(const QModelIndex &idx) {
             connect(media->model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateView(QModelIndex)));
             connect(media->model(), SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(aboutToRemove(QModelIndex,int,int)));
             connect(media->model(), SIGNAL(searching(bool)), this, SLOT(searching(bool)));
-            connect(media->model(), SIGNAL(info(QString,int)), this, SIGNAL(info(QString,int)));
         }
     } else {
         media->setModel(0);

@@ -46,6 +46,13 @@ class DevicesModel;
 class Device : public QAbstractItemModel {
     Q_OBJECT
 public:
+    enum Notifications {
+        Notif_PlayCommand,
+        Notif_SearchResult,
+
+        Notif_Count
+    };
+
     enum State {
         State_Initial,
         State_Populating,
@@ -135,6 +142,7 @@ public:
 Q_SIGNALS:
     void stateChanged(const QString &str);
     void lost();
+    void info(const QString &msg, quint8 id, int timeout=-1);
 
 public Q_SLOTS:
     virtual void setActive(bool a);

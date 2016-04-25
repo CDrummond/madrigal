@@ -103,12 +103,14 @@ qt5_add_resources(APP_RC_SRCS ${APP_RCS})
 set(APP_SRCS ${APP_SRCS} ${APP_RC_SRCS}
     core/main.cpp core/debug.cpp core/thread.cpp core/utils.cpp core/networkaccessmanager.cpp
     core/configuration.cpp core/monoicon.cpp core/images.cpp core/actions.cpp core/mediakeys.cpp
+    core/notificationmanager.cpp
     upnp/ssdp.cpp upnp/device.cpp upnp/devicesmodel.cpp upnp/mediaservers.cpp upnp/mediaserver.cpp
     upnp/renderers.cpp upnp/ohrenderer.cpp upnp/httpserver.cpp upnp/httpconnection.cpp
     upnp/model.cpp upnp/renderer.cpp)
 
 set(APP_MOC_HDRS ${APP_MOC_HDRS}
     core/thread.h core/networkaccessmanager.h core/images.h core/mediakeys.h
+    core/notificationmanager.h
     upnp/ssdp.h upnp/device.h upnp/devicesmodel.h upnp/mediaservers.h upnp/mediaserver.h
     upnp/renderers.h upnp/renderer.h upnp/renderer.h upnp/ohrenderer.h upnp/httpserver.h
     upnp/httpconnection.h upnp/model.h)

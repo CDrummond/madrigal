@@ -21,34 +21,53 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef UI_MAINWINDOW_H
-#define UI_MAINWINDOW_H
+#ifndef UPNP_NOTIFICATION_MANAGER_H
+#define UPNP_NOTIFICATION_MANAGER_H
 
-#include <QMainWindow>
+#include <QObject>
+#include <QSet>
+#include <QDateTime>
 
-namespace Ui {
-class ToolBar;
-class ThinSplitter;
-class RendererView;
+#include "upnp/device.h"
 
-class MainWindow : public QMainWindow {
+class QTimer;
+
+namespace Core {
+
+class NotificationManager : public QObject {
     Q_OBJECT
-public:
-    MainWindow(QWidget *p);
-    virtual ~MainWindow();
+    struct Notif {
+        Notif(const QString &t=QString(), quint16 i=0)
+            : text(t), id(i) { }
+        QString text;
+        quint16 id;
+        QDateTime expiry;
+    };
 
-public Q_SLOTS:
-    void raise();
+public:
+    NotificationManager(QObject *p);
+    virtual ~NotificationManager();
+
+Q_SIGNALS:
+    void msg(const QString &text);
 
 private Q_SLOTS:
-    void showPreferences();
-    void showAbout();
+    void add(const QString &text, quint8 id, int timeout);
+    void timeout();
+    void activeServer(const QModelIndex &idx);
+    void activeRenderer(const QModelIndex &idx);
 
 private:
-    ToolBar *toolBar;
-    ThinSplitter *splitter;
-    RendererView *renderer;
+    void cancel(Upnp::Device *dev);
+    void setActive(Upnp::Device *dev, bool isRenderer);
+
+private:
+    Upnp::Device *server;
+    Upnp::Device *renderer;
+    QTimer *timer;
+    QList<Notif> notifs;
 };
+
 }
 
 #endif

@@ -196,7 +196,6 @@ private Q_SLOTS:
 
 Q_SIGNALS:
     void addTracks(Upnp::Command *cmd);
-    void info(const QString &msg, int timeout);
     void searching(bool);
     void systemUpdated();
 

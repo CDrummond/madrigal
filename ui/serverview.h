@@ -53,9 +53,6 @@ public:
     ServerView(QWidget *p);
     virtual ~ServerView();
 
-Q_SIGNALS:
-    void info(const QString &msg, int timeout);
-
 private:
     void setInfoLabel();
     void showButtons();

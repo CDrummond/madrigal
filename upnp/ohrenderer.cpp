@@ -157,6 +157,7 @@ void Upnp::OhRenderer::failedCommand(Core::NetworkJob *job, const QByteArray &ty
             if (Command::ReplaceAndPlay==currentCmd->type) {
                 sendCommand("", "Play", constPlaylistService);
             }
+            emit info(QString(), Notif_PlayCommand);
             clearCommand();
         }
     }
@@ -327,6 +328,7 @@ void Upnp::OhRenderer::handleInsert(QXmlStreamReader &reader) {
             }
             if (currentCmd->tracks.isEmpty()) {
                 clearCommand();
+                emit info(QString(), Notif_PlayCommand);
             } else {
                 const MusicTrack *track=currentCmd->tracks.takeFirst();
                 addTrack(track, id);
@@ -654,6 +656,7 @@ void Upnp::OhRenderer::addTracks(Command *cmd) {
     if (Command::ReplaceAndPlay==cmd->type) {
         clearQueue();
     }
+    emit info(tr("Adding tracks..."), Notif_PlayCommand);
     quint32 after=0;
     if (Command::Insert==cmd->type && currentCmd->pos>=0 && currentCmd->pos<items.count()) {
         after=static_cast<Track *>(items.at(currentCmd->pos))->id;

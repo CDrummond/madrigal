@@ -36,6 +36,7 @@
 #endif
 #include "upnp/device.h"
 #include "core/configuration.h"
+#include "core/notificationmanager.h"
 #include "core/debug.h"
 #include "config.h"
 #if !defined Q_OS_WIN && !defined Q_OS_MAC
@@ -61,7 +62,7 @@ Ui::MainWindow::MainWindow(QWidget *p)
     ActionCollection::get()->setMainWidget(this);
     QWidget *mainWidget=new QWidget(this);
     QVBoxLayout *mainLayout=new QVBoxLayout(mainWidget);
-    notif=new Notification(this);
+    Notification *notif=new Notification(this);
     splitter=new ThinSplitter(mainWidget);
     ServerView *server=new ServerView(splitter);
     renderer=new RendererView(splitter);
@@ -86,7 +87,6 @@ Ui::MainWindow::MainWindow(QWidget *p)
         move(pos);
     }
 
-    connect(server, SIGNAL(info(QString,int)), notif, SLOT(show(QString,int)));
     toolBar->adjustSize();
     notif->setOffset(toolBar->height()+32);
 
@@ -120,6 +120,8 @@ Ui::MainWindow::MainWindow(QWidget *p)
     #else
     setWindowIcon(QIcon::fromTheme(PACKAGE_NAME));
     #endif
+
+    connect(new Core::NotificationManager(this), SIGNAL(msg(QString)), notif, SLOT(show(QString)));
 }
 
 Ui::MainWindow::~MainWindow() {
