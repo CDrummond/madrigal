@@ -5,6 +5,7 @@
 namespace Upnp {
 struct Command {
     enum Type {
+        None,
         Append,
         ReplaceAndPlay,
         Insert,

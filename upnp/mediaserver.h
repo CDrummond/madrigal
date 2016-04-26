@@ -52,7 +52,7 @@ public:
         };
 
         Collection(const QString &n=QString(), const QByteArray &i=QByteArray(), Item *p=0, int r=0)
-            : Item(n, p, r), state(State_Initial), id(i) { }
+            : Item(n, p, r), state(State_Initial), id(i), hiddenIds(0) { }
         virtual ~Collection() {
             qDeleteAll(children);
             children.clear();
@@ -64,6 +64,7 @@ public:
         quint16 count;
         State state;
         QByteArray id;
+        quint32 hiddenIds;
     };
 
     struct Folder : public Collection {
@@ -155,7 +156,7 @@ public:
     struct PlayCommand : public Command {
         virtual ~PlayCommand() { tracks.clear(); }
         void reset() {
-            type=Append;
+            type=None;
             pos=0;
             toPopulate.clear();
             populated.clear();

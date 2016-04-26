@@ -461,13 +461,14 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
         }
     }
     if ("Browse"==type) {
-        QList<Item *> &list=browseParent.isValid() && static_cast<Item *>(browseParent.internalPointer())->isCollection()
-                        ? static_cast<Collection *>(browseParent.internalPointer())->children
-                        : items;
-        if (list.count()==total) {
+        Collection *col=browseParent.isValid() && static_cast<Item *>(browseParent.internalPointer())->isCollection()
+                        ? static_cast<Collection *>(browseParent.internalPointer()) : 0;
+        QList<Item *> &list=col ? col->children : items;
+        quint32 hidden = col ? col->hiddenIds : 0;
+        if ((list.count()+hidden)==total) {
             checkCommand(browseParent);
         } else {
-            populate(browseParent, list.count());
+            populate(browseParent, list.count()+hidden);
         }
     } else if ("Search"==type) {
         if (0==total && 0==returned) {
@@ -615,7 +616,7 @@ QModelIndex Upnp::MediaServer::parseBrowse(QXmlStreamReader &reader) {
                             QList<Item *> *list=parentItem ? &static_cast<Collection *>(parentItem)->children
                                                            : &items;
 
-                            DBUG(MediaServers) << type;
+                            DBUG(MediaServers) << type << values["title"] << id << parentId;
 
                             if (QLatin1String("object.container.storageFolder")==type) {
                                 Folder *folder=new Folder(values["title"], id, parentItem, list->count());
@@ -636,7 +637,11 @@ QModelIndex Upnp::MediaServer::parseBrowse(QXmlStreamReader &reader) {
                             } else if (type.startsWith(QLatin1String("object.container"))) {
                                 // MinimServer...
                                 Folder *folder=0;
-                                if (QLatin1String(">> Hide Contents")!=values["title"]) {
+                                if (QLatin1String(">> Hide Contents")==values["title"]) {
+                                    if (parentItem && parentItem->isCollection()) {
+                                        static_cast<Collection *>(parentItem)->hiddenIds++;
+                                    }
+                                } else {
                                     if (QLatin1String(">> Complete Album")==values["title"]) {
                                         folder=new Folder(tr("Show Complete Album"), id, parentItem, list->count());
                                     } else {
@@ -826,7 +831,7 @@ void Upnp::MediaServer::populateCommand(const QModelIndex &idx) {
 }
 
 void Upnp::MediaServer::checkCommand() {
-    if (command.toPopulate.isEmpty()) {
+    if (Command::None!=command.type && command.toPopulate.isEmpty()) {
         QModelIndexList sorted=sortIndexes(command.populated);
         if (!sorted.isEmpty()) {
             Command *cmd=new Command;
@@ -842,6 +847,8 @@ void Upnp::MediaServer::checkCommand() {
             DBUG(MediaServers) << cmd->tracks.count();
             emit info(1==cmd->tracks.count() ? tr("Located 1 track") : tr("Located %1 tracks").arg(cmd->tracks.count()), Notif_PlayCommand, 2);
             emit addTracks(cmd);
+        } else {
+            emit info(tr("No tracks located"), Notif_PlayCommand, 2);
         }
         command.reset();
     }
