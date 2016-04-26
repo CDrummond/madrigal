@@ -109,6 +109,9 @@ void Core::NotificationManager::activeRenderer(const QModelIndex &idx) {
 }
 
 void Core::NotificationManager::cancel(Upnp::Device *dev) {
+    if (notifs.isEmpty()) {
+        return;
+    }
     quint16 devid=dev==renderer ? 0x0100 : 0x0000;
     bool sendNew=(notifs.last().id&0xFF00)==devid;
 
