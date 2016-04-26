@@ -54,6 +54,8 @@ Upnp::MediaServer::Track::Track(const QByteArray &i, const QMap<QString, QString
         } else if (Collection::Type_Album==parent->type()) {
             if (parent->parent && Collection::Type_Artist==parent->parent->type()) {
                 albumArtist=parent->parent->name;
+            } else if (!static_cast<Album *>(parent)->artist.isEmpty()) {
+                albumArtist=static_cast<Album *>(parent)->artist;
             }
         }
     }
