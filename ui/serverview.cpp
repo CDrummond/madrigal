@@ -96,8 +96,8 @@ Ui::ServerView::ServerView(QWidget *p)
     stack->addWidget(view);
     stack->setCurrentIndex(Page_Info);
     servers->setModel(proxy);
-    connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(updateItems()));
-    connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(updateItems()));
+//    connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(updateItems()));
+//    connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(updateItems()));
     connect(model, SIGNAL(activeDevice(QModelIndex)), SLOT(setActive(QModelIndex)));
     connect(cancelButton, SIGNAL(pressed()), SLOT(useFirst()));
     connect(media, SIGNAL(itemClicked(QModelIndex)), SLOT(itemClicked(QModelIndex)));
