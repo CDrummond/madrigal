@@ -31,7 +31,7 @@
 #include <QByteArrayList>
 
 const char * Upnp::MediaServer::constContentDirService="urn:schemas-upnp-org:service:ContentDirectory:1";
-static const int constBrowseChunkSize=1000;
+static const int constBrowseChunkSize=500;
 static const int constSearchChunkSize=100;
 static const int constMaxSearchResults=2000;
 static const int constSearchTimeout=10000;
@@ -414,20 +414,20 @@ void Upnp::MediaServer::populate() {
     }
 }
 
-void Upnp::MediaServer::populate(const QModelIndex &index) {
+void Upnp::MediaServer::populate(const QModelIndex &index, int start) {
     DBUG(Devices) << index.row();
     Item *item=toItem(index);
     QByteArray id=itemId(item);
 
-    if (item && item->isCollection()) {
+    if (item && item->isCollection() && static_cast<Collection *>(item)->state!=State_Populating) {
         static_cast<Collection *>(item)->state=State_Populating;
         emit dataChanged(index, index);
     }
 
-    // TODO: Load in chunks?
     // TODO: Specify sort
     sendCommand("<ObjectID>"+id+"</ObjectID><BrowseFlag>BrowseDirectChildren</BrowseFlag><Filter>*</Filter>"
-                "<SortCriteria></SortCriteria><StartingIndex>0</StartingIndex><RequestedCount>"+QByteArray::number(constBrowseChunkSize)+"</RequestedCount>",
+                "<SortCriteria></SortCriteria><StartingIndex>"+QByteArray::number(start)+
+                "</StartingIndex><RequestedCount>"+QByteArray::number(constBrowseChunkSize)+"</RequestedCount>",
                 "Browse", constContentDirService);
 }
 
@@ -439,13 +439,14 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
     }
     int total=0;
     int returned=0;
+    QModelIndex browseParent;
     while (!reader.atEnd()) {
         reader.readNext();
         if (reader.isStartElement()) {
             if (QLatin1String("Result")==reader.name()) {
                 QXmlStreamReader result(reader.readElementText());
                 if ("Browse"==type) {
-                    parseBrowse(result);
+                    browseParent=parseBrowse(result);
                     //                if ("0"==id) {
                     //                    setState(State_Populated); ??????
                     //                }
@@ -459,7 +460,16 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
             }
         }
     }
-    if ("Search"==type) {
+    if ("Browse"==type) {
+        QList<Item *> &list=browseParent.isValid() && static_cast<Item *>(browseParent.internalPointer())->isCollection()
+                        ? static_cast<Collection *>(browseParent.internalPointer())->children
+                        : items;
+        if (list.count()==total) {
+            checkCommand(browseParent);
+        } else {
+            populate(browseParent, list.count());
+        }
+    } else if ("Search"==type) {
         if (0==total && 0==returned) {
             emit searching(false);
             emit info(tr("No songs found!"), Notif_SearchResult, 3);
@@ -579,7 +589,7 @@ static void fixFolder(Upnp::MediaServer::Folder *folder, Upnp::MediaServer::Manu
     }
 }
 
-void Upnp::MediaServer::parseBrowse(QXmlStreamReader &reader) {
+QModelIndex Upnp::MediaServer::parseBrowse(QXmlStreamReader &reader) {
     QModelIndex parent;
 
     while (!reader.atEnd()) {
@@ -653,7 +663,7 @@ void Upnp::MediaServer::parseBrowse(QXmlStreamReader &reader) {
             }
         }
     }
-    checkCommand(parent);
+    return parent;
 }
 
 void Upnp::MediaServer::parseSearchCapabilities(QXmlStreamReader &reader) {

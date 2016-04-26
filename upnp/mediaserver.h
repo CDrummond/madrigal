@@ -202,10 +202,10 @@ Q_SIGNALS:
 private:
     void search(quint32 start);
     void populate();
-    void populate(const QModelIndex &index);
+    void populate(const QModelIndex &index, int start=0);
     void commandResponse(QXmlStreamReader &reader, const QByteArray &type, Core::NetworkJob *job);
     void notification(const QByteArray &sid, const QByteArray &data);
-    void parseBrowse(QXmlStreamReader &reader);
+    QModelIndex parseBrowse(QXmlStreamReader &reader);
     void parseSearchCapabilities(QXmlStreamReader &reader);
     void parseSearch(QXmlStreamReader &reader);
     QModelIndex findItem(const QByteArray &id, const QModelIndex &parent);
