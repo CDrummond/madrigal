@@ -22,10 +22,13 @@
  */
 
 #include "core/notificationmanager.h"
+#include "core/debug.h"
 #include "upnp/model.h"
 #include "upnp/mediaservers.h"
 #include "upnp/renderers.h"
 #include <QTimer>
+
+static const int constMaxTimeout=30;
 
 Core::NotificationManager::NotificationManager(QObject *p)
     : QObject(p)
@@ -44,6 +47,7 @@ Core::NotificationManager::~NotificationManager() {
 }
 
 void Core::NotificationManager::add(const QString &text, quint8 id, int timeout) {
+    DBUG(Notifications) << text << id << timeout;
     Upnp::Device *dev=static_cast<Upnp::Device *>(sender());
     // Remove any previous notif with the same ID
     QList<QList<Notif>::iterator> toRemove;
@@ -61,23 +65,24 @@ void Core::NotificationManager::add(const QString &text, quint8 id, int timeout)
     }
 
     // Add and send new notif
-    if (timeout<0) {
-        timeout=30;
+    if (timeout<0 || timeout>constMaxTimeout) {
+        timeout=constMaxTimeout;
     }
     Notif notif(text, id+(renderer==dev ? 0x0100 : 0x0000));
-    if (timeout>0) {
-        notif.expiry=QDateTime::currentDateTime();
-        notif.expiry=notif.expiry.addSecs(timeout);
-        if (!timer->isActive() || timer->remainingTime()>(timeout*1000)) {
-            timer->start(timeout*1000);
-        }
+    notif.expiry=QDateTime::currentDateTime();
+    notif.expiry=notif.expiry.addSecs(timeout);
+    if (!timer->isActive() || timer->remainingTime()>(timeout*1000)) {
+        DBUG(Notifications) << "Start timer" << timeout;
+        timer->start(timeout*1000);
     }
+    DBUG(Notifications) << QString(notif.expiry.isValid() ? notif.expiry.toString() : "<>");
 
     notifs.append(notif);
     emit msg(text);
 }
 
 void Core::NotificationManager::timeout() {
+    DBUG(Notifications) << "num notifs" << notifs.count();
     QList<QList<Notif>::iterator> toRemove;
     QList<Notif>::iterator it=notifs.begin();
     QList<Notif>::iterator end=notifs.end();
@@ -95,8 +100,27 @@ void Core::NotificationManager::timeout() {
         notifs.erase(i);
     }
 
+    if (DBUG_ENABLED(Notifications)) {
+        for (it=notifs.begin(); it!=end; ++it) {
+            DBUG(Notifications) << " - " << it->id << it->text << QString(it->expiry.isValid() ? it->expiry.toString() : "<>");
+        }
+    }
+    DBUG(Notifications) << "num notifs" << notifs.count() << "last" << QString(notifs.isEmpty() ? QString() : notifs.last().text) << "prev" << prev;
     if (notifs.isEmpty() || notifs.last().text!=prev) {
         emit msg(notifs.isEmpty() ? QString() : notifs.last().text);
+    }
+
+    if (!notifs.isEmpty()) {
+        // Start the next timeout...
+        int time=constMaxTimeout*1000;
+        for (it=notifs.begin(); it!=end; ++it) {
+            int ntime=QDateTime::currentDateTime().msecsTo(it->expiry);
+            if (ntime<time) {
+                time=ntime;
+            }
+        }
+        DBUG(Notifications) << "Next timeout" << time/1000;
+        timer->start(time);
     }
 }
 

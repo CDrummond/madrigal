@@ -32,17 +32,18 @@ namespace Core {
 class Debug {
 public:
     enum Areas {
-        Ssdp         = 0x0001,
-        MediaServers = 0x0002,
-        Renderers    = 0x0004,
-          Devices    = MediaServers | Renderers,
-        Http         = 0x0008,
-        Network      = 0x0010,
-        Thread       = 0x0020,
-        Ui           = 0x0040,
-        Images       = 0x0080,
+        Ssdp          = 0x0001,
+        MediaServers  = 0x0002,
+        Renderers     = 0x0004,
+          Devices     = MediaServers | Renderers,
+        Http          = 0x0008,
+        Network       = 0x0010,
+        Thread        = 0x0020,
+        Ui            = 0x0040,
+        Images        = 0x0080,
+        Notifications = 0x0100,
 
-        All          = 0xFFFF
+        All           = 0xFFFF
     };
 
     static bool isEnabled(quint16 area) { return areas&area; }
