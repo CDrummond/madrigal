@@ -62,7 +62,7 @@ Ui::ServerView::ServerView(QWidget *p)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout(this);
     toolbar=new ViewToolBar(this);
-    toolbar->setTitle(tr("Media Servers"));
+    toolbar->setTitle(tr("Sources"));
     stack=new QStackedWidget(this);
     model=Upnp::Model::self()->serversModel();
     proxy=new QSortFilterProxyModel(this);
@@ -71,7 +71,7 @@ Ui::ServerView::ServerView(QWidget *p)
     QVBoxLayout *infoLayout=new QVBoxLayout(info);
     infoLabel=new QLabel(info);
     cancelButton=new QPushButton(info);
-    cancelButton->setText(tr("Use first server found"));
+    cancelButton->setText(tr("Use first source found"));
     infoLayout->addWidget(infoLabel);
     infoLayout->addItem(new QSpacerItem(0, Utils::scaleForDpi(32)));
     infoLayout->addWidget(cancelButton);
@@ -108,7 +108,7 @@ Ui::ServerView::ServerView(QWidget *p)
     connect(nav, SIGNAL(clicked(bool)), SLOT(goBack()));
     connect(albumInfo, SIGNAL(add()), this, SLOT(addAlbum()));
     connect(albumInfo, SIGNAL(play()), this, SLOT(playAlbum()));
-    nav->add(tr("Select Library..."), -1);
+    nav->add(tr("Select Source"), -1);
     setInfoLabel();
     servers->setItemDelegate(new ListItemDelegate(servers));
     info->setProperty(Ui::ProxyStyle::constModifyFrameProp, ProxyStyle::VF_Side);
@@ -156,8 +156,8 @@ Ui::ServerView::~ServerView() {
 
 void Ui::ServerView::setInfoLabel() {
     infoLabel->setText("<i>"+(model->rowCount()>0
-                                ? tr("Waiting for previous media server...")
-                                : tr("Looking for media servers..."))+"</i>");
+                                ? tr("Waiting for previous source...")
+                                : tr("Looking for music sources..."))+"</i>");
     cancelButton->setVisible(model->rowCount()>0);
 }
 

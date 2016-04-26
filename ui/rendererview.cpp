@@ -60,7 +60,7 @@ Ui::RendererView::RendererView(QWidget *p)
 {
     QVBoxLayout *mainLayout=new QVBoxLayout(this);
     toolbar=new ViewToolBar(this);
-    toolbar->setTitle(tr("Renderers"));
+    toolbar->setTitle(tr("Outputs"));
     stack=new QStackedWidget(this);
     model=Upnp::Model::self()->renderersModel();
     proxy=new QSortFilterProxyModel(this);
@@ -69,7 +69,7 @@ Ui::RendererView::RendererView(QWidget *p)
     QVBoxLayout *infoLayout=new QVBoxLayout(info);
     infoLabel=new QLabel(info);
     cancelButton=new QPushButton(info);
-    cancelButton->setText(tr("Use first renderer found"));
+    cancelButton->setText(tr("Use first output found"));
     infoLayout->addWidget(infoLabel);
     infoLayout->addItem(new QSpacerItem(0, Utils::scaleForDpi(32)));
     infoLayout->addWidget(cancelButton);
@@ -83,7 +83,7 @@ Ui::RendererView::RendererView(QWidget *p)
     renderers=new ListView(stack);
     stack->addWidget(renderers);
     rendererSelect=new FlatToolButton(toolbar);
-    rendererSelect->setToolTip(tr("Select Renderer"));
+    rendererSelect->setToolTip(tr("Select Output"));
     rendererSelect->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     toolbar->addWidget(rendererSelect);
     viewLayout->addWidget(queue);
@@ -167,8 +167,8 @@ void Ui::RendererView::setScrollQueue(bool s) {
 
 void Ui::RendererView::setInfoLabel() {
     infoLabel->setText("<i>"+(model->rowCount()>0
-                                ? tr("Waiting for previous renderer...")
-                                : tr("Looking for renderers..."))+"</i>");
+                                ? tr("Waiting for previous output...")
+                                : tr("Looking for outputs..."))+"</i>");
     cancelButton->setVisible(model->rowCount()>0);
 }
 
