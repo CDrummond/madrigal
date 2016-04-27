@@ -55,7 +55,7 @@ void Ui::ListView::selectionChanged(const QItemSelection &selected, const QItemS
     QListView::selectionChanged(selected, deselected);
     bool haveSelection=haveSelectedItems();
 
-//    setContextMenuPolicy(haveSelection ? Qt::ActionsContextMenu : (menu ? Qt::CustomContextMenu : Qt::NoContextMenu));
+    setContextMenuPolicy(haveSelection ? Qt::ActionsContextMenu : Qt::NoContextMenu);
     emit itemsSelected(haveSelection);
 }
 

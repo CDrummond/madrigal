@@ -71,6 +71,8 @@ private Q_SLOTS:
     void aboutToRemove(const QModelIndex &idx, int from, int to);
     void addAlbum();
     void playAlbum();
+    void addSelection();
+    void playSelection();
     void toggleSearch();
     void startSearchTimer();
     void doSearch();
