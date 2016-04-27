@@ -11,6 +11,7 @@ struct Command {
         Insert,
         Move
     };
+    Command() : pos(0), type(None) { }
     virtual ~Command() { qDeleteAll(tracks); }
     QList<const Device::MusicTrack *> tracks;
     qint32 pos;
