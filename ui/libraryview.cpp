@@ -29,8 +29,8 @@ Ui::LibraryView::LibraryView(QWidget *p)
     : ListView(p)
 {
     setItemDelegate(new ListItemDelegate(this));
-    connect(this, SIGNAL(clicked(const QModelIndex &)), this, SLOT(checkItemClicked(const QModelIndex &)));
-    connect(this, SIGNAL(activated(QModelIndex)), this, SIGNAL(itemClicked(QModelIndex)));
+    connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(checkItemClicked(QModelIndex)));
+    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(checkItemActivated(QModelIndex)));
 }
 
 void Ui::LibraryView::setIconMode(bool i) {
@@ -73,6 +73,12 @@ void Ui::LibraryView::checkItemClicked(const QModelIndex &index) {
     }
 
     if (!style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick, 0, this)) {
+        emit itemClicked(index);
+    }
+}
+
+void Ui::LibraryView::checkItemActivated(const QModelIndex &index) {
+    if (Core::Actions::Action_None==getAction(index)) {
         emit itemClicked(index);
     }
 }

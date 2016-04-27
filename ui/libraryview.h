@@ -43,6 +43,7 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     void checkItemClicked(const QModelIndex &index);
+    void checkItemActivated(const QModelIndex &index);
 
 private:
     Core::Actions::Type getAction(const QModelIndex &index);
