@@ -62,11 +62,13 @@ private:
                << QThread::currentThread()->objectName() \
                << metaObject()->className() \
                << __FUNCTION__ \
+               << __LINE__ \
                << (void *)this
 
 #define DBUGF(AREA) if (DBUG_ENABLED(AREA)) \
     qWarning() << QDateTime::currentDateTime().toString(Qt::ISODate) \
                << QThread::currentThread()->objectName() \
                << __FILENAME__ \
-               << __FUNCTION__
+               << __FUNCTION__ \
+               << __LINE__
 #endif
