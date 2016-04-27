@@ -835,12 +835,16 @@ void Upnp::MediaServer::checkCommand() {
         QModelIndexList sorted=sortIndexes(command.populated);
         if (!sorted.isEmpty()) {
             Command *cmd=new Command;
+            QSet<QString> trackUrls;
             foreach (const QModelIndex &idx, sorted) {
                 MusicTrack *trk=new MusicTrack(*static_cast<MusicTrack *>(idx.internalPointer()));
-                if (trk->artUrl.isEmpty() && trk->parent && Collection::Type_Album==trk->parent->type()) {
-                    trk->artUrl=static_cast<Album *>(trk->parent)->artUrl;
+                if (!trackUrls.contains(trk->url)) {
+                    trackUrls.insert(trk->url);
+                    if (trk->artUrl.isEmpty() && trk->parent && Collection::Type_Album==trk->parent->type()) {
+                        trk->artUrl=static_cast<Album *>(trk->parent)->artUrl;
+                    }
+                    cmd->tracks.append(trk);
                 }
-                cmd->tracks.append(trk);
             }
             cmd->pos=command.pos;
             cmd->type=command.type;
