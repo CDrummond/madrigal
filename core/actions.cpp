@@ -52,8 +52,8 @@ QIcon Core::Actions::icon(Type t) {
 
 QString Core::Actions::toolTip(Type t) {
     switch (t) {
-    case Action_Add: return QObject::tr("Append to play queue");
-    case Action_Play: return QObject::tr("Add and play");
+    case Action_Add: return QObject::tr("Append To Play Queue");
+    case Action_Play: return QObject::tr("Add And Play");
     default: return QString();
     }
 }
