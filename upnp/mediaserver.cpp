@@ -35,6 +35,7 @@ static const int constBrowseChunkSize=500;
 static const int constSearchChunkSize=100;
 static const int constMaxSearchResults=2000;
 static const int constSearchTimeout=10000;
+static const char * constIdProperty="id";
 
 static const QByteArray & itemId(Upnp::Device::Item * item) {
     static QByteArray constRoot("0");
@@ -428,11 +429,10 @@ void Upnp::MediaServer::populate(const QModelIndex &index, int start) {
     sendCommand("<ObjectID>"+id+"</ObjectID><BrowseFlag>BrowseDirectChildren</BrowseFlag><Filter>*</Filter>"
                 "<SortCriteria></SortCriteria><StartingIndex>"+QByteArray::number(start)+
                 "</StartingIndex><RequestedCount>"+QByteArray::number(constBrowseChunkSize)+"</RequestedCount>",
-                "Browse", constContentDirService);
+                "Browse", constContentDirService)->setProperty(constIdProperty, id);
 }
 
 void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArray &type, Core::NetworkJob *job) {
-    Q_UNUSED(job)
     if ("GetSearchCapabilities"==type) {
         parseSearchCapabilities(reader);
         return;
@@ -461,6 +461,12 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
         }
     }
     if ("Browse"==type) {
+        if (!browseParent.isValid() && "0"!=job->property(constIdProperty).toByteArray()) {
+            // If we browse to a collection that has no children, the parseBrowse() will return QModelIndex()
+            // So, if this is the case (and id is *not* for the root colection) then use the id to locate
+            // the actual parent.
+            browseParent=findItem(job->property(constIdProperty).toByteArray(), QModelIndex());
+        }
         Collection *col=browseParent.isValid() && static_cast<Item *>(browseParent.internalPointer())->isCollection()
                         ? static_cast<Collection *>(browseParent.internalPointer()) : 0;
         QList<Item *> &list=col ? col->children : items;
