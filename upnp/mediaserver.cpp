@@ -488,7 +488,7 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
             }
 
             if (total>constMaxSearchResults) {
-                emit info(tr("Too many matches. Only display first %1 tracks.").arg(constMaxSearchResults), Notif_SearchResult, 3);
+                emit info(tr("Too many matches. Only displaying first %1 tracks.").arg(constMaxSearchResults), Notif_SearchResult, 3);
             }
             emit searching(false);
             if (searchTimer) {
