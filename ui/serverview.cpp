@@ -81,6 +81,7 @@ Ui::ServerView::ServerView(QWidget *p)
     QWidget *view=new QWidget(stack);
     QGridLayout *viewLayout=new QGridLayout(view);
     albumInfo=new AlbumInfo(view);
+    albumInfo->setVisible(false);
     searchText=new QLineEdit(view);
     media=new LibraryView(view);
     servers=new ListView(stack);
