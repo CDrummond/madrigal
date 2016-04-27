@@ -35,6 +35,7 @@ static const int constBrowseChunkSize=500;
 static const int constSearchChunkSize=100;
 static const int constMaxSearchResults=2000;
 static const int constSearchTimeout=10000;
+static const int constCommandTimeout=15000;
 static const char * constIdProperty="id";
 
 static const QByteArray & itemId(Upnp::Device::Item * item) {
@@ -81,6 +82,7 @@ Upnp::MediaServer::MediaServer(const Ssdp::Device &device, DevicesModel *parent)
     , searchItem(0)
     , searchStart(0)
     , searchTimer(0)
+    , commandTimer(0)
     , updateId(0)
 {
     manufacturer=QLatin1String("minimserver.com")==device.manufacturer ? Man_Minim : Man_Other;
@@ -287,6 +289,12 @@ void Upnp::MediaServer::play(const QModelIndexList &indexes, qint32 pos, PlayCom
 
     emit info(tr("Locating tracks..."), Notif_PlayCommand);
 
+    if (!commandTimer) {
+        commandTimer=new QTimer(this);
+        commandTimer->setSingleShot(true);
+        connect(commandTimer, SIGNAL(timeout()), this, SLOT(commandTimeout()));
+    }
+    commandTimer->start(constCommandTimeout);
     command.pos=pos;
     command.type=type;
     foreach (const QModelIndex &idx, indexes) {
@@ -390,6 +398,11 @@ void Upnp::MediaServer::searchTimeout() {
     Device::cancelCommands("Search");
 }
 
+void Upnp::MediaServer::commandTimeout() {
+    command.reset();
+    emit info(tr("Timeout!"), Notif_PlayCommand, constNotifTimeout);
+}
+
 void Upnp::MediaServer::search(quint32 start) {
     QByteArray searchTerm=QByteArray("&quot;")+currentSearch.toHtmlEscaped().toLatin1()+QByteArray("&quot;");
     QByteArray searchString;
@@ -479,7 +492,7 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
     } else if ("Search"==type) {
         if (0==total && 0==returned) {
             emit searching(false);
-            emit info(tr("No songs found!"), Notif_SearchResult, 3);
+            emit info(tr("No tracks found!"), Notif_SearchResult, constNotifTimeout);
             removeSearchItem();
             if (searchTimer) {
                 searchTimer->stop();
@@ -494,7 +507,7 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
             }
 
             if (total>constMaxSearchResults) {
-                emit info(tr("Too many matches. Only displaying first %1 tracks.").arg(constMaxSearchResults), Notif_SearchResult, 3);
+                emit info(tr("Too many matches. Only displaying first %1 tracks.").arg(constMaxSearchResults), Notif_SearchResult, constNotifTimeout);
             }
             emit searching(false);
             if (searchTimer) {
@@ -838,6 +851,9 @@ void Upnp::MediaServer::populateCommand(const QModelIndex &idx) {
 
 void Upnp::MediaServer::checkCommand() {
     if (Command::None!=command.type && command.toPopulate.isEmpty()) {
+        if (commandTimer) {
+            commandTimer->stop();
+        }
         QModelIndexList sorted=sortIndexes(command.populated);
         if (!sorted.isEmpty()) {
             Command *cmd=new Command;
@@ -855,10 +871,10 @@ void Upnp::MediaServer::checkCommand() {
             cmd->pos=command.pos;
             cmd->type=command.type;
             DBUG(MediaServers) << cmd->tracks.count();
-            emit info(1==cmd->tracks.count() ? tr("Located 1 track") : tr("Located %1 tracks").arg(cmd->tracks.count()), Notif_PlayCommand, 2);
+            emit info(1==cmd->tracks.count() ? tr("Located 1 track") : tr("Located %1 tracks").arg(cmd->tracks.count()), Notif_PlayCommand, constNotifTimeout);
             emit addTracks(cmd);
         } else {
-            emit info(tr("No tracks located"), Notif_PlayCommand, 2);
+            emit info(tr("No tracks located"), Notif_PlayCommand, constNotifTimeout);
         }
         command.reset();
     }
@@ -890,6 +906,10 @@ void Upnp::MediaServer::cancelCommands() {
         emit searching(false);
     }
     command.reset();
+    if (commandTimer && commandTimer->isActive()) {
+        commandTimer->stop();
+        emit info(QString(), Notif_PlayCommand);
+    }
 }
 
 void Upnp::MediaServer::updated(const QByteArray &id) {

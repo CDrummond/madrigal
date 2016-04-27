@@ -114,6 +114,7 @@ public:
     static const char * constObjectIdListMimeType;
     static const char * constMsgTypeProperty;
     static const char * constMsgServiceProperty;
+    static const int constNotifTimeout;
     static void setMonoIconCol(const QColor &col);
     static QIcon monoIcon(Core::MonoIcon::Type icon);
 

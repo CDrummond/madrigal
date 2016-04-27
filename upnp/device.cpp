@@ -38,6 +38,7 @@ const char * Upnp::Device::constBroadcastClass="object.item.audioItem.audioBroad
 const char * Upnp::Device::constObjectIdListMimeType=APP_REV_URL"/track-list";
 const char * Upnp::Device::constMsgServiceProperty="service";
 const char * Upnp::Device::constMsgTypeProperty="type";
+const int Upnp::Device::constNotifTimeout=2;
 const char * constIsPingProperty="isping";
 static const int constSubTimeout=1800;
 static const int constSubRenewTimeout=1740;

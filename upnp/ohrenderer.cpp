@@ -821,6 +821,6 @@ void Upnp::OhRenderer::emitAddedTracksNotif() {
                     : 1==addedCount
                       ? tr("1 track added")
                       : tr("%1 tracks added").arg(addedCount),
-                Notif_PlayCommand, 3);
+                Notif_PlayCommand, constNotifTimeout);
     }
 }

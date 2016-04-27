@@ -194,6 +194,7 @@ public Q_SLOTS:
 
 private Q_SLOTS:
     void searchTimeout();
+    void commandTimeout();
 
 Q_SIGNALS:
     void addTracks(Upnp::Command *cmd);
@@ -225,6 +226,7 @@ private:
     Search *searchItem;
     quint32 searchStart;
     QTimer *searchTimer;
+    QTimer *commandTimer;
     PlayCommand command;
     quint32 updateId;
 };
