@@ -112,8 +112,8 @@ Ui::RendererView::RendererView(QWidget *p)
     iconColor=Utils::clampColor(palette().foreground().color());
     repeatAction=ActionCollection::get()->createAction("repeat", tr("Repeat"), Core::MonoIcon::icon(Core::MonoIcon::retweet, iconColor, iconColor));
     shuffleAction=ActionCollection::get()->createAction("random", tr("Random"), Core::MonoIcon::icon(Core::MonoIcon::random, iconColor, iconColor));
-    clearAction=ActionCollection::get()->createAction("clear", tr("Clear"), Core::MonoIcon::icon(Core::MonoIcon::remove, red, red));
-    removeAction=ActionCollection::get()->createAction("remove", tr("Remove Selected Tracks"), Core::MonoIcon::icon(Core::MonoIcon::trash, red, red));
+    clearAction=ActionCollection::get()->createAction("clear", tr("Clear"), Core::MonoIcon::icon(Core::MonoIcon::timescircle, red, red));
+    removeAction=ActionCollection::get()->createAction("remove", tr("Remove Selected Tracks"), Core::MonoIcon::icon(Core::MonoIcon::scissors, red, red));
     clearAction->setShortcut(Qt::ControlModifier+Qt::Key_K);
     removeAction->setShortcut(Qt::ControlModifier+Qt::Key_X);
     repeatAction->setShortcut(Qt::ControlModifier+Qt::Key_R);
