@@ -54,7 +54,7 @@ private:
     void setInfoLabel();
 
 private Q_SLOTS:
-    void updateItems();
+    void updateItems(bool activeSet=false);
     void setActive(const QModelIndex &idx);
     void rendererSelected(const QModelIndex &idx);
     void useFirst();

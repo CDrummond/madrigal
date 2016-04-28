@@ -176,10 +176,10 @@ void Ui::ServerView::showButtons() {
     }
 }
 
-void Ui::ServerView::updateItems() {
+void Ui::ServerView::updateItems(bool activeSet) {
     if (model->isInitialising()) {
         setInfoLabel();
-    } else {
+    } else if (activeSet || Page_Servers!=stack->currentIndex()) {
         stack->setCurrentIndex(model->rowCount()<1 ? Page_Info : Page_Media);
         toolbar->showTitle(model->rowCount()<1);
         if (model->rowCount()<1) {
@@ -201,7 +201,7 @@ void Ui::ServerView::setActive(const QModelIndex &idx) {
     if (idx.isValid()) {
         Upnp::Device *dev=static_cast<Upnp::Device *>(idx.internalPointer());
         media->setModel(dev);
-        updateItems();
+        updateItems(true);
         nav->add(idx.data().toString(), QModelIndex(), Core::MonoIcon::icon(dev->icon(), iconColor, iconColor));
         if (media->model()) {
             connect(media->model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateView(QModelIndex)));

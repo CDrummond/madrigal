@@ -172,10 +172,10 @@ void Ui::RendererView::setInfoLabel() {
     cancelButton->setVisible(model->rowCount()>0);
 }
 
-void Ui::RendererView::updateItems() {
+void Ui::RendererView::updateItems(bool activeSet) {
     if (model->isInitialising()) {
         setInfoLabel();
-    } else {
+    } else if (activeSet || Page_Renderers!=stack->currentIndex()) {
         stack->setCurrentIndex(model->rowCount()<1 ? Page_Info : Page_Renderer);
         toolbar->showTitle(model->rowCount()<1);
         if (model->rowCount()<1) {
@@ -199,7 +199,7 @@ void Ui::RendererView::setActive(const QModelIndex &idx) {
         connect(shuffleAction, SIGNAL(toggled(bool)), renderer, SLOT(setShuffle(bool)));
         connect(queue, SIGNAL(doubleClicked(QModelIndex)), renderer, SLOT(play(QModelIndex)));
         connect(queue, SIGNAL(activated(QModelIndex)), renderer, SLOT(play(QModelIndex)));
-        updateItems();
+        updateItems(true);
         rendererSelect->setText(idx.data().toString());
         rendererSelect->setIcon(Core::MonoIcon::icon(renderer->icon(), iconColor, iconColor));
         removeAction->setEnabled(!queue->selectedIndexes().isEmpty());

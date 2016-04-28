@@ -58,7 +58,7 @@ private:
     void showButtons();
 
 private Q_SLOTS:
-    void updateItems();
+    void updateItems(bool activeSet=false);
     void setActive(const QModelIndex &idx);
     void serverSelected(const QModelIndex &idx);
     void useFirst();
