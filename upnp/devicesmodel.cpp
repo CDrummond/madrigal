@@ -180,7 +180,9 @@ void Upnp::DevicesModel::setActive(int row) {
                 return;
             } else {
                 DBUG(Devices) << "unset" << (void *)dev << dev->uuid();
+                QModelIndex idx=createIndex(i, 0, dev);
                 dev->setActive(false);
+                emit dataChanged(idx, idx);
                 break;
             }
         }
@@ -260,7 +262,9 @@ void Upnp::DevicesModel::setActiveDevice(Upnp::Device *dev) {
     if (dev) {
         DBUG(Devices) << (void *)dev << dev->uuid();
         dev->setActive(true);
-        emit activeDevice(createIndex(devices.indexOf(dev), 0, dev));
+        QModelIndex idx=createIndex(devices.indexOf(dev), 0, dev);
+        emit activeDevice(idx);
+        emit dataChanged(idx, idx);
     } else {
         DBUG(Devices) << "NONE";
         emit activeDevice(QModelIndex());
