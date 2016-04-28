@@ -210,9 +210,9 @@ void Ui::GroupedItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 
           int td=totalDuration(index);
           QString totalDuration=td>0 ? Core::Utils::formatTime(td) : QString();
-          QRect duratioRect(r.x(), r.y(), r.width(), textHeight);
+          QRect duratioRect(r.x(), r.y(), r.width(), r.height()/2);
           int totalDurationWidth=fm.width(totalDuration)+8;
-          QRect textRect(r.x(), r.y(), r.width()-(rtl ? (4*borderSize) : totalDurationWidth), textHeight);
+          QRect textRect(r.x(), r.y(), r.width()-(rtl ? (4*borderSize) : totalDurationWidth), r.height()/2);
           QFont tf(f);
           tf.setBold(true);
           title = QFontMetrics(tf).elidedText(title, Qt::ElideRight, textRect.width(), QPalette::WindowText);
@@ -222,8 +222,7 @@ void Ui::GroupedItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
               painter->drawText(duratioRect, totalDuration, QTextOption(Qt::AlignVCenter|Qt::AlignRight));
           }
           BasicItemDelegate::drawLine(painter, r.adjusted(0, 0, 0, -r.height()/2), col, rtl, !rtl, 0.45);
-          r.adjust(0, textHeight+borderSize, 0, 0);
-          r=QRect(r.x(), r.y()+r.height()-(textHeight+1), r.width(), textHeight);
+          r=QRect(r.x(), r.y()+(r.height()/2)+1, r.width(), r.height()/2);
           painter->setFont(f);
           if (rtl) {
               r.adjust(0, 0, (coverSize-(borderSize*3)), 0);
@@ -237,12 +236,11 @@ void Ui::GroupedItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
       painter->setPen(col);
 
       int durationWidth=showTrackDuration ? fm.width(duration)+8 : 0;
-      QRect duratioRect(r.x(), r.y(), r.width(), textHeight);
-      QRect textRect(r.x(), r.y(), r.width()-durationWidth, textHeight);
+      QRect textRect(r.x(), r.y(), r.width()-durationWidth, r.height());
       track = fm.elidedText(track, Qt::ElideRight, textRect.width(), QPalette::WindowText);
       painter->drawText(textRect, track, textOpt);
       if (showTrackDuration) {
-          painter->drawText(duratioRect, duration, QTextOption(Qt::AlignVCenter|Qt::AlignRight));
+          painter->drawText(r, duration, QTextOption(Qt::AlignVCenter|Qt::AlignRight));
       }
 
       if (isCurrent) {
