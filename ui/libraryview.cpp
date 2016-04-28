@@ -46,6 +46,7 @@ void Ui::LibraryView::setModel(QAbstractItemModel *m) {
 }
 
 void Ui::LibraryView::setRootIndex(const QModelIndex &index) {
+    clearSelection();
     if (!index.isValid()) {
         prevRows.clear();
         ListView::setRootIndex(index);
