@@ -75,14 +75,12 @@ public:
 
             if (fileName.isEmpty()) {
                 QString fontName;
-                double scale=0.9;
-                int yAdjust=0;
                 if (MonoIcon::ex_one==type) {
                     fontName="serif";
                 } else {
                     // Load fontawesome, if it is not already loaded
                     if (fontAwesomeFontName.isEmpty()) {
-                        QFile fa(":fa.otf");
+                        QFile fa(":fa.ttf");
                         fa.open(QIODevice::ReadOnly);
                         QStringList loadedFontFamilies = QFontDatabase::applicationFontFamilies(QFontDatabase::addApplicationFontFromData(fa.readAll()));
                         if (!loadedFontFamilies.empty()) {
@@ -90,37 +88,22 @@ public:
                         }
                         fa.close();
                     }
-
-                    switch (type) {
-                    case MonoIcon::lastfmsquare:
-                    case MonoIcon::lastfm:
-                        scale=1.1;
-                        break;
-                    case MonoIcon::list:
-                        scale=1.05;
-                        break;
-                    case MonoIcon::bars:
-                        if (rect.height()>18 ) {
-                            scale=0.95;
-                        }
-                        break;
-                    case MonoIcon::retweet:
-                        yAdjust=-1;
-                        break;
-                    default:
-                        break;
-                    }
                     fontName=fontAwesomeFontName;
                 }
 
                 QFont font(fontName);
-                int pixelSize=qRound(rect.height()*scale);
+                int pixelSize=rect.height();
                 if (MonoIcon::ex_one==type) {
                     font.setBold(true);
-                } else if (pixelSize>=12 && pixelSize<=16 && rect.height()>14) {
-                    pixelSize=14;
-                } else if (pixelSize>=24 && pixelSize<=32 && rect.height()>28) {
-                    pixelSize=28;
+                } else if (pixelSize>10) {
+                    const int scale=14;
+                    pixelSize=((pixelSize/scale)*scale)+((pixelSize%scale)>6 ? scale : 0);
+                    pixelSize=qMin(pixelSize, rect.height());
+                    if (pixelSize>scale) {
+                        if (MonoIcon::bars==type) {
+                            pixelSize-=1;
+                        }
+                    }
                 }
 
                 font.setPixelSize(pixelSize);
@@ -134,7 +117,7 @@ public:
                     p.drawText(QRect(0, 0, rect.width(), rect.height()), str, QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
                     p.drawText(QRect(1, 0, rect.width(), rect.height()), str, QTextOption(Qt::AlignHCenter|Qt::AlignVCenter));
                 } else {
-                    p.drawText(QRect(0, yAdjust, rect.width(), rect.height()), QString(QChar(static_cast<int>(type))), QTextOption(Qt::AlignCenter|Qt::AlignVCenter));
+                    p.drawText(QRect(0, 0, rect.width(), rect.height()), QString(QChar(static_cast<int>(type))), QTextOption(Qt::AlignCenter|Qt::AlignVCenter));
                 }
             } else {
                 QSvgRenderer renderer;

@@ -1,6 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-<file alias="fa.otf">FontAwesome.otf</file>
+<file alias="fa.ttf">fontawesome-webfont.ttf</file>
 <file alias="media-next">media-next.svg</file>
 <file alias="media-pause">media-pause.svg</file>
 <file alias="media-play">media-play.svg</file>
