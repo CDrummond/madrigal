@@ -173,12 +173,7 @@ void Upnp::MediaServer::fetchMore(const QModelIndex &index) {
 
 Qt::ItemFlags Upnp::MediaServer::flags(const QModelIndex &index) const {
     if (index.isValid()) {
-        Item *item=toItem(index);
-        if (Collection::Type_Artist==item->type() || Collection::Type_Album==item->type() ||
-            Collection::Type_Playlist==item->type() || Item::Type_MusicTrack==item->type()) {
-            return Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled;
-        }
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+        return Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled;
     } else {
         return Qt::NoItemFlags;
     }
