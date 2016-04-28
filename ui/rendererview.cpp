@@ -92,8 +92,8 @@ Ui::RendererView::RendererView(QWidget *p)
     stack->addWidget(view);
     stack->setCurrentIndex(Page_Info);
     renderers->setModel(proxy);
-//    connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(updateItems()));
-//    connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(updateItems()));
+    connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(updateItems()));
+    connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(updateItems()));
     connect(model, SIGNAL(activeDevice(QModelIndex)), SLOT(setActive(QModelIndex)));
     connect(cancelButton, SIGNAL(pressed()), SLOT(useFirst()));
     connect(renderers, SIGNAL(clicked(QModelIndex)), SLOT(rendererSelected(QModelIndex)));
