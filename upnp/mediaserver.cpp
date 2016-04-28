@@ -407,7 +407,7 @@ void Upnp::MediaServer::search(quint32 start) {
         }
         searchString+=cap+" contains "+searchTerm;
     }
-    searchString="(upnp:class = &quot;object.item.audioItem.musicTrack&quot; and ("+searchString+"))";
+    searchString="(upnp:class derived from &quot;object.item.audioItem&quot; and ("+searchString+"))";
     searchStart=start;
     sendCommand("<ContainerID>0</ContainerID><SearchCriteria>"+searchString+"</SearchCriteria><Filter>*</Filter>"
                 "<SortCriteria></SortCriteria><StartingIndex>"+QByteArray::number(searchStart)+"</StartingIndex><RequestedCount>"+
