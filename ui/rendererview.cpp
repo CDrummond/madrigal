@@ -262,6 +262,7 @@ void Ui::RendererView::updateStats(quint32 num, quint32 dur) {
         }
     }
     clearAction->setEnabled(num>0);
+    removeAction->setEnabled(queue->haveSelectedItems());
 }
 
 void Ui::RendererView::clearQueue() {
