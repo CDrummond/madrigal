@@ -43,7 +43,7 @@ static int borderSize=1;
 static int actionBorder = 4;
 static int actionIconSize = 16;
 
-static int standardIconSize(int v) { return (v/8)*8; }
+static int standardIconSize(int v) { return ((v/7)*7)+((v%7)>3 ? 7 : 0); }
 
 
 static void setupSizes() {
@@ -70,9 +70,12 @@ void Ui::ListItemDelegate::getSizes(int &border, int &listCover) {
 
 void Ui::ListItemDelegate::drawPlayState(QPainter *painter, const QStyleOptionViewItem &option, const QRect &r, int state) {
     if (state) {
-        int size=listIconSize > 32 ? 26 : 13;
+        int size=Utils::scaleForDpi(13);
+        if (0==(size%2)) {
+            size-=1;
+        }
         int hSize=size/2;
-        QRect ir(r.x()-(size+6), r.y()+(((r.height()-size)/2.0)+0.5), size, size);
+        QRect ir(r.x()-(size+hSize), r.y()+(((r.height()-size)/2.0)+0.5), size, size);
         QColor inside(option.palette.color(QPalette::Text));
         QColor border=inside.red()>100 && inside.blue()>100 && inside.green()>100 ? Qt::black : Qt::white;
         if (QApplication::isRightToLeft()) {

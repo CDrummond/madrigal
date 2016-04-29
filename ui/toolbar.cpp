@@ -65,17 +65,23 @@ Ui::ToolBar::ToolBar(QWidget *parent)
     QWidget *controls=new QWidget(this);
     QHBoxLayout *controlsLayout=new QHBoxLayout(controls);
     QList<Action *> controlActs=QList<Action *>() << prevAction << playPauseAction << nextAction;
+    int otherIconSize=Utils::scaleForDpi(28);
+    int playPauseIconSize=Utils::scaleForDpi(32);
+    int pad=Utils::scaleForDpi(8);
     foreach (Action *act, controlActs) {
-        int iconSize=act==playPauseAction ? 32 : 28;
+        int iconSize=act==playPauseAction ? playPauseIconSize : otherIconSize;
         ToolButton *btn=new ToolButton(controls);
         btn->setDefaultAction(act);
-        btn->setFixedSize(QSize(iconSize+8, iconSize+8));
+        btn->setFixedSize(QSize(iconSize+pad, iconSize+pad));
         btn->setIconSize(QSize(iconSize, iconSize));
         btn->setAutoRaise(true);
         btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
         controlsLayout->addWidget(btn);
     }
     controlsLayout->setMargin(0);
+
+    int tbIconSize=Utils::scaleForDpi(22);
+    setIconSize(QSize(tbIconSize, tbIconSize));
 
     addWidget(controls);
     addSpacer();
@@ -99,13 +105,12 @@ Ui::ToolBar::ToolBar(QWidget *parent)
 }
 
 void Ui::ToolBar::addMenuButton(QMenu *mnu) {
-    int iconSize=28;
+    int btnSize=Utils::scaleForDpi(8)+iconSize().height();
     QColor col=GtkStyle::isActive() ? GtkStyle::symbolicColor() : palette().color(QPalette::Foreground);
     MenuButton *btn=new MenuButton(this);
     btn->setAlignedMenu(mnu);
     btn->setIcon(Core::MonoIcon::icon(Core::MonoIcon::bars, col, col));
-    btn->setFixedSize(QSize(iconSize+8, iconSize+8));
-    btn->setIconSize(QSize(iconSize, iconSize));
+    btn->setFixedSize(QSize(btnSize, btnSize));
     addWidget(btn);
 }
 
@@ -189,6 +194,6 @@ void Ui::ToolBar::modelReset() {
 
 void Ui::ToolBar::addSpacer() {
     QWidget *sep=new QWidget(this);
-    sep->setFixedWidth(qMax(8, Utils::layoutSpacing(this)));
+    sep->setFixedWidth(qMax(Utils::scaleForDpi(8), Utils::layoutSpacing(this)));
     addWidget(sep);
 }

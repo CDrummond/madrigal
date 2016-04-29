@@ -96,13 +96,12 @@ public:
                 if (MonoIcon::ex_one==type) {
                     font.setBold(true);
                 } else if (pixelSize>10) {
-                    const int scale=14;
-                    pixelSize=((pixelSize/scale)*scale)+((pixelSize%scale)>6 ? scale : 0);
+                    static const int constScale=14;
+                    static const int constHalfScale=constScale/2;
+                    pixelSize=((pixelSize/constScale)*constScale)+((pixelSize%constScale)>=constHalfScale ? constScale : 0);
                     pixelSize=qMin(pixelSize, rect.height());
-                    if (pixelSize>scale) {
-                        if (MonoIcon::bars==type) {
-                            pixelSize-=1;
-                        }
+                    if (MonoIcon::bars==type && pixelSize%constHalfScale) {
+                        pixelSize-=1;
                     }
                 }
 

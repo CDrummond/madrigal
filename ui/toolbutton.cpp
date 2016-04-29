@@ -62,7 +62,8 @@ void Ui::ToolButton::paintEvent(QPaintEvent *e) {
         QPainter p(this);
         QColor col(palette().color(QPalette::WindowText));
         QRect r(rect());
-        QPainterPath path=Ui::Utils::buildPath(QRectF(r.x()+1.5, r.y()+1.5, r.width()-3, r.height()-3), 2.5);
+        int adjust=Utils::scaleForDpi(1);
+        QPainterPath path=Utils::buildPath(QRectF(r.x()+0.5+adjust, r.y()+0.5+adjust, r.width()-((adjust*2)+1), r.height()-((adjust*2)+1)), 0.5+(adjust*2));
         p.setRenderHint(QPainter::Antialiasing, true);
         col.setAlphaF(0.4);
         p.setPen(col);
@@ -127,7 +128,7 @@ QSize Ui::ToolButton::sizeHint() const {
 
         sh=QSize(qMax(sh.width(), sh.height()), qMax(sh.width(), sh.height()));
         #ifdef Q_OS_MAC
-        sh=QSize(qMax(sh.width(), 22), qMax(sh.height(), 20));
+        sh=QSize(qMax(sh.width(), Utils::scaleForDpi(22)), qMax(sh.height(), Utils::scaleForDpi(20));
         #endif
     }
     return sh;
