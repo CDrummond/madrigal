@@ -100,7 +100,7 @@ Ui::ServerView::ServerView(QWidget *p)
     connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(updateItems()));
     connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(updateItems()));
     connect(model, SIGNAL(activeDevice(QModelIndex)), SLOT(setActive(QModelIndex)));
-    connect(cancelButton, SIGNAL(pressed()), SLOT(useFirst()));
+    connect(cancelButton, SIGNAL(clicked(bool)), SLOT(useFirst()));
     connect(media, SIGNAL(itemClicked(QModelIndex)), SLOT(itemClicked(QModelIndex)));
     connect(media, SIGNAL(doAction(int)), SLOT(doAction(int)));
     connect(servers, SIGNAL(clicked(QModelIndex)), SLOT(serverSelected(QModelIndex)));

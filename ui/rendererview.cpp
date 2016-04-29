@@ -95,7 +95,7 @@ Ui::RendererView::RendererView(QWidget *p)
     connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(updateItems()));
     connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(updateItems()));
     connect(model, SIGNAL(activeDevice(QModelIndex)), SLOT(setActive(QModelIndex)));
-    connect(cancelButton, SIGNAL(pressed()), SLOT(useFirst()));
+    connect(cancelButton, SIGNAL(clicked(bool)), SLOT(useFirst()));
     connect(renderers, SIGNAL(clicked(QModelIndex)), SLOT(rendererSelected(QModelIndex)));
     connect(rendererSelect, SIGNAL(clicked(bool)), SLOT(selectRenderer()));
     setInfoLabel();
