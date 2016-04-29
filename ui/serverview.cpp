@@ -201,7 +201,7 @@ void Ui::ServerView::setActive(const QModelIndex &idx) {
     if (idx.isValid()) {
         Upnp::Device *dev=static_cast<Upnp::Device *>(idx.internalPointer());
         media->setModel(dev);
-        updateItems(true);
+        updateItems();
         nav->add(idx.data().toString(), QModelIndex(), Core::MonoIcon::icon(dev->icon(), iconColor, iconColor));
         if (media->model()) {
             connect(media->model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateView(QModelIndex)));
@@ -226,6 +226,7 @@ void Ui::ServerView::serverSelected(const QModelIndex &idx) {
             model->setActive(mapped.row());
         }
         showButtons();
+        updateItems(true);
     }
 }
 

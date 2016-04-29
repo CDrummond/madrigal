@@ -199,7 +199,7 @@ void Ui::RendererView::setActive(const QModelIndex &idx) {
         connect(shuffleAction, SIGNAL(toggled(bool)), renderer, SLOT(setShuffle(bool)));
         connect(queue, SIGNAL(doubleClicked(QModelIndex)), renderer, SLOT(play(QModelIndex)));
         connect(queue, SIGNAL(activated(QModelIndex)), renderer, SLOT(play(QModelIndex)));
-        updateItems(true);
+        updateItems();
         rendererSelect->setText(idx.data().toString());
         rendererSelect->setIcon(Core::MonoIcon::icon(renderer->icon(), iconColor, iconColor));
         removeAction->setEnabled(!queue->selectedIndexes().isEmpty());
@@ -232,6 +232,7 @@ void Ui::RendererView::rendererSelected(const QModelIndex &idx) {
             // New device, let model control...
             model->setActive(mapped.row());
         }
+        updateItems(true);
     }
 }
 
