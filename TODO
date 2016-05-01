@@ -10,3 +10,6 @@
   - Translations
   - QML UI
   - System tray?
+
+- QNetworkConfigurationManager
+  - Bundle bearer plugins for windows/mac

@@ -28,6 +28,7 @@
 #include <QByteArray>
 #include <QHostAddress>
 #include <QUdpSocket>
+#include <QNetworkConfigurationManager>
 #include <QXmlStreamReader>
 #include <QTimer>
 #include <QFile>
@@ -98,6 +99,8 @@ Upnp::Ssdp::Ssdp(QObject *p)
     , network(0)
     , socket(0)
 {
+    QNetworkConfigurationManager *mgr=new QNetworkConfigurationManager(this);
+    connect(mgr, SIGNAL(onlineStateChanged(bool)), this, SLOT(onlineStateChanged(bool)));
 }
 
 void Upnp::Ssdp::start() {
@@ -105,13 +108,10 @@ void Upnp::Ssdp::start() {
         return;
     }
 
-    socket=new QUdpSocket(this);
-    socket->bind(QHostAddress(QHostAddress::AnyIPv4), constPort, QUdpSocket::ReuseAddressHint|QUdpSocket::ShareAddress);
-    socket->joinMulticastGroup(QHostAddress(constMulticastGroup));
-    connect(socket, SIGNAL(readyRead()), this, SLOT(readDatagrams()));
-
     qRegisterMetaType<Device>("Ssdp::Device");
     qRegisterMetaType<Device::Service>("Ssdp::Device::Service");
+
+    connectSocket();
 
     refreshTimer=new QTimer(this);
     connect(refreshTimer, SIGNAL(timeout()), SLOT(search()));
@@ -188,8 +188,8 @@ void Upnp::Ssdp::readDatagrams() {
                     knownDevices.insert(uuid);
                     DBUG(Ssdp) << "Read descr of" << uuid << location;
                 } else if (isByeBye) {
-                    DBUG(Ssdp) << "byebye" << uuid;
                     knownDevices.remove(uuid);
+                    DBUG(Ssdp) << "deviceRemoved (byebye)" << uuid;
                     emit deviceRemoved(uuid);
                 }
             }
@@ -284,7 +284,7 @@ void Upnp::Ssdp::jobFinished() {
             if (device.baseUrl.endsWith('/') ){
                 device.baseUrl=device.baseUrl.left(device.baseUrl.length()-1);
             }
-            DBUG(Ssdp) << device.uuid << device.type << device.services.keys();
+            DBUG(Ssdp) << "deviceAdded" << device.uuid << device.type << device.services.keys();
             emit deviceAdded(device);
         }
         job->cancelAndDelete();
@@ -297,7 +297,43 @@ void Upnp::Ssdp::listingTimeout() {
 
     foreach (const QByteArray &uuid, removedDevices) {
         knownDevices.remove(uuid);
+        DBUG(Ssdp) << "deviceRemoved" << uuid;
         emit deviceRemoved(uuid);
     }
+    listedDevices.clear();
+}
+
+void Upnp::Ssdp::connectSocket() {
+    if (socket) {
+        socket->deleteLater();
+        disconnect(socket, SIGNAL(readyRead()), this, SLOT(readDatagrams()));
+    }
+    socket=new QUdpSocket(this);
+    socket->bind(QHostAddress(QHostAddress::AnyIPv4), constPort, QUdpSocket::ReuseAddressHint|QUdpSocket::ShareAddress);
+    socket->joinMulticastGroup(QHostAddress(constMulticastGroup));
+    connect(socket, SIGNAL(readyRead()), this, SLOT(readDatagrams()));
+}
+
+void Upnp::Ssdp::onlineStateChanged(bool on) {
+    DBUG(Ssdp) << on;
+    if (listTimer) {
+        listTimer->stop();
+    }
+    if (on) {
+        if (refreshTimer) {
+            refreshTimer->start();
+        }
+        connectSocket();
+        search();
+    } else {
+        foreach (const QByteArray &uuid, knownDevices) {
+            DBUG(Ssdp) << "deviceRemoved" << uuid;
+            emit deviceRemoved(uuid);
+        }
+        if (refreshTimer) {
+            refreshTimer->stop();
+        }
+    }
+    knownDevices.clear();
     listedDevices.clear();
 }

@@ -76,6 +76,10 @@ private Q_SLOTS:
     void readDatagrams();
     void jobFinished();
     void listingTimeout();
+    void onlineStateChanged(bool on);
+
+private:
+    void connectSocket();
 
 private:
     Core::NetworkAccessManager *network;
