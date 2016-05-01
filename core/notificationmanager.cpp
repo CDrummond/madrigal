@@ -166,10 +166,10 @@ void Core::NotificationManager::setActive(Upnp::Device *dev, bool isRenderer) {
     }
     if (dev) {
         connect(dev, SIGNAL(info(QString,quint8,int)), this, SLOT(add(QString,quint8,int)));
-        if (isRenderer) {
-            renderer=dev;
-        } else {
-            server=dev;
-        }
+    }
+    if (isRenderer) {
+        renderer=dev;
+    } else {
+        server=dev;
     }
 }
