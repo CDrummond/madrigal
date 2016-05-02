@@ -43,6 +43,7 @@ const char * Upnp::OhRenderer::constReceiverService="urn:av-openhome-org:service
 const char * Upnp::OhRenderer::constSenderService="urn:av-openhome-org:service:Sender:1";
 static const char * constProductService="urn:av-openhome-org:service:Product:1";
 static const char * constRenderingControlService="urn:schemas-upnp-org:service:RenderingControl:1";
+static const char * constVolumeService="urn:av-openhome-org:service:Volume:1";
 static const int constReadListSize = 20;
 
 static QList<quint32> decodeIds(QXmlStreamReader &reader) {
@@ -648,8 +649,10 @@ void Upnp::OhRenderer::mute(bool m) {
 
 void Upnp::OhRenderer::setVolume(int vol) {
     DBUG(Renderers) << vol;
-    sendCommand("<InstanceID>0</InstanceID><Channel>Master</Channel><DesiredVolume>"+QByteArray::number(vol)+"</DesiredVolume>",
-                "SetVolume", constRenderingControlService);
+//    sendCommand("<InstanceID>0</InstanceID><Channel>Master</Channel><DesiredVolume>"+QByteArray::number(vol)+"</DesiredVolume>",
+//                "SetVolume", constRenderingControlService);
+    sendCommand(valueStr(vol), "SetVolume", constVolumeService);
+
 }
 
 void Upnp::OhRenderer::addTracks(Command *cmd) {

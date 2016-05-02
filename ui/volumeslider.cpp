@@ -122,8 +122,10 @@ void Ui::VolumeSlider::paintEvent(QPaintEvent *) {
     }
 
     p.drawPixmap(0, 0, pixmaps[0]);
+    int percent=((value()*100.0)/maximum())+0.5;
+
     #if 1
-    int steps=(value()/10.0)+0.5;
+    int steps=(percent/10.0)+0.5;
     if (steps>0) {
         if (steps<10) {
             int wStep=widthStep*lineWidth;
@@ -140,7 +142,7 @@ void Ui::VolumeSlider::paintEvent(QPaintEvent *) {
     #else // Partial filling of each block?
     if (value()>0) {
         if (value()<100) {
-            int fillWidth=(width()*(0.01*value()))+0.5;
+            int fillWidth=(width()*(0.01*percent))+0.5;
             p.setClipRect(reverse
                             ? QRect(width()-fillWidth, 0, width(), height())
                             : QRect(0, 0, fillWidth, height()));
@@ -166,7 +168,7 @@ void Ui::VolumeSlider::paintEvent(QPaintEvent *) {
         } else {
             r.setWidth(widthStep*lineWidth*7);
         }
-        p.drawText(r, Qt::AlignRight, QString("%1%").arg(value()));
+        p.drawText(r, Qt::AlignRight, QString("%1%").arg(percent));
     }
 }
 
