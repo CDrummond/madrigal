@@ -146,6 +146,8 @@ void Upnp::OhRenderer::commandResponse(QXmlStreamReader &reader, const QByteArra
     } else if ("SourceXml"==type) {
         QXmlStreamReader xmlReader(getValue(reader));
         handleSourceXml(xmlReader);
+    } else if ("DeleteAll"==type && currentCmd && Command::ReplaceAndPlay==currentCmd->type) {
+        addTrack(0);
     }
     messageReceived();
 }
@@ -153,7 +155,7 @@ void Upnp::OhRenderer::commandResponse(QXmlStreamReader &reader, const QByteArra
 void Upnp::OhRenderer::failedCommand(Core::NetworkJob *job, const QByteArray &type) {
     DBUG(Renderers) << type;
     Q_UNUSED(job)
-    if ("Insert"==type) {
+    if ("Insert"==type || "DeleteAll"==type) {
         if (currentCmd) {
             if (Command::ReplaceAndPlay==currentCmd->type) {
                 sendCommand("", "Play", constPlaylistService);
@@ -321,10 +323,13 @@ void Upnp::OhRenderer::handleInsert(QXmlStreamReader &reader) {
         reader.readNext();
         if (reader.isStartElement() && QLatin1String("NewId")==reader.name()) {
             quint32 id=reader.readElementText().toUInt();
+
             if (Command::ReplaceAndPlay==currentCmd->type) {
                 // Set command type to something else, as start play at first track
                 currentCmd->type=Command::Append;
-                sendCommand("<Value>"+QByteArray::number(id)+"</Value>", "SeekId", constPlaylistService);
+                //SeekId not working with BubbleUPnPServer (for chromecast) ??
+                //sendCommand("<Value>"+QByteArray::number(id)+"</Value>", "SeekId", constPlaylistService);
+                sendCommand("<Value>0</Value>", "SeekIndex", constPlaylistService);
                 sendCommand("", "Play", constPlaylistService);
             }
             addedCount++;
@@ -332,9 +337,7 @@ void Upnp::OhRenderer::handleInsert(QXmlStreamReader &reader) {
                 emitAddedTracksNotif();
                 clearCommand();
             } else {
-                const MusicTrack *track=currentCmd->tracks.takeFirst();
-                addTrack(track, id);
-                delete track;
+                addTrack(id);
             }
             return;
         }
@@ -655,11 +658,13 @@ void Upnp::OhRenderer::addTracks(Command *cmd) {
         clearCommand();
     }
     currentCmd=cmd;
-    if (Command::ReplaceAndPlay==cmd->type) {
-        clearQueue();
-    }
     if (Command::Move!=currentCmd->type) {
         emit info(tr("Adding tracks..."), Notif_PlayCommand);
+    }
+    if (!items.isEmpty() && Command::ReplaceAndPlay==cmd->type) {
+        // For BubbleUPnPServer can only add the tracks after we get the OK of the clear
+        clearQueue();
+        return;
     }
     quint32 after=0;
     if ((Command::Insert==cmd->type || Command::Move==cmd->type) && currentCmd->pos>=0 && currentCmd->pos<items.count()) {
@@ -667,9 +672,15 @@ void Upnp::OhRenderer::addTracks(Command *cmd) {
     } else if (Command::Append==cmd->type && !items.isEmpty())  {
         after=static_cast<Track *>(items.at(items.count()-1))->id;
     }
-    const MusicTrack *track=currentCmd->tracks.takeFirst();
-    addTrack(track, after);
-    delete track;
+    addTrack(after);
+}
+
+void Upnp::OhRenderer::addTrack(quint32 after) {
+    if (currentCmd && !currentCmd->tracks.isEmpty()) {
+        const MusicTrack *track=currentCmd->tracks.takeFirst();
+        addTrack(track, after);
+        delete track;
+    }
 }
 
 void Upnp::OhRenderer::addTrack(const MusicTrack *track, quint32 after) {
@@ -811,7 +822,9 @@ void Upnp::OhRenderer::removeTracks(const QModelIndexList &indexes) {
 
 void Upnp::OhRenderer::play(const QModelIndex &idx) {
     DBUG(Renderers) << idx.data().toString();
-    sendCommand("<Value>"+QByteArray::number(static_cast<Track *>(idx.internalPointer())->id)+"</Value>", "SeekId", constPlaylistService);
+    //SeekId not working with BubbleUPnPServer (for chromecast) ??
+    //sendCommand("<Value>"+QByteArray::number(static_cast<Track *>(idx.internalPointer())->id)+"</Value>", "SeekId", constPlaylistService);
+    sendCommand("<Value>"+QByteArray::number(idx.row())+"</Value>", "SeekIndex", constPlaylistService);
 }
 
 void Upnp::OhRenderer::emitAddedTracksNotif() {

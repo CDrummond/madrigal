@@ -87,6 +87,7 @@ private:
     void mute(bool m);
     void setVolume(int vol);
     void addTracks(Upnp::Command *cmd);
+    void addTrack(quint32 after);
     void addTrack(const MusicTrack *track, quint32 after);
     void clearCommand();
     void moveRows(const QList<quint32> &rows, qint32 to);
