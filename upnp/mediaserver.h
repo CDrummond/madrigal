@@ -52,7 +52,7 @@ public:
         };
 
         Collection(const QString &n=QString(), const QByteArray &i=QByteArray(), Item *p=0, int r=0)
-            : Item(n, p, r), state(State_Initial), id(i), numChildrenSkipped(0) { }
+            : Item(n, p, r), state(State_Initial), id(i), updateId(0), numChildrenSkipped(0) { }
         virtual ~Collection() {
             qDeleteAll(children);
             children.clear();
@@ -64,6 +64,7 @@ public:
         quint16 count;
         State state;
         QByteArray id;
+        quint32 updateId;
         quint32 numChildrenSkipped;
     };
 
@@ -217,7 +218,7 @@ private:
     void checkCommand(const QModelIndex &idx);
     void removeSearchItem();
     void cancelCommands();
-    void updated(const QByteArray &id);
+    void updated(const QByteArray &id, quint32 sysUpdateId);
 
 private:
     Manufacturer manufacturer;
