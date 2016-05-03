@@ -173,6 +173,7 @@ void Ui::RendererView::setInfoLabel() {
 }
 
 void Ui::RendererView::updateItems(bool activeSet) {
+    DBUG(Ui) << (void *)sender() << activeSet << model->isInitialising() << stack->currentIndex();
     if (model->isInitialising()) {
         setInfoLabel();
     } else if (activeSet || Page_Renderers!=stack->currentIndex()) {
@@ -188,6 +189,7 @@ void Ui::RendererView::updateItems(bool activeSet) {
 }
 
 void Ui::RendererView::setActive(const QModelIndex &idx) {
+    DBUG(Ui) << (void *)sender() << idx.isValid();
     if (idx.isValid()) {
         Upnp::Renderer *renderer=static_cast<Upnp::Renderer *>(idx.internalPointer());
         queue->setModel(renderer);
@@ -222,6 +224,7 @@ void Ui::RendererView::setActive(const QModelIndex &idx) {
 }
 
 void Ui::RendererView::rendererSelected(const QModelIndex &idx) {
+    DBUG(Ui) << (void *)sender() << idx.isValid();
     if (idx.isValid()) {
         // idx comes from servers view, which is using proxy (for sorting) - therefore need to map to source
         QModelIndex mapped=proxy->mapToSource(idx);
@@ -237,16 +240,19 @@ void Ui::RendererView::rendererSelected(const QModelIndex &idx) {
 }
 
 void Ui::RendererView::useFirst() {
+    DBUG(Ui);
     rendererSelected(proxy->index(0, 0));
 }
 
 void Ui::RendererView::selectRenderer() {
+    DBUG(Ui);
     queue->setRootIndex(QModelIndex());
     stack->setCurrentIndex(Page_Renderers);
     toolbar->showTitle(true);
 }
 
 void Ui::RendererView::updateStats(quint32 num, quint32 dur) {
+    DBUG(Ui) << num << dur;
     if (0==num) {
         queueInfo->setText(tr("No Tracks"));
     } else if (0==dur) {

@@ -37,12 +37,12 @@ static const int constMaxSearchResults=2000;
 static const int constSearchTimeout=10000;
 static const int constCommandTimeout=15000;
 static const char * constIdProperty="id";
+static const QByteArray constRootId("0");
 
 static const QByteArray & itemId(Upnp::Device::Item * item) {
-    static QByteArray constRoot("0");
     return item ? item->isCollection() ? static_cast<Upnp::MediaServer::Collection *>(item)->id
                                        : static_cast<Upnp::MediaServer::Track *>(item)->id
-                : constRoot;
+                : constRootId;
 }
 
 Upnp::MediaServer::Track::Track(const QByteArray &i, const QMap<QString, QString> &values, Item *p, int r)
@@ -84,6 +84,7 @@ Upnp::MediaServer::MediaServer(const Ssdp::Device &device, DevicesModel *parent)
     , searchTimer(0)
     , commandTimer(0)
     , updateId(0)
+    , numChildrenSkipped(0)
 {
     manufacturer=QLatin1String("minimserver.com")==device.manufacturer ? Man_Minim : Man_Other;
 }
@@ -94,11 +95,13 @@ Upnp::MediaServer::~MediaServer() {
 void Upnp::MediaServer::clear() {
     cancelCommands();
     Device::clear();
+    numChildrenSkipped=0;
 }
 
 void Upnp::MediaServer::setActive(bool a) {
     if (!a) {
         cancelCommands();
+        numChildrenSkipped=0;
     }
     Device::setActive(a);
 }
@@ -455,7 +458,7 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
                 QXmlStreamReader result(reader.readElementText());
                 if ("Browse"==type) {
                     browseParent=parseBrowse(result);
-                    //                if ("0"==id) {
+                    //                if (constRootId==id) {
                     //                    setState(State_Populated); ??????
                     //                }
                 } else if ("Search"==type) {
@@ -469,7 +472,7 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
         }
     }
     if ("Browse"==type) {
-        if (!browseParent.isValid() && "0"!=job->property(constIdProperty).toByteArray()) {
+        if (!browseParent.isValid() && constRootId!=job->property(constIdProperty).toByteArray()) {
             // If we browse to a collection that has no children, the parseBrowse() will return QModelIndex()
             // So, if this is the case (and id is *not* for the root colection) then use the id to locate
             // the actual parent.
@@ -478,11 +481,11 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
         Collection *col=browseParent.isValid() && static_cast<Item *>(browseParent.internalPointer())->isCollection()
                         ? static_cast<Collection *>(browseParent.internalPointer()) : 0;
         QList<Item *> &list=col ? col->children : items;
-        quint32 hidden = col ? col->hiddenIds : 0;
-        if ((list.count()+hidden)==total) {
+        quint32 skipped = col ? col->numChildrenSkipped : numChildrenSkipped;
+        if ((list.count()+skipped)==total) {
             checkCommand(browseParent);
         } else {
-            populate(browseParent, list.count()+hidden);
+            populate(browseParent, list.count()+skipped);
         }
     } else if ("Search"==type) {
         if (0==total && 0==returned) {
@@ -623,7 +626,7 @@ QModelIndex Upnp::MediaServer::parseBrowse(QXmlStreamReader &reader) {
                         if (!parent.isValid() || parentId!=itemId(static_cast<Item *>(parent.internalPointer()))) {
                             parent = findItem(parentId, QModelIndex());
                         }
-                        if (parent.isValid() || "0"==parentId) {
+                        if (parent.isValid() || constRootId==parentId) {
                             Item *item=0;
                             Item *parentItem=parent.isValid() ? static_cast<Item *>(parent.internalPointer()) : 0;
                             QString type=values["class"];
@@ -650,21 +653,18 @@ QModelIndex Upnp::MediaServer::parseBrowse(QXmlStreamReader &reader) {
                                 item=new Playlist(values["title"], id, parentItem, list->count());
                             } else if (type.startsWith(QLatin1String("object.container"))) {
                                 // MinimServer...
-                                Folder *folder=0;
-                                if (QLatin1String(">> Hide Contents")==values["title"]) {
-                                    if (parentItem && parentItem->isCollection()) {
-                                        static_cast<Collection *>(parentItem)->hiddenIds++;
-                                    }
-                                } else {
+                                if (QLatin1String(">> Hide Contents")!=values["title"]) {
+                                    Folder *folder=0;
                                     if (QLatin1String(">> Complete Album")==values["title"]) {
                                         folder=new Folder(tr("Show Complete Album"), id, parentItem, list->count());
                                     } else {
                                         folder=new Folder(values["title"], id, parentItem, list->count());
                                     }
-                                }
-                                if (folder) {
-                                    fixFolder(folder, manufacturer);
-                                    item=folder;
+
+                                    if (folder) {
+                                        fixFolder(folder, manufacturer);
+                                        item=folder;
+                                    }
                                 }
                             }
 
@@ -673,6 +673,10 @@ QModelIndex Upnp::MediaServer::parseBrowse(QXmlStreamReader &reader) {
                                 beginInsertRows(parent, list->count(), list->count());
                                 list->append(item);
                                 endInsertRows();
+                            } else if (parentItem && parentItem->isCollection()) {
+                                static_cast<Collection *>(parentItem)->numChildrenSkipped++;
+                            } else if (constRootId==parentId) {
+                                numChildrenSkipped++;
                             }
                         }
                     }
@@ -781,7 +785,7 @@ void Upnp::MediaServer::parseSearch(QXmlStreamReader &reader) {
 }
 
 QModelIndex Upnp::MediaServer::findItem(const QByteArray &id, const QModelIndex &parent) {
-    if ("0"==id) {
+    if (constRootId==id) {
         return QModelIndex();
     }
 
