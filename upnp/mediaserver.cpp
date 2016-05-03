@@ -573,6 +573,9 @@ static void fixFolder(Upnp::MediaServer::Folder *folder, Upnp::MediaServer::Manu
         } else if (QLatin1String("AlbumArtist")==folder->name) {
             folder->name=QObject::tr("Album Artist");
             folder->icn=Core::MonoIcon::user;
+        } else if (QLatin1String(">> Complete Album")==folder->name) {
+            folder->icn=Core::MonoIcon::ex_cd;
+            folder->name=QObject::tr("Show Complete Album");
         }
     }
 
@@ -581,8 +584,7 @@ static void fixFolder(Upnp::MediaServer::Folder *folder, Upnp::MediaServer::Manu
         QLatin1String("All Artists")==folder->name ||
         QLatin1String("Composer")==folder->name || QLatin1String("Conductor")==folder->name) {
         folder->icn=Core::MonoIcon::user;
-    } else if (QLatin1String("Album")==folder->name || QLatin1String("Albums")==folder->name ||
-               QLatin1String("Show Complete Album")==folder->name) {
+    } else if (QLatin1String("Album")==folder->name || QLatin1String("Albums")==folder->name) {
         folder->icn=Core::MonoIcon::ex_cd;
     } else if (QLatin1String("Genre")==folder->name) {
         folder->icn=Core::MonoIcon::tags;
@@ -656,17 +658,9 @@ QModelIndex Upnp::MediaServer::parseBrowse(QXmlStreamReader &reader) {
                             } else if (type.startsWith(QLatin1String("object.container"))) {
                                 // MinimServer...
                                 if (QLatin1String(">> Hide Contents")!=values["title"]) {
-                                    Folder *folder=0;
-                                    if (QLatin1String(">> Complete Album")==values["title"]) {
-                                        folder=new Folder(tr("Show Complete Album"), id, parentItem, list->count());
-                                    } else {
-                                        folder=new Folder(values["title"], id, parentItem, list->count());
-                                    }
-
-                                    if (folder) {
-                                        fixFolder(folder, manufacturer);
-                                        item=folder;
-                                    }
+                                    Folder *folder=new Folder(values["title"], id, parentItem, list->count());
+                                    fixFolder(folder, manufacturer);
+                                    item=folder;
                                 }
                             }
 
