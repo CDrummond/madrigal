@@ -95,12 +95,14 @@ Upnp::MediaServer::~MediaServer() {
 void Upnp::MediaServer::clear() {
     cancelCommands();
     Device::clear();
+    updateId=0;
     numChildrenSkipped=0;
 }
 
 void Upnp::MediaServer::setActive(bool a) {
     if (!a) {
         cancelCommands();
+        updateId=0;
         numChildrenSkipped=0;
     }
     Device::setActive(a);
@@ -915,6 +917,13 @@ void Upnp::MediaServer::updated(const QByteArray &id) {
     DBUG(MediaServers) << id;
 
     // See if this id is know to our model
+
+    if (constRootId==id) {
+        clear();
+        populate(QModelIndex());
+        return;
+    }
+
     QModelIndex idx=findItem(id, QModelIndex());
     if (idx.isValid() && static_cast<Item *>(idx.internalPointer())->isCollection()) {
         // Found, remove child items (if it has any) and repopulate
