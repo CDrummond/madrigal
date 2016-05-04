@@ -187,6 +187,7 @@ public:
     QMimeData * mimeData(const QModelIndexList &indexes) const;
     bool hasCommand() const { return !command.isEmpty(); }
     QModelIndex searchIndex() const;
+    void refresh(const QModelIndex &index, bool force=false);
 
 public Q_SLOTS:
     void play(const QModelIndexList &indexes, qint32 pos, PlayCommand::Type type);
@@ -218,7 +219,6 @@ private:
     void checkCommand(const QModelIndex &idx);
     void removeSearchItem();
     void cancelCommands();
-    void updated(const QByteArray &id, quint32 sysUpdateId);
 
 private:
     Manufacturer manufacturer;
@@ -229,7 +229,8 @@ private:
     QTimer *searchTimer;
     QTimer *commandTimer;
     PlayCommand command;
-    quint32 updateId;
+    quint32 updateId; // UpdateID for root colletion
+    quint32 lastColUpdateId; // Last UpdateID received for any collection
     quint32 numChildrenSkipped;
 };
 

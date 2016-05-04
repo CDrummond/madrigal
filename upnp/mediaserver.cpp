@@ -84,6 +84,7 @@ Upnp::MediaServer::MediaServer(const Ssdp::Device &device, DevicesModel *parent)
     , searchTimer(0)
     , commandTimer(0)
     , updateId(0)
+    , lastColUpdateId(0)
     , numChildrenSkipped(0)
 {
     manufacturer=QLatin1String("minimserver.com")==device.manufacturer ? Man_Minim : Man_Other;
@@ -95,14 +96,14 @@ Upnp::MediaServer::~MediaServer() {
 void Upnp::MediaServer::clear() {
     cancelCommands();
     Device::clear();
-    updateId=0;
+    updateId=lastColUpdateId=0;
     numChildrenSkipped=0;
 }
 
 void Upnp::MediaServer::setActive(bool a) {
     if (!a) {
         cancelCommands();
-        updateId=0;
+        updateId=lastColUpdateId=0;
         numChildrenSkipped=0;
     }
     Device::setActive(a);
@@ -281,6 +282,33 @@ QModelIndex Upnp::MediaServer::searchIndex() const {
     return searchItem ? createIndex(searchItem->row, 0, searchItem) : QModelIndex();
 }
 
+void Upnp::MediaServer::refresh(const QModelIndex &index, bool force) {
+    if (!index.isValid())    {
+        if (State_Populating!=state && 0!=lastColUpdateId && (force || updateId!=lastColUpdateId)) {
+            clear();
+            populate(QModelIndex());
+        }
+        return;
+    }
+
+    if (!static_cast<Item *>(index.internalPointer())->isCollection()) {
+        return;
+    }
+
+    Collection *col=static_cast<Collection *>(index.internalPointer());
+    if (!force && (0==lastColUpdateId || col->updateId==lastColUpdateId)) {
+        return;
+    }
+
+    if (!col->children.isEmpty()) {
+        beginRemoveRows(index, 0, col->children.count()-1);
+        qDeleteAll(col->children);
+        col->children.clear();
+        endRemoveRows();
+    }
+    populate(index);
+}
+
 void Upnp::MediaServer::play(const QModelIndexList &indexes, qint32 pos, PlayCommand::Type type) {
     DBUG(MediaServers) << indexes.count() << pos << type;
     if (!command.toPopulate.isEmpty()) {
@@ -433,8 +461,11 @@ void Upnp::MediaServer::populate(const QModelIndex &index, int start) {
     Item *item=toItem(index);
     QByteArray id=itemId(item);
 
-    if (item && item->isCollection() && static_cast<Collection *>(item)->state!=State_Populating) {
+    if (item && item->isCollection() && State_Populating!=static_cast<Collection *>(item)->state) {
         static_cast<Collection *>(item)->state=State_Populating;
+        emit dataChanged(index, index);
+    } else if (!index.isValid() && State_Populating!=state) {
+        state=State_Populating;
         emit dataChanged(index, index);
     }
 
@@ -452,6 +483,7 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
     }
     int total=0;
     int returned=0;
+    quint32 colUpdateId=0;
     QModelIndex browseParent;
     while (!reader.atEnd()) {
         reader.readNext();
@@ -460,9 +492,6 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
                 QXmlStreamReader result(reader.readElementText());
                 if ("Browse"==type) {
                     browseParent=parseBrowse(result);
-                    //                if (constRootId==id) {
-                    //                    setState(State_Populated); ??????
-                    //                }
                 } else if ("Search"==type) {
                     parseSearch(result);
                 }
@@ -470,11 +499,14 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
                 returned=reader.readElementText().toUInt();
             } else if (QLatin1String("TotalMatches")==reader.name()) {
                 total=reader.readElementText().toUInt();
+            } else if (QLatin1String("UpdateID")==reader.name()) {
+                colUpdateId=reader.readElementText().toUInt();
             }
         }
     }
     if ("Browse"==type) {
-        if (!browseParent.isValid() && constRootId!=job->property(constIdProperty).toByteArray()) {
+        bool isRoot=constRootId==job->property(constIdProperty).toByteArray();
+        if (!browseParent.isValid() && !isRoot) {
             // If we browse to a collection that has no children, the parseBrowse() will return QModelIndex()
             // So, if this is the case (and id is *not* for the root colection) then use the id to locate
             // the actual parent.
@@ -484,8 +516,27 @@ void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArr
                         ? static_cast<Collection *>(browseParent.internalPointer()) : 0;
         QList<Item *> &list=col ? col->children : items;
         quint32 skipped = col ? col->numChildrenSkipped : numChildrenSkipped;
+
+        if (0!=colUpdateId) {
+            if (col) {
+                col->updateId=colUpdateId;
+            } else if (isRoot) {
+                updateId=colUpdateId;
+            }
+            lastColUpdateId=colUpdateId;
+        }
+
         if ((list.count()+skipped)==total) {
             checkCommand(browseParent);
+
+            if (col) {
+                col->state=State_Populated;
+            } else if (isRoot) {
+                state=State_Populated;
+            }
+            if (col || isRoot) {
+                emit dataChanged(browseParent, browseParent);
+            }
         } else {
             populate(browseParent, list.count()+skipped);
         }
@@ -522,8 +573,6 @@ void Upnp::MediaServer::notification(const QByteArray &sid, const QByteArray &da
     DBUG(MediaServers) << data;
 
     QXmlStreamReader reader(data);
-    QStringList update;
-    quint32 newUpdateId=0;
 
     while (!reader.atEnd()) {
         reader.readNext();
@@ -535,9 +584,17 @@ void Upnp::MediaServer::notification(const QByteArray &sid, const QByteArray &da
                         reader.readNext();
                         if (reader.isStartElement()) {
                             if (QLatin1String("SystemUpdateID")==reader.name()) {
-                                newUpdateId=reader.readElementText().toUInt();
-                            } else if (QLatin1String("ContainerUpdateIDs")==reader.name()) {
-                                update=reader.readElementText().split(',');
+                                quint32 systemUpdateId=reader.readElementText().toUInt();
+                                if (systemUpdateId!=lastColUpdateId) {
+                                    bool wasZero=0==lastColUpdateId;
+
+                                    lastColUpdateId=systemUpdateId;
+                                    if (!wasZero) {
+                                        cancelCommands();
+                                        emit systemUpdated();
+                                    }
+                                }
+                                return;
                             }
                         } else if (reader.isEndElement() && QLatin1String("property")==reader.name()) {
                             break;
@@ -546,24 +603,6 @@ void Upnp::MediaServer::notification(const QByteArray &sid, const QByteArray &da
                 }
             }
         }
-    }
-
-    if (!update.isEmpty() && 0==update.count()%2) {
-        // Contents is comma separated list of ids and version values
-        // e.g. ida,vera,idb,verb
-
-        // First cancel any play, or search, commands...
-        cancelCommands();
-
-        // Now update modified IDs...
-        for (int i=0; i<update.count(); i+=2) {
-            updated(update.at(i).toLatin1(), 0==newUpdateId ? updateId : newUpdateId);
-        }
-    }
-
-    if (newUpdateId!=updateId) {
-        updateId=newUpdateId;
-        emit systemUpdated();
     }
 }
 
@@ -909,29 +948,5 @@ void Upnp::MediaServer::cancelCommands() {
     if (commandTimer && commandTimer->isActive()) {
         commandTimer->stop();
         emit info(QString(), Notif_PlayCommand);
-    }
-}
-
-void Upnp::MediaServer::updated(const QByteArray &id, quint32 sysUpdateId) {
-    DBUG(MediaServers) << id;
-
-    // See if this id is know to our model
-    if (constRootId==id && updateId!=sysUpdateId) {
-        clear();
-        populate(QModelIndex());
-        return;
-    }
-
-    QModelIndex idx=findItem(id, QModelIndex());
-    if (idx.isValid() && static_cast<Item *>(idx.internalPointer())->isCollection()) {
-        // Found, remove child items (if it has any) and repopulate
-        Collection *col=static_cast<Collection *>(idx.internalPointer());
-        if (col->updateId!=sysUpdateId && !col->children.isEmpty()) {
-            beginRemoveRows(idx, 0, col->children.count()-1);
-            qDeleteAll(col->children);
-            col->children.clear();
-            endRemoveRows();
-            populate(idx);
-        }
     }
 }

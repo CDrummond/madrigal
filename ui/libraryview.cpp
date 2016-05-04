@@ -23,6 +23,7 @@
 
 #include "ui/libraryview.h"
 #include "ui/listitemdelegate.h"
+#include "upnp/mediaserver.h"
 #include <QStyle>
 
 Ui::LibraryView::LibraryView(QWidget *p)
@@ -47,6 +48,15 @@ void Ui::LibraryView::setModel(QAbstractItemModel *m) {
 
 void Ui::LibraryView::setRootIndex(const QModelIndex &index) {
     clearSelection();
+
+    // Each time we set a new root index, check whether it needs
+    // updating...
+    if (model() && index!=rootIndex()) {
+        Upnp::MediaServer *srv=qobject_cast<Upnp::MediaServer *>(model());
+        if (srv) {
+            srv->refresh(index);
+        }
+    }
     if (!index.isValid()) {
         prevRows.clear();
         ListView::setRootIndex(index);
