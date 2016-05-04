@@ -137,7 +137,7 @@ Ui::ServerView::ServerView(QWidget *p)
 
     searchButton=new FlatToolButton(toolbar);
     iconColor=Utils::clampColor(palette().foreground().color());
-    searchAction=ActionCollection::get()->createAction("search", "Search", Core::MonoIcon::icon(Core::MonoIcon::search, iconColor, iconColor));
+    searchAction=ActionCollection::get()->createAction("search", tr("Search"), Core::MonoIcon::icon(Core::MonoIcon::search, iconColor, iconColor));
     searchAction->setShortcut(Qt::ControlModifier+Qt::Key_F);
     searchButton->setDefaultAction(searchAction);
     toolbar->addWidget(searchButton, false);
