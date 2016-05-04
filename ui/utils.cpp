@@ -155,22 +155,12 @@ void Ui::Utils::raiseWindow(QWidget *w)
     #ifdef Q_OS_WIN
     ::SetWindowPos(reinterpret_cast<HWND>(w->effectiveWinId()), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
     ::SetWindowPos(reinterpret_cast<HWND>(w->effectiveWinId()), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-    #elif !defined Q_OS_WIN && QT_VERSION>=0x050000
-    bool wasHidden=w->isHidden();
-    #endif
-
-    w->raise();
+    #else
     w->showNormal();
     w->activateWindow();
-    #ifdef Q_OS_MAC
+    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     w->raise();
-    #endif
-    #if !defined Q_OS_WIN && !defined Q_OS_MAC
-    // This section seems to be required for compiz, so that MPRIS.Raise actually shows the window, and not just highlight launcher.
-    if (wasHidden) {
-        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    }
-    QProcess::execute(QLatin1String("wmctrl"), QStringList() << QLatin1String("-i") << QLatin1String("-a") << QString::number(w->effectiveWinId()));
+    w->activateWindow();
     #endif
 }
 
