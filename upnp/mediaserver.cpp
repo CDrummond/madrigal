@@ -399,6 +399,10 @@ void Upnp::MediaServer::play(const QList<QByteArray> &ids, qint32 row) {
 }
 
 void Upnp::MediaServer::search(const QString &text) {
+    if (!isSearchEnabled()) {
+        emit info(tr("Server does not support search!"), Notif_SearchResult, constNotifTimeout);
+        return;
+    }
     QString trimmed=text.trimmed();
     if (currentSearch==trimmed) {
         return;
@@ -729,12 +733,14 @@ void Upnp::MediaServer::parseSearchCapabilities(QXmlStreamReader &reader) {
         reader.readNext();
         if (reader.isStartElement() && QLatin1String("SearchCaps")==reader.name()) {
             QStringList caps=reader.readElementText().split(',');
+            searchCap.clear();
             foreach (QString cap, caps) {
                 if (-1!=cap.indexOf(':') && QLatin1String("dc:date")!=cap && QLatin1String("upnp:actor")!=cap &&
                     QLatin1String("upnp:class")!=cap && QLatin1String("upnp:genre")!=cap) {
                     searchCap.append(cap.replace("\"", "&quot;").toLatin1());
                 }
             }
+            emit searchEnabled(!searchCap.isEmpty());
             return;
         }
     }

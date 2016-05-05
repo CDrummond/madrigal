@@ -142,6 +142,7 @@ Ui::ServerView::ServerView(QWidget *p)
     searchButton->setDefaultAction(searchAction);
     toolbar->addWidget(searchButton, false);
     searchButton->setVisible(false);
+    searchAction->setEnabled(false);
     searchText->setVisible(false);
     searchText->setClearButtonEnabled(true);
     setMinimumWidth(Utils::scaleForDpi(300));
@@ -170,7 +171,7 @@ void Ui::ServerView::setInfoLabel() {
 
 void Ui::ServerView::showButtons() {
     QModelIndex idx=Page_Media==stack->currentIndex() && media->model() ? media->rootIndex() : QModelIndex();
-    searchButton->setVisible(!idx.isValid());
+    searchButton->setVisible(!idx.isValid() && searchAction->isEnabled());
     if (!searchButton->isVisible()) {
         searchText->setVisible(false);
     }
@@ -199,9 +200,10 @@ void Ui::ServerView::setActive(const QModelIndex &idx) {
         disconnect(media->model(), SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(aboutToRemove(QModelIndex,int,int)));
         disconnect(media->model(), SIGNAL(systemUpdated()), this, SLOT(systemUpdated()));
         disconnect(media->model(), SIGNAL(searching(bool)), this, SLOT(searching(bool)));
+        disconnect(media->model(), SIGNAL(searchEnabled(bool)), this, SLOT(controlSearch(bool)));
     }
     if (idx.isValid()) {
-        Upnp::Device *dev=static_cast<Upnp::Device *>(idx.internalPointer());
+        Upnp::MediaServer *dev=static_cast<Upnp::MediaServer *>(idx.internalPointer());
         media->setModel(dev);
         updateItems();
         nav->add(idx.data().toString(), QModelIndex(), Core::MonoIcon::icon(dev->icon(), iconColor, iconColor));
@@ -210,6 +212,8 @@ void Ui::ServerView::setActive(const QModelIndex &idx) {
             connect(media->model(), SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(aboutToRemove(QModelIndex,int,int)));
             connect(media->model(), SIGNAL(systemUpdated()), this, SLOT(systemUpdated()));
             connect(media->model(), SIGNAL(searching(bool)), this, SLOT(searching(bool)));
+            connect(media->model(), SIGNAL(searchEnabled(bool)), this, SLOT(controlSearch(bool)));
+            controlSearch(dev->isSearchEnabled());
         }
     } else {
         media->setModel(0);
@@ -389,6 +393,11 @@ void Ui::ServerView::searching(bool status) {
     }
     spinner->setVisible(status);
     spinner->animate(status);
+}
+
+void Ui::ServerView::controlSearch(bool enabled) {
+    searchAction->setEnabled(enabled);
+    showButtons();
 }
 
 void Ui::ServerView::addAlbumToQueue(bool andPlay) {

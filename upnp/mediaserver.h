@@ -188,6 +188,7 @@ public:
     bool hasCommand() const { return !command.isEmpty(); }
     QModelIndex searchIndex() const;
     void refresh(const QModelIndex &index, bool force=false);
+    bool isSearchEnabled() const { return !searchCap.isEmpty(); }
 
 public Q_SLOTS:
     void play(const QModelIndexList &indexes, qint32 pos, PlayCommand::Type type);
@@ -201,6 +202,7 @@ private Q_SLOTS:
 Q_SIGNALS:
     void addTracks(Upnp::Command *cmd);
     void searching(bool);
+    void searchEnabled(bool);
     void systemUpdated();
 
 private:
