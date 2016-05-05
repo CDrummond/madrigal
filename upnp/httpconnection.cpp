@@ -85,7 +85,6 @@ void Upnp::HttpConnection::readData() {
             }
             if ( (chunked && allChunksReceived) || (!chunked && (body.size()>=size || (body.size()==size-1 && body.at(body.size()-1)=='>')))) {
                 DBUG(Http) << "finished" << body.size() << size;
-                qWarning() << body.size() << body;
                 emit notification(headers["SID"], body.replace("\r", ""));
                 QByteArray resp="HTTP/1.1 200 OK\r\nCONNECTION: close\r\nCONTENT-LENGTH: 41\r\nCONTENT-TYPE: text/html\r\n\r\n"
                                 "<html><body><h1>200 OK</h1></body></html>";
@@ -94,7 +93,6 @@ void Upnp::HttpConnection::readData() {
             }
         } else {
             QByteArray data = readLine().trimmed();
-            qWarning() << (void *)this << "LINE" << data;
             if (headers.isEmpty() && !data.startsWith("NOTIFY / HTTP/1.1")) {
                 DBUG(Http) << "Message is not a notification";
                 close();
