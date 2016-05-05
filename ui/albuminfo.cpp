@@ -35,9 +35,10 @@ Ui::AlbumInfo::AlbumInfo(QWidget *p)
     QGridLayout *layout=new QGridLayout(this);
     QWidget *controls=new QWidget(this);
     QVBoxLayout *controlLayout=new QVBoxLayout(controls);
-    layout->setMargin(Utils::scaleForDpi(4));
-    layout->setSpacing(qMin(Utils::scaleForDpi(4), layout->spacing()));
+    layout->setMargin(Utils::scaleForDpi(2));
+    layout->setSpacing(Utils::scaleForDpi(2));
     controlLayout->setMargin(0);
+    controlLayout->setSpacing(0);
     name=new SqueezedTextLabel(this);
     artist=new SqueezedTextLabel(this);
     details=new SqueezedTextLabel(this);
@@ -70,8 +71,8 @@ Ui::AlbumInfo::AlbumInfo(QWidget *p)
     int h=QFontMetrics(name->font()).height()+QFontMetrics(artist->font()).height()+QFontMetrics(details->font()).height()+(layout->spacing()*3);
     cover->setFixedSize(h, h);
     connect(Core::Images::self(), SIGNAL(found(Core::ImageDetails)), this, SLOT(coverLoaded(Core::ImageDetails)));
-    connect(playButton, SIGNAL(pressed()), this, SIGNAL(play()));
-    connect(addButton, SIGNAL(pressed()), this, SIGNAL(add()));
+    connect(playButton, SIGNAL(clicked(bool)), this, SIGNAL(play()));
+    connect(addButton, SIGNAL(clicked(bool)), this, SIGNAL(add()));
 
     QColor iconCol=Utils::clampColor(palette().foreground().color());
     playButton->setIcon(Core::MonoIcon::icon(Core::MonoIcon::ex_mediaplay, iconCol, iconCol));
