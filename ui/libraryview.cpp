@@ -49,9 +49,13 @@ void Ui::LibraryView::setModel(QAbstractItemModel *m) {
 void Ui::LibraryView::setRootIndex(const QModelIndex &index) {
     clearSelection();
 
+    QModelIndex prevTop=indexAt(QPoint(8, 8));
+    QModelIndex prevRoot=rootIndex();
+    ListView::setRootIndex(index);
+
     // Each time we set a new root index, check whether it needs
     // updating...
-    if (model() && index!=rootIndex()) {
+    if (model() && index!=prevRoot) {
         Upnp::MediaServer *srv=qobject_cast<Upnp::MediaServer *>(model());
         if (srv) {
             srv->refresh(index);
@@ -59,12 +63,8 @@ void Ui::LibraryView::setRootIndex(const QModelIndex &index) {
     }
     if (!index.isValid()) {
         prevRows.clear();
-        ListView::setRootIndex(index);
         return;
     }
-    QModelIndex prevTop=indexAt(QPoint(8, 8));
-    QModelIndex prevRoot=rootIndex();
-    ListView::setRootIndex(index);
     if (index.isValid() && index.parent()==prevRoot) {
         // Gone 1 level down tree
         prevRows.append(prevTop.row());
