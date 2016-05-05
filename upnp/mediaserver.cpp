@@ -452,6 +452,7 @@ void Upnp::MediaServer::populate() {
     if (items.isEmpty()) {
         DBUG(MediaServers);
         sendCommand(QByteArray(), "GetSearchCapabilities", constContentDirService);
+        sendCommand(QByteArray(), "GetSystemUpdateID", constContentDirService);
         populate(QModelIndex());
     }
 }
@@ -479,6 +480,9 @@ void Upnp::MediaServer::populate(const QModelIndex &index, int start) {
 void Upnp::MediaServer::commandResponse(QXmlStreamReader &reader, const QByteArray &type, Core::NetworkJob *job) {
     if ("GetSearchCapabilities"==type) {
         parseSearchCapabilities(reader);
+        return;
+    } else if ("GetSystemUpdateID"==type) {
+        parseSystemUpdateId(reader);
         return;
     }
     int total=0;
@@ -584,16 +588,7 @@ void Upnp::MediaServer::notification(const QByteArray &sid, const QByteArray &da
                         reader.readNext();
                         if (reader.isStartElement()) {
                             if (QLatin1String("SystemUpdateID")==reader.name()) {
-                                quint32 systemUpdateId=reader.readElementText().toUInt();
-                                if (systemUpdateId!=lastColUpdateId) {
-                                    bool wasZero=0==lastColUpdateId;
-
-                                    lastColUpdateId=systemUpdateId;
-                                    if (!wasZero) {
-                                        cancelCommands();
-                                        emit systemUpdated();
-                                    }
-                                }
+                                readSystemUpdateId(reader);
                                 return;
                             }
                         } else if (reader.isEndElement() && QLatin1String("property")==reader.name()) {
@@ -820,6 +815,30 @@ void Upnp::MediaServer::parseSearch(QXmlStreamReader &reader) {
             } else if (reader.isEndElement() && QLatin1String("DIDL-Lite")==reader.name()) {
                 break;
             }
+        }
+    }
+}
+
+void Upnp::MediaServer::parseSystemUpdateId(QXmlStreamReader &reader) {
+    while (!reader.atEnd()) {
+        reader.readNext();
+        if (reader.isStartElement() && QLatin1String("Id")==reader.name()) {
+            readSystemUpdateId(reader);
+            return;
+        }
+    }
+}
+
+void Upnp::MediaServer::readSystemUpdateId(QXmlStreamReader &reader) {
+    quint32 systemUpdateId=reader.readElementText().toUInt();
+
+    if (systemUpdateId!=lastColUpdateId) {
+        bool wasZero=0==lastColUpdateId;
+
+        lastColUpdateId=systemUpdateId;
+        if (!wasZero) {
+            cancelCommands();
+            emit systemUpdated();
         }
     }
 }
