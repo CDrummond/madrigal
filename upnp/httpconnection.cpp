@@ -25,9 +25,13 @@
 #include "core/debug.h"
 #include <QTimer>
 
+static const int constMaxLen=32768;
+
 Upnp::HttpConnection::HttpConnection(qintptr socketDescriptor, QObject *p)
     : QTcpSocket(p)
     , headersReceived(false)
+    , chunked(false)
+    , allChunksReceived(false)
     , size(0)
 {
     setSocketDescriptor(socketDescriptor);
@@ -54,9 +58,34 @@ void Upnp::HttpConnection::timeout() {
 void Upnp::HttpConnection::readData() {
     while (bytesAvailable()) {
         if (headersReceived) {
-            body+=readAll();
-            if (body.size()>=size || (body.size()==size-1 && body.at(body.size()-1)=='>')) {
+            if (chunked) {
+                QByteArray data = readLine().replace("\n\r", "").trimmed();
+                if (!data.isEmpty()) {
+                    bool ok=false;
+                    qint64 len=data.toInt(&ok, 16);
+                    if (!ok || len<0 || len>constMaxLen) {
+                        DBUG(Http) << "Invalid chunk len" << len << ok;
+                        close();
+                        return;
+                    }
+                    if (0==len) {
+                        allChunksReceived=true;
+                    } else {
+                        QByteArray newData=read(len);
+                        if (newData.length()!=len) {
+                            DBUG(Http) << "Failed to read chunk";
+                            close();
+                            return;
+                        }
+                        body+=newData;
+                    }
+                }
+            } else {
+                body+=readAll();
+            }
+            if ( (chunked && allChunksReceived) || (!chunked && (body.size()>=size || (body.size()==size-1 && body.at(body.size()-1)=='>')))) {
                 DBUG(Http) << "finished" << body.size() << size;
+                qWarning() << body.size() << body;
                 emit notification(headers["SID"], body.replace("\r", ""));
                 QByteArray resp="HTTP/1.1 200 OK\r\nCONNECTION: close\r\nCONTENT-LENGTH: 41\r\nCONTENT-TYPE: text/html\r\n\r\n"
                                 "<html><body><h1>200 OK</h1></body></html>";
@@ -65,6 +94,7 @@ void Upnp::HttpConnection::readData() {
             }
         } else {
             QByteArray data = readLine().trimmed();
+            qWarning() << (void *)this << "LINE" << data;
             if (headers.isEmpty() && !data.startsWith("NOTIFY / HTTP/1.1")) {
                 DBUG(Http) << "Message is not a notification";
                 close();
@@ -91,11 +121,15 @@ void Upnp::HttpConnection::readData() {
                     return;
                 }
 
-                size = headers.value("CONTENT-LENGTH").toInt();
-                if (size <= 0 || size> 32768) {
-                    DBUG(Http) << "Invalid size" << size;
-                    close();
-                    return;
+                if ("CHUNKED"==headers.value("TRANSFER-ENCODING").toUpper()) {
+                    chunked=true;
+                } else {
+                    size = headers.value("CONTENT-LENGTH").toInt();
+                    if (size <= 0 || size> constMaxLen) {
+                        DBUG(Http) << "Invalid size" << size;
+                        close();
+                        return;
+                    }
                 }
 
                 if (!headers.contains("SID")) {

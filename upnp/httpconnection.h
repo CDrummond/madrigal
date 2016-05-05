@@ -46,6 +46,8 @@ private Q_SLOTS:
 
 private:
     bool headersReceived;
+    bool chunked;
+    bool allChunksReceived;
     quint32 size;
     QByteArray currentHeader;
     QByteArray body;
