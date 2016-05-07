@@ -42,7 +42,6 @@ const char * Upnp::OhRenderer::constRadioService="urn:av-openhome-org:service:Ra
 const char * Upnp::OhRenderer::constReceiverService="urn:av-openhome-org:service:Receiver:1";
 const char * Upnp::OhRenderer::constSenderService="urn:av-openhome-org:service:Sender:1";
 static const char * constProductService="urn:av-openhome-org:service:Product:1";
-static const char * constRenderingControlService="urn:schemas-upnp-org:service:RenderingControl:1";
 static const char * constVolumeService="urn:av-openhome-org:service:Volume:1";
 static const int constReadListSize = 20;
 
@@ -82,7 +81,7 @@ Upnp::OhRenderer::OhRenderer(const Ssdp::Device &device, DevicesModel *parent)
     for(; it!=end; ++it) {
         if (it.key()==constRadioService /* Radio not supported - this is best in server*/ ||
             it.key()==constReceiverService ||
-            (!it.key().startsWith("urn:av-openhome-org:service:") && it.key()!=constRenderingControlService)) {
+            !it.key().startsWith("urn:av-openhome-org:service:")) {
             toRemove.append(it.key());
         }
     }
@@ -670,17 +669,12 @@ void Upnp::OhRenderer::clearQueue() {
 
 void Upnp::OhRenderer::mute(bool m) {
     DBUG(Renderers) << m;
-//    sendCommand("<InstanceID>0</InstanceID><Channel>Master</Channel><DesiredMute>"+QByteArray::number(m ? 1 : 0)+"</DesiredMute>",
-//                "SetMute", constRenderingControlService);
     sendCommand(valueStr(m ? 1 : 0), "SetMute", constVolumeService);
 }
 
 void Upnp::OhRenderer::setVolume(int vol) {
     DBUG(Renderers) << vol;
-//    sendCommand("<InstanceID>0</InstanceID><Channel>Master</Channel><DesiredVolume>"+QByteArray::number(vol)+"</DesiredVolume>",
-//                "SetVolume", constRenderingControlService);
     sendCommand(valueStr(vol), "SetVolume", constVolumeService);
-
 }
 
 void Upnp::OhRenderer::addTracks(Command *cmd) {
