@@ -32,6 +32,10 @@
 #include <QXmlStreamReader>
 #include <QTimer>
 #include <QFile>
+#ifdef Q_OS_LINUX
+#include <sys/types.h>
+#include <sys/socket.h>
+#endif
 
 #define LINE_SEP "\r\n"
 
@@ -305,11 +309,21 @@ void Upnp::Ssdp::listingTimeout() {
 
 void Upnp::Ssdp::connectSocket() {
     if (socket) {
-        socket->deleteLater();
         disconnect(socket, SIGNAL(readyRead()), this, SLOT(readDatagrams()));
+        socket->close();
+        socket->deleteLater();
     }
     socket=new QUdpSocket(this);
+
+    #ifdef Q_OS_LINUX
+    // Workaround for https://bugreports.qt.io/browse/QTBUG-33419
+    socket->setSocketDescriptor(::socket(PF_INET, SOCK_DGRAM, 0), QAbstractSocket::UnconnectedState);
+    int reuse=1;
+    ::setsockopt(socket->socketDescriptor(), SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+    socket->bind(QHostAddress(QHostAddress::AnyIPv4), constPort, QUdpSocket::DefaultForPlatform);
+    #else
     socket->bind(QHostAddress(QHostAddress::AnyIPv4), constPort, QUdpSocket::ReuseAddressHint|QUdpSocket::ShareAddress);
+    #endif
     socket->joinMulticastGroup(QHostAddress(constMulticastGroup));
     connect(socket, SIGNAL(readyRead()), this, SLOT(readDatagrams()));
 }
