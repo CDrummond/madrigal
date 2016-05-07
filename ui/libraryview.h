@@ -47,7 +47,6 @@ private Q_SLOTS:
 
 private:
     Core::Actions::Type getAction(const QModelIndex &index);
-    QModelIndex createIndex();
 
 private:
     QList<int> prevRows;

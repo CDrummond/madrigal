@@ -99,20 +99,3 @@ Core::Actions::Type Ui::LibraryView::getAction(const QModelIndex &index) {
     ListItemDelegate *d=abs ? qobject_cast<ListItemDelegate *>(abs) : 0;
     return d ? (Core::Actions::Type)d->getAction(index) : Core::Actions::Action_None;
 }
-
-QModelIndex Ui::LibraryView::createIndex() {
-    QModelIndex idx;
-    if (!prevRows.isEmpty()) {
-        for (int i=prevRows.count()-1; i>=0 ; --i) {
-            int row=prevRows.at(i);
-            if (-1==row) {
-                break;
-            }
-            idx=model()->index(row, 0, idx);
-            if (!idx.isValid()) {
-                break;
-            }
-        }
-    }
-    return idx;
-}
