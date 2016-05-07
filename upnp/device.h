@@ -91,6 +91,7 @@ public:
         const QString & artistName() const { return albumArtist.isEmpty() ? artist : albumArtist; }
         virtual Core::ImageDetails cover() const;
         virtual Core::MonoIcon::Type icon() const { return isBroadcast ? Core::MonoIcon::ex_radio : Core::MonoIcon::music; }
+        QByteArray toXml() const;
         bool isBroadcast;
         QString artistAndAlbum() const;
         QString describe() const;

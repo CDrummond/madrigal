@@ -113,6 +113,82 @@ QString Upnp::Device::MusicTrack::describe() const {
             : QObject::tr("%1 by %2 on %3").arg(name).arg(artist).arg(album);
 }
 
+QByteArray Upnp::Device::MusicTrack::toXml() const {
+    QByteArray xml;
+    QXmlStreamWriter writer(&xml);
+
+    writer.writeStartDocument();
+    writer.writeStartElement(QLatin1String("DIDL-Lite"));
+    writer.writeDefaultNamespace(QLatin1String("urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"));
+    writer.writeNamespace(QLatin1String("http://purl.org/dc/elements/1.1/"), QLatin1String("dc"));
+    writer.writeNamespace(QLatin1String("urn:schemas-upnp-org:metadata-1-0/upnp/"), QLatin1String("upnp"));
+    writer.writeNamespace(QLatin1String("urn:schemas-dlna-org:metadata-1-0/"), QLatin1String("dlna"));
+    writer.writeStartElement(QLatin1String("item"));
+//    xml.writeAttribute(QLatin1String("id"), "TODO");
+    if (!name.isEmpty()) {
+        writer.writeStartElement(QLatin1String("dc:title"));
+        writer.writeCharacters(name);
+        writer.writeEndElement();
+    }
+    if (!artist.isEmpty()) {
+        writer.writeStartElement(QLatin1String("dc:creator"));
+        writer.writeCharacters(artist);
+        writer.writeEndElement();
+        writer.writeStartElement(QLatin1String("upnp:artist"));
+        writer.writeCharacters(artist);
+        writer.writeEndElement();
+    }
+    if (!albumArtist.isEmpty()) {
+        writer.writeStartElement(QLatin1String("upnp:albumArtist"));
+        writer.writeCharacters(albumArtist);
+        writer.writeEndElement();
+    }
+    if (!album.isEmpty()) {
+        writer.writeStartElement(QLatin1String("upnp:album"));
+        writer.writeCharacters(album);
+        writer.writeEndElement();
+    }
+    if (!artUrl.isEmpty()) {
+        writer.writeStartElement(QLatin1String("upnp:albumArtURI"));
+        writer.writeCharacters(artUrl);
+        writer.writeEndElement();
+    }
+    if (track>0) {
+        writer.writeStartElement(QLatin1String("upnp:originalTrackNumber"));
+        writer.writeCharacters(QString::number(track));
+        writer.writeEndElement();
+    }
+    if (!date.isEmpty()) {
+        writer.writeStartElement(QLatin1String("dc:date"));
+        writer.writeCharacters(date);
+        writer.writeEndElement();
+    }
+    if (!genre.isEmpty()) {
+        writer.writeStartElement(QLatin1String("upnp:genre"));
+        writer.writeCharacters(genre);
+        writer.writeEndElement();
+    }
+
+    if (!url.isEmpty()) {
+        writer.writeStartElement(QLatin1String("res"));
+        QMap<QString, QString>::ConstIterator it=res.constBegin();
+        QMap<QString, QString>::ConstIterator end=res.constEnd();
+        for (; it!=end; ++it) {
+            writer.writeAttribute(it.key(), it.value());
+        }
+        writer.writeCharacters(url);
+        writer.writeEndElement();
+    }
+    writer.writeStartElement(QLatin1String("upnp:class"));
+    writer.writeCharacters(isBroadcast ? constBroadcastClass : constTrackClass);
+    writer.writeEndElement();
+
+    writer.writeEndElement();
+    writer.writeEndElement();
+    writer.writeEndDocument();
+    return xml;
+}
+
 void Upnp::Device::setMonoIconCol(const QColor &col) {
     if (col!=monoIconColor) {
         monoIconColor=col;

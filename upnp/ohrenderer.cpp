@@ -709,79 +709,6 @@ void Upnp::OhRenderer::addTrack(quint32 after) {
 }
 
 void Upnp::OhRenderer::addTrack(const MusicTrack *track, quint32 after) {
-    QByteArray data;
-    QXmlStreamWriter meta(&data);
-
-    meta.writeStartDocument();
-    meta.writeStartElement(QLatin1String("DIDL-Lite"));
-    meta.writeDefaultNamespace(QLatin1String("urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"));
-    meta.writeNamespace(QLatin1String("http://purl.org/dc/elements/1.1/"), QLatin1String("dc"));
-    meta.writeNamespace(QLatin1String("urn:schemas-upnp-org:metadata-1-0/upnp/"), QLatin1String("upnp"));
-    meta.writeNamespace(QLatin1String("urn:schemas-dlna-org:metadata-1-0/"), QLatin1String("dlna"));
-    meta.writeStartElement(QLatin1String("item"));
-//    xml.writeAttribute(QLatin1String("id"), "TODO");
-    if (!track->name.isEmpty()) {
-        meta.writeStartElement(QLatin1String("dc:title"));
-        meta.writeCharacters(track->name);
-        meta.writeEndElement();
-    }
-    if (!track->artist.isEmpty()) {
-        meta.writeStartElement(QLatin1String("dc:creator"));
-        meta.writeCharacters(track->artist);
-        meta.writeEndElement();
-        meta.writeStartElement(QLatin1String("upnp:artist"));
-        meta.writeCharacters(track->artist);
-        meta.writeEndElement();
-    }
-    if (!track->albumArtist.isEmpty()) {
-        meta.writeStartElement(QLatin1String("upnp:albumArtist"));
-        meta.writeCharacters(track->albumArtist);
-        meta.writeEndElement();
-    }
-    if (!track->album.isEmpty()) {
-        meta.writeStartElement(QLatin1String("upnp:album"));
-        meta.writeCharacters(track->album);
-        meta.writeEndElement();
-    }
-    if (!track->artUrl.isEmpty()) {
-        meta.writeStartElement(QLatin1String("upnp:albumArtURI"));
-        meta.writeCharacters(track->artUrl);
-        meta.writeEndElement();
-    }
-    if (track->track>0) {
-        meta.writeStartElement(QLatin1String("upnp:originalTrackNumber"));
-        meta.writeCharacters(QString::number(track->track));
-        meta.writeEndElement();
-    }
-    if (!track->date.isEmpty()) {
-        meta.writeStartElement(QLatin1String("dc:date"));
-        meta.writeCharacters(track->date);
-        meta.writeEndElement();
-    }
-    if (!track->genre.isEmpty()) {
-        meta.writeStartElement(QLatin1String("upnp:genre"));
-        meta.writeCharacters(track->genre);
-        meta.writeEndElement();
-    }
-
-    if (!track->url.isEmpty()) {
-        meta.writeStartElement(QLatin1String("res"));
-        QMap<QString, QString>::ConstIterator it=track->res.constBegin();
-        QMap<QString, QString>::ConstIterator end=track->res.constEnd();
-        for (; it!=end; ++it) {
-            meta.writeAttribute(it.key(), it.value());
-        }
-        meta.writeCharacters(track->url);
-        meta.writeEndElement();
-    }
-    meta.writeStartElement(QLatin1String("upnp:class"));
-    meta.writeCharacters(track->isBroadcast ? constBroadcastClass : constTrackClass);
-    meta.writeEndElement();
-
-    meta.writeEndElement();
-    meta.writeEndElement();
-    meta.writeEndDocument();
-
     QByteArray msg;
     QXmlStreamWriter outer(&msg);
     outer.writeStartElement(QLatin1String("AfterId"));
@@ -791,7 +718,7 @@ void Upnp::OhRenderer::addTrack(const MusicTrack *track, quint32 after) {
     outer.writeCharacters(track->url);
     outer.writeEndElement();
     outer.writeStartElement(QLatin1String("Metadata"));
-    outer.writeCharacters(data);
+    outer.writeCharacters(track->toXml());
     outer.writeEndElement();
 
     sendCommand(msg, "Insert", constPlaylistService);
