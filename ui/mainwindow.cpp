@@ -33,6 +33,7 @@
 #include "ui/preferencesdialog.h"
 #ifdef Q_OS_MAC
 #include "ui/windowmanager.h"
+#include "mac/osxstyle.h"
 #endif
 #include "upnp/device.h"
 #include "core/configuration.h"
@@ -52,6 +53,7 @@
 
 Ui::MainWindow::MainWindow(QWidget *p)
     : QMainWindow(p)
+    , preferences(0)
 {
     #if !defined Q_OS_WIN && !defined Q_OS_MAC
     new MadrigalAdaptor(this);
@@ -117,6 +119,7 @@ Ui::MainWindow::MainWindow(QWidget *p)
     // For Mac, dont set a Window Icon - as this is draggable.
     // Set icon on toolbar, and use that as parent for about dialog
     toolBar->setWindowIcon(QIcon::fromTheme(PACKAGE_NAME));
+    Mac::OSXStyle::self()->initWindowMenu(this);
     #else
     setWindowIcon(QIcon::fromTheme(PACKAGE_NAME));
     #endif
@@ -138,8 +141,13 @@ void Ui::MainWindow::raise() {
 }
 
 void Ui::MainWindow::showPreferences() {
-    Ui::PreferencesDialog dlg(this, renderer);
-    dlg.exec();
+    if (preferences) {
+        Ui::Utils::raiseWindow(preferences);
+    } else {
+        preferences=new Ui::PreferencesDialog(this, renderer);
+        preferences->show();
+        connect(preferences, SIGNAL(destroyed(QObject*)), SLOT(preferencesDestroyed()));
+    }
 }
 
 void Ui::MainWindow::showAbout() {
@@ -154,4 +162,8 @@ void Ui::MainWindow::showAbout() {
                           "Released under the <a href=\"http://www.gnu.org/licenses/gpl.html\">GPLv3</a>").
                        arg(PACKAGE_NAME_CASE).arg(PACKAGE_VERSION_STRING));
 
+}
+
+void Ui::MainWindow::preferencesDestroyed() {
+    preferences=0;
 }

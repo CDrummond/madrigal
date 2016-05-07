@@ -30,6 +30,7 @@ namespace Ui {
 class ToolBar;
 class ThinSplitter;
 class RendererView;
+class PreferencesDialog;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -43,11 +44,13 @@ public Q_SLOTS:
 private Q_SLOTS:
     void showPreferences();
     void showAbout();
+    void preferencesDestroyed();
 
 private:
     ToolBar *toolBar;
     ThinSplitter *splitter;
     RendererView *renderer;
+    PreferencesDialog *preferences;
 };
 }
 

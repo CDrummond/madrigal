@@ -39,7 +39,13 @@ Q_OBJECT
 
 public:
     PreferencesDialog(QWidget *p, RendererView *rv);
-    virtual ~PreferencesDialog() { }
+    virtual ~PreferencesDialog();
+
+    #ifdef Q_OS_MAC
+    void showEvent(QHideEvent *e);
+    void hideEvent(QHideEvent *e);
+    void closeEvent(QCloseEvent *e);
+    #endif
 
 private Q_SLOTS:
     void clearCache();

@@ -30,6 +30,7 @@
 #endif
 #ifdef Q_OS_MAC
 #include "mac/notify.h"
+#include "mac/osxstyle.h"
 #endif
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
@@ -43,6 +44,7 @@ Ui::PreferencesDialog::PreferencesDialog(QWidget *p, RendererView *rv)
     : QDialog(p)
     , rendererView(rv)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     setWindowTitle(tr("Preferences"));
     QVBoxLayout *lay=new QVBoxLayout(this);
 
@@ -104,7 +106,35 @@ Ui::PreferencesDialog::PreferencesDialog(QWidget *p, RendererView *rv)
         #endif
         connect(autoScrollPlayQueue, SIGNAL(toggled(bool)), this, SLOT(save()));
     }
+    #ifdef Q_OS_MAC
+    OSXStyle::self()->removeWindow(this);
+    #endif
 }
+
+Ui::PreferencesDialog::~PreferencesDialog() {
+    #ifdef Q_OS_MAC
+    Mac::OSXStyle::self()->removeWindow(this);
+    #endif
+}
+
+#ifdef Q_OS_MAC
+void Ui::PreferencesDialog::showEvent(QHideEvent *e) {
+    if (!isModal()) {
+        Mac::OSXStyle::self()->addWindow(this);
+    }
+    QDialog::showEvent(e);
+}
+
+void Ui::PreferencesDialog::hideEvent(QHideEvent *e) {
+    Mac::OSXStyle::self()->removeWindow(this);
+    QDialog::hideEvent(e);
+}
+
+void Ui::PreferencesDialog::closeEvent(QCloseEvent *e) {
+    Mac::OSXStyle::self()->removeWindow(this);
+    QDialog::closeEvent(e);
+}
+#endif
 
 void Ui::PreferencesDialog::clearCache() {
     if (QMessageBox::Yes==QMessageBox::question(this, tr("Clear Cache"), tr("Clear all cached album covers?"))) {
