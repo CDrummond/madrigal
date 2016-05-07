@@ -117,6 +117,9 @@ void Upnp::OhRenderer::populate() {
         sendCommand("", "Repeat", constPlaylistService);
         sendCommand("", "Shuffle", constPlaylistService);
         sendCommand("", "TransportState", constPlaylistService);
+        sendCommand("", "Volume", constVolumeService);
+        sendCommand("", "VolumeLimit", constVolumeService);
+        sendCommand("", "Mute", constVolumeService);
     }
 }
 
@@ -149,6 +152,12 @@ void Upnp::OhRenderer::commandResponse(QXmlStreamReader &reader, const QByteArra
         handleSourceXml(xmlReader);
     } else if ("DeleteAll"==type && currentCmd && Command::ReplaceAndPlay==currentCmd->type) {
         addTrack(0);
+    } else if ("Volume"==type) {
+        updateVolume(getValue(reader));
+    } else if ("VolumeLimit"==type) {
+        updateVolumeLimit(getValue(reader));
+    } else if ("Mute"==type) {
+        updateMute(getValue(reader));
     }
     messageReceived();
 }
@@ -209,24 +218,12 @@ void Upnp::OhRenderer::notification(const QByteArray &sid, const QByteArray &dat
                                         volState.steps=val;
                                         emit volumeState(volState);
                                     }
-                                } else if (QLatin1String("VolumeMax")==reader.name()) {
-                                    quint32 val=reader.readElementText().toUInt();
-                                    if (val!=volState.max) {
-                                        volState.max=val;
-                                        emit volumeState(volState);
-                                    }
+                                } else if (QLatin1String("VolumeLimit")==reader.name()) {
+                                    updateVolumeLimit(reader.readElementText());
                                 } else if (QLatin1String("Volume")==reader.name()) {
-                                    quint32 val=reader.readElementText().toUInt();
-                                    if (val!=volState.current) {
-                                        volState.current=val;
-                                        emit volumeState(volState);
-                                    }
+                                    updateVolume(reader.readElementText());
                                 } else if (QLatin1String("Mute")==reader.name()) {
-                                    bool val=toBool(reader.readElementText());
-                                    if (val!=volState.muted) {
-                                        volState.muted=val;
-                                        emit volumeState(volState);
-                                    }
+                                    updateMute(reader.readElementText());
                                 } else if (QLatin1String("TransportState")==reader.name()) {
                                     updateTransportState(reader.readElementText());
                                 } else if (QLatin1String("Uri")==reader.name()) {
@@ -296,13 +293,43 @@ void Upnp::OhRenderer::updateRepeat(const QString &val) {
     if (val.isEmpty()) {
         return;
     }
-    if (val.isEmpty()) {
-        return;
-    }
     bool v=toBool(val);
     if (v!=playState.repeat) {
         playState.repeat=v;
         emit repeat(playState.repeat);
+    }
+}
+
+void Upnp::OhRenderer::updateVolume(const QString &val) {
+    if (val.isEmpty()) {
+        return;
+    }
+    quint32 vol=val.toUInt();
+    if (vol!=volState.current) {
+        volState.current=vol;
+        emit volumeState(volState);
+    }
+}
+
+void Upnp::OhRenderer::updateVolumeLimit(const QString &val) {
+    if (val.isEmpty()) {
+        return;
+    }
+    quint32 lim=val.toUInt();
+    if (lim!=volState.max) {
+        volState.max=lim;
+        emit volumeState(volState);
+    }
+}
+
+void Upnp::OhRenderer::updateMute(const QString &val) {
+    if (val.isEmpty()) {
+        return;
+    }
+    bool m=toBool(val);
+    if (m!=volState.muted) {
+        volState.muted=m;
+        emit volumeState(volState);
     }
 }
 
@@ -643,8 +670,9 @@ void Upnp::OhRenderer::clearQueue() {
 
 void Upnp::OhRenderer::mute(bool m) {
     DBUG(Renderers) << m;
-    sendCommand("<InstanceID>0</InstanceID><Channel>Master</Channel><DesiredMute>"+QByteArray::number(m ? 1 : 0)+"</DesiredMute>",
-                "SetMute", constRenderingControlService);
+//    sendCommand("<InstanceID>0</InstanceID><Channel>Master</Channel><DesiredMute>"+QByteArray::number(m ? 1 : 0)+"</DesiredMute>",
+//                "SetMute", constRenderingControlService);
+    sendCommand(valueStr(m ? 1 : 0), "SetMute", constVolumeService);
 }
 
 void Upnp::OhRenderer::setVolume(int vol) {

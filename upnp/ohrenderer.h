@@ -65,6 +65,9 @@ private:
     void updateCurrentTrackId(const QString &val);
     void updateShuffle(const QString &val);
     void updateRepeat(const QString &val);
+    void updateVolume(const QString &val);
+    void updateVolumeLimit(const QString &val);
+    void updateMute(const QString &val);
     void handleIdArray(QXmlStreamReader &reader);
     void handleInsert(QXmlStreamReader &reader);
     void handleSourceIndex(quint32 val);
