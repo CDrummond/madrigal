@@ -231,9 +231,9 @@ void Upnp::OhRenderer::notification(const QByteArray &sid, const QByteArray &dat
                                     updateTransportState(reader.readElementText());
                                 } else if (QLatin1String("Uri")==reader.name()) {
                                     ; // qWarning() << "Uri:" << reader.readElementText();
-                                } else if ("SourceIndex"==reader.name()) {
+                                } else if (QLatin1String("SourceIndex")==reader.name()) {
                                     handleSourceIndex(reader.readElementText().toUInt());
-                                } else if ("SourceXml"==reader.name()) {
+                                } else if (QLatin1String("SourceXml")==reader.name()) {
                                     QXmlStreamReader xmlReader(reader.readElementText());
                                     handleSourceXml(xmlReader);
                                 }
@@ -351,8 +351,8 @@ void Upnp::OhRenderer::handleSourceIndex(quint32 val) {
         sourceIndex=val;
         // TODO: When handle Radio/SongCast will need to emit!
 
-        if (sourceIndex<sources.count() && sources.at(sourceIndex).type!="Playlist") {
-            selectSource("Playlist");
+        if (sourceIndex<sources.count() && sources.at(sourceIndex).type!=QLatin1String("Playlist")) {
+            selectSource(QLatin1String("Playlist"));
         }
     }
 }
@@ -385,7 +385,7 @@ void Upnp::OhRenderer::handleSourceXml(QXmlStreamReader &reader) {
         DBUG(Renderers) << "sourceXml changed";
         sources=src;
         // TODO: When handle Radio/SongCast will need to emit list!
-        selectSource("Playlist");
+        selectSource(QLatin1String("Playlist"));
     }
 }
 
@@ -691,59 +691,59 @@ void Upnp::OhRenderer::addTrack(const MusicTrack *track, quint32 after) {
     QXmlStreamWriter meta(&data);
 
     meta.writeStartDocument();
-    meta.writeStartElement("DIDL-Lite");
-    meta.writeDefaultNamespace("urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/");
-    meta.writeNamespace("http://purl.org/dc/elements/1.1/", "dc");
-    meta.writeNamespace("urn:schemas-upnp-org:metadata-1-0/upnp/", "upnp");
-    meta.writeNamespace("urn:schemas-dlna-org:metadata-1-0/", "dlna");
-    meta.writeStartElement("item");
-//    xml.writeAttribute("id", "TODO");
+    meta.writeStartElement(QLatin1String("DIDL-Lite"));
+    meta.writeDefaultNamespace(QLatin1String("urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"));
+    meta.writeNamespace(QLatin1String("http://purl.org/dc/elements/1.1/"), QLatin1String("dc"));
+    meta.writeNamespace(QLatin1String("urn:schemas-upnp-org:metadata-1-0/upnp/"), QLatin1String("upnp"));
+    meta.writeNamespace(QLatin1String("urn:schemas-dlna-org:metadata-1-0/"), QLatin1String("dlna"));
+    meta.writeStartElement(QLatin1String("item"));
+//    xml.writeAttribute(QLatin1String("id"), "TODO");
     if (!track->name.isEmpty()) {
-        meta.writeStartElement("dc:title");
+        meta.writeStartElement(QLatin1String("dc:title"));
         meta.writeCharacters(track->name);
         meta.writeEndElement();
     }
     if (!track->artist.isEmpty()) {
-        meta.writeStartElement("dc:creator");
+        meta.writeStartElement(QLatin1String("dc:creator"));
         meta.writeCharacters(track->artist);
         meta.writeEndElement();
-        meta.writeStartElement("upnp:artist");
+        meta.writeStartElement(QLatin1String("upnp:artist"));
         meta.writeCharacters(track->artist);
         meta.writeEndElement();
     }
     if (!track->albumArtist.isEmpty()) {
-        meta.writeStartElement("upnp:albumArtist");
+        meta.writeStartElement(QLatin1String("upnp:albumArtist"));
         meta.writeCharacters(track->albumArtist);
         meta.writeEndElement();
     }
     if (!track->album.isEmpty()) {
-        meta.writeStartElement("upnp:album");
+        meta.writeStartElement(QLatin1String("upnp:album"));
         meta.writeCharacters(track->album);
         meta.writeEndElement();
     }
     if (!track->artUrl.isEmpty()) {
-        meta.writeStartElement("upnp:albumArtURI");
+        meta.writeStartElement(QLatin1String("upnp:albumArtURI"));
         meta.writeCharacters(track->artUrl);
         meta.writeEndElement();
     }
     if (track->track>0) {
-        meta.writeStartElement("upnp:originalTrackNumber");
+        meta.writeStartElement(QLatin1String("upnp:originalTrackNumber"));
         meta.writeCharacters(QString::number(track->track));
         meta.writeEndElement();
     }
     if (!track->date.isEmpty()) {
-        meta.writeStartElement("dc:date");
+        meta.writeStartElement(QLatin1String("dc:date"));
         meta.writeCharacters(track->date);
         meta.writeEndElement();
     }
     if (!track->genre.isEmpty()) {
-        meta.writeStartElement("upnp:genre");
+        meta.writeStartElement(QLatin1String("upnp:genre"));
         meta.writeCharacters(track->genre);
         meta.writeEndElement();
     }
 
     if (!track->url.isEmpty()) {
-        meta.writeStartElement("res");
+        meta.writeStartElement(QLatin1String("res"));
         QMap<QString, QString>::ConstIterator it=track->res.constBegin();
         QMap<QString, QString>::ConstIterator end=track->res.constEnd();
         for (; it!=end; ++it) {
@@ -752,7 +752,7 @@ void Upnp::OhRenderer::addTrack(const MusicTrack *track, quint32 after) {
         meta.writeCharacters(track->url);
         meta.writeEndElement();
     }
-    meta.writeStartElement("upnp:class");
+    meta.writeStartElement(QLatin1String("upnp:class"));
     meta.writeCharacters(track->isBroadcast ? constBroadcastClass : constTrackClass);
     meta.writeEndElement();
 
@@ -762,13 +762,13 @@ void Upnp::OhRenderer::addTrack(const MusicTrack *track, quint32 after) {
 
     QByteArray msg;
     QXmlStreamWriter outer(&msg);
-    outer.writeStartElement("AfterId");
+    outer.writeStartElement(QLatin1String("AfterId"));
     outer.writeCharacters(QString::number(after));
     outer.writeEndElement();
-    outer.writeStartElement("Uri");
+    outer.writeStartElement(QLatin1String("Uri"));
     outer.writeCharacters(track->url);
     outer.writeEndElement();
-    outer.writeStartElement("Metadata");
+    outer.writeStartElement(QLatin1String("Metadata"));
     outer.writeCharacters(data);
     outer.writeEndElement();
 
