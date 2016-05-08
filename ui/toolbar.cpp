@@ -102,6 +102,7 @@ Ui::ToolBar::ToolBar(QWidget *parent)
 
     layout()->setSpacing(0);
     layout()->setMargin(0);
+    setEnabled(false);
 }
 
 void Ui::ToolBar::addMenuButton(QMenu *mnu) {
@@ -149,13 +150,18 @@ void Ui::ToolBar::setRenderer(const QModelIndex &idx) {
         connect(renderer, SIGNAL(playbackState(Upnp::Renderer::State)), this, SLOT(playbackState(Upnp::Renderer::State)));
         connect(renderer, SIGNAL(modelReset()), this, SLOT(modelReset()));
         nowPlaying->update(renderer->current());
+        nowPlaying->updatePos(renderer->playback().seconds);
+        nowPlaying->updateDuration(renderer->playback().duration);
         volumeSlider->set(renderer->volume());
     } else {
         nowPlaying->update(QModelIndex());
+        nowPlaying->updatePos(0);
+        nowPlaying->updateDuration(0);
         playbackState(Upnp::Renderer::Null);
         nowPlaying->setEnabled(false);
         playPauseAction->setIcon(playIcon);
     }
+    setEnabled(0!=renderer);
 }
 
 void Ui::ToolBar::playbackState(Upnp::Renderer::State state) {

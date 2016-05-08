@@ -190,6 +190,19 @@ void Ui::RendererView::updateItems(bool activeSet) {
 
 void Ui::RendererView::setActive(const QModelIndex &idx) {
     DBUG(Ui) << (void *)sender() << idx.isValid();
+    if (queue->model()) {
+        disconnect(queue->model(), SIGNAL(queueDetails(quint32,quint32)), this, SLOT(updateStats(quint32,quint32)));
+        disconnect(queue->model(), SIGNAL(repeat(bool)), repeatAction, SLOT(setChecked(bool)));
+        disconnect(queue->model(), SIGNAL(shuffle(bool)), shuffleAction, SLOT(setChecked(bool)));
+        disconnect(queue->model(), SIGNAL(currentTrack(QModelIndex)), this, SLOT(scrollTo(QModelIndex)));
+        disconnect(repeatAction, SIGNAL(toggled(bool)), queue->model(), SLOT(setRepeat(bool)));
+        disconnect(shuffleAction, SIGNAL(toggled(bool)), queue->model(), SLOT(setShuffle(bool)));
+        disconnect(queue, SIGNAL(doubleClicked(QModelIndex)), queue->model(), SLOT(play(QModelIndex)));
+        disconnect(queue, SIGNAL(activated(QModelIndex)), queue->model(), SLOT(play(QModelIndex)));
+        updateStats(0, 0);
+        removeAction->setEnabled(false);
+        queue->setModel(0);
+    }
     if (idx.isValid()) {
         Upnp::Renderer *renderer=static_cast<Upnp::Renderer *>(idx.internalPointer());
         queue->setModel(renderer);
@@ -205,21 +218,8 @@ void Ui::RendererView::setActive(const QModelIndex &idx) {
         rendererSelect->setText(idx.data().toString());
         rendererSelect->setIcon(Core::MonoIcon::icon(renderer->icon(), iconColor, iconColor));
         removeAction->setEnabled(!queue->selectedIndexes().isEmpty());
-    } else {
-        Upnp::Renderer *renderer=static_cast<Upnp::Renderer *>(queue->model());
-        if (renderer) {
-            disconnect(renderer, SIGNAL(queueDetails(quint32,quint32)), this, SLOT(updateStats(quint32,quint32)));
-            disconnect(renderer, SIGNAL(repeat(bool)), repeatAction, SLOT(setChecked(bool)));
-            disconnect(renderer, SIGNAL(shuffle(bool)), shuffleAction, SLOT(setChecked(bool)));
-            disconnect(renderer, SIGNAL(currentTrack(QModelIndex)), this, SLOT(scrollTo(QModelIndex)));
-            disconnect(repeatAction, SIGNAL(toggled(bool)), renderer, SLOT(setRepeat(bool)));
-            disconnect(shuffleAction, SIGNAL(toggled(bool)), renderer, SLOT(setShuffle(bool)));
-            disconnect(queue, SIGNAL(doubleClicked(QModelIndex)), renderer, SLOT(play(QModelIndex)));
-            disconnect(queue, SIGNAL(activated(QModelIndex)), renderer, SLOT(play(QModelIndex)));
-        }
-        updateStats(0, 0);
-        removeAction->setEnabled(false);
-        queue->setModel(0);
+        repeatAction->setChecked(renderer->playback().repeat);
+        shuffleAction->setChecked(renderer->playback().shuffle);
     }
 }
 
