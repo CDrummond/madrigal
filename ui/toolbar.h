@@ -52,6 +52,7 @@ private Q_SLOTS:
 
 private:
     void addSpacer();
+    void enableControls(bool en);
 
 private:
     Action *prevAction;

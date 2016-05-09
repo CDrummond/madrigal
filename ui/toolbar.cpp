@@ -90,19 +90,12 @@ Ui::ToolBar::ToolBar(QWidget *parent)
     addWidget(volumeSlider);
     addSpacer();
 
-    ensurePolished();
-
-    prevAction->setEnabled(false);
-    playPauseAction->setEnabled(false);
-    nextAction->setEnabled(false);
-    nowPlaying->update(QModelIndex());
-    volumeSlider->setEnabled(false);
-
-    connect(Upnp::Model::self()->renderersModel(), SIGNAL(activeDevice(QModelIndex)), SLOT(setRenderer(QModelIndex)));
-
     layout()->setSpacing(0);
     layout()->setMargin(0);
-    setEnabled(false);
+    nowPlaying->update(QModelIndex());
+    enableControls(false);
+    ensurePolished();
+    connect(Upnp::Model::self()->renderersModel(), SIGNAL(activeDevice(QModelIndex)), SLOT(setRenderer(QModelIndex)));
 }
 
 void Ui::ToolBar::addMenuButton(QMenu *mnu) {
@@ -135,7 +128,7 @@ void Ui::ToolBar::setRenderer(const QModelIndex &idx) {
         disconnect(renderer, SIGNAL(modelReset()), this, SLOT(modelReset()));
     }
     renderer=r;
-    volumeSlider->setEnabled(0!=renderer);
+    enableControls(0!=renderer);
     if (renderer) {
         connect(prevAction, SIGNAL(triggered(bool)), renderer, SLOT(previous()));
         connect(playPauseAction, SIGNAL(triggered(bool)), renderer, SLOT(playPause()));
@@ -158,10 +151,8 @@ void Ui::ToolBar::setRenderer(const QModelIndex &idx) {
         nowPlaying->updatePos(0);
         nowPlaying->updateDuration(0);
         playbackState(Upnp::Renderer::Null);
-        nowPlaying->setEnabled(false);
         playPauseAction->setIcon(playIcon);
     }
-    setEnabled(0!=renderer);
 }
 
 void Ui::ToolBar::playbackState(Upnp::Renderer::State state) {
@@ -202,4 +193,12 @@ void Ui::ToolBar::addSpacer() {
     QWidget *sep=new QWidget(this);
     sep->setFixedWidth(qMax(Utils::scaleForDpi(8), Utils::layoutSpacing(this)));
     addWidget(sep);
+}
+
+void Ui::ToolBar::enableControls(bool en) {
+    volumeSlider->setEnabled(en);
+    prevAction->setEnabled(en);
+    playPauseAction->setEnabled(en);
+    nextAction->setEnabled(en);
+    nowPlaying->setEnabled(en);
 }
