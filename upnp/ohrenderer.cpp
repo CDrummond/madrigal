@@ -27,15 +27,7 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QFont>
-#ifdef Q_OS_MAC
-#include <libkern/OSByteOrder.h>
-#define be32toh(x) OSSwapBigToHostInt32(x)
-#elif defined Q_OS_WIN
 #include <QtEndian>
-#define be32toh(x) qFromBigEndian(x)
-#else
-#include <endian.h>
-#endif
 
 const char * Upnp::OhRenderer::constPlaylistService="urn:av-openhome-org:service:Playlist:1";
 const char * Upnp::OhRenderer::constRadioService="urn:av-openhome-org:service:Radio:1";
@@ -52,7 +44,7 @@ static QList<quint32> decodeIds(QXmlStreamReader &reader) {
     if (idArray.toBase64()==encoded && 0==idArray.length()%4) {
         const char *data=idArray.constData();
         for (int i=0; i<idArray.length(); i+=4) {
-            ids.append(be32toh(*(quint32 *)(&data[i])));
+            ids.append(qFromBigEndian(*(quint32 *)(&data[i])));
         }
     } else {
         // Signal error...
