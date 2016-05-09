@@ -296,6 +296,9 @@ void Upnp::MediaServer::refresh(const QModelIndex &index, bool force) {
     }
 
     Collection *col=static_cast<Collection *>(index.internalPointer());
+    if (State_Populating==col->state) {
+        return;
+    }
     if (!force && (0==lastColUpdateId || col->updateId==lastColUpdateId)) {
         return;
     }
@@ -581,6 +584,8 @@ void Upnp::MediaServer::notification(const QByteArray &sid, const QByteArray &da
     DBUG(MediaServers) << data;
 
     QXmlStreamReader reader(data);
+    quint32 sysUpdateId=0;
+    QStringList containerUpdateIds;
 
     while (!reader.atEnd()) {
         reader.readNext();
@@ -592,12 +597,49 @@ void Upnp::MediaServer::notification(const QByteArray &sid, const QByteArray &da
                         reader.readNext();
                         if (reader.isStartElement()) {
                             if (QLatin1String("SystemUpdateID")==reader.name()) {
-                                readSystemUpdateId(reader);
-                                return;
+                                sysUpdateId=reader.readElementText().toUInt();
+                            } else if (QLatin1String("ContainerUpdateIDs")==reader.name()) {
+                                containerUpdateIds=reader.readElementText().split(',');
                             }
                         } else if (reader.isEndElement() && QLatin1String("property")==reader.name()) {
                             break;
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    if (containerUpdateIds.isEmpty()) {
+        // No cotainer update IDS, so just hande this update...
+        checkSystemUpdateId(sysUpdateId);
+    } else {
+        // If we get ContainerUpdateIDs then we can use this to just update the
+        // parts that have changed. Hence here we do not need to refresh the
+        // whole model.
+
+        if (0!=sysUpdateId) {
+            lastColUpdateId=sysUpdateId;
+        }
+
+        // containerUpdateIds is comma separated list of ids and version values
+        // e.g. ida,vera,idb,verb
+
+        // First cancel any play, or search, commands...
+        cancelCommands();
+
+        // Now update modified IDs...
+        QStringList update=reader.readElementText().split(',');
+        if (!update.isEmpty() && 0==update.count()%2) {
+            for (int i=0; i<update.count(); i+=2) {
+                QByteArray id=update.at(i).toLatin1();
+                if (constRootId==id) {
+                    refresh(QModelIndex());
+                } else {
+                    // See if we have loaded this id...
+                    QModelIndex idx=findItem(id, QModelIndex());
+                    if (idx.isValid()) {
+                        refresh(idx);
                     }
                 }
             }
@@ -829,22 +871,25 @@ void Upnp::MediaServer::parseSystemUpdateId(QXmlStreamReader &reader) {
     while (!reader.atEnd()) {
         reader.readNext();
         if (reader.isStartElement() && QLatin1String("Id")==reader.name()) {
-            readSystemUpdateId(reader);
+            checkSystemUpdateId(reader.readElementText().toUInt());
             return;
         }
     }
 }
 
-void Upnp::MediaServer::readSystemUpdateId(QXmlStreamReader &reader) {
-    quint32 systemUpdateId=reader.readElementText().toUInt();
-
-    if (systemUpdateId!=lastColUpdateId) {
+void Upnp::MediaServer::checkSystemUpdateId(quint32 systemUpdateId) {
+    if (0!=systemUpdateId && systemUpdateId!=lastColUpdateId) {
         bool wasZero=0==lastColUpdateId;
 
         lastColUpdateId=systemUpdateId;
         if (!wasZero) {
+            // System UpdateID chnaged from non-zero to non-zero, so refresh complete
+            // model. Any existing IDs may no longer be valid. If the server supports
+            // partial updates of its model - then we would have got ContainerUpdateIDs
+            // and this is handled separately.
             cancelCommands();
-            emit systemUpdated();
+            emit info(tr("Library updated"), Notif_Update, constNotifTimeout);
+            refresh(QModelIndex());
         }
     }
 }

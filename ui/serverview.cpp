@@ -198,7 +198,6 @@ void Ui::ServerView::setActive(const QModelIndex &idx) {
     if (media->model()) {
         disconnect(media->model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateView(QModelIndex)));
         disconnect(media->model(), SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(aboutToRemove(QModelIndex,int,int)));
-        disconnect(media->model(), SIGNAL(systemUpdated()), this, SLOT(systemUpdated()));
         disconnect(media->model(), SIGNAL(searching(bool)), this, SLOT(searching(bool)));
         disconnect(media->model(), SIGNAL(searchEnabled(bool)), this, SLOT(controlSearch(bool)));
     }
@@ -210,7 +209,6 @@ void Ui::ServerView::setActive(const QModelIndex &idx) {
         if (media->model()) {
             connect(media->model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateView(QModelIndex)));
             connect(media->model(), SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(aboutToRemove(QModelIndex,int,int)));
-            connect(media->model(), SIGNAL(systemUpdated()), this, SLOT(systemUpdated()));
             connect(media->model(), SIGNAL(searching(bool)), this, SLOT(searching(bool)));
             connect(media->model(), SIGNAL(searchEnabled(bool)), this, SLOT(controlSearch(bool)));
             controlSearch(dev->isSearchEnabled());
@@ -317,14 +315,6 @@ void Ui::ServerView::aboutToRemove(const QModelIndex &idx, int from, int to) {
         } else {
             r=r.parent();
         }
-    }
-}
-
-void Ui::ServerView::systemUpdated() {
-    // UpdateID changed - so check if current level needs refreshing
-    if (media->model()) {
-        Upnp::MediaServer *server=static_cast<Upnp::MediaServer *>(media->model());
-        server->refresh(media->rootIndex());
     }
 }
 

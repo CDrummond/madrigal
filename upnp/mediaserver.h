@@ -215,7 +215,7 @@ private:
     void parseSearchCapabilities(QXmlStreamReader &reader);
     void parseSearch(QXmlStreamReader &reader);
     void parseSystemUpdateId(QXmlStreamReader &reader);
-    void readSystemUpdateId(QXmlStreamReader &reader);
+    void checkSystemUpdateId(quint32 val);
     QModelIndex findItem(const QByteArray &id, const QModelIndex &parent);
     const QList<Item *> * children(const QModelIndex &index) const;
     void populateCommand(const QModelIndex &idx);

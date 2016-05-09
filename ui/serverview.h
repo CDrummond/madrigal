@@ -69,7 +69,6 @@ private Q_SLOTS:
     void goBack();
     void updateView(const QModelIndex &idx, bool force=false);
     void aboutToRemove(const QModelIndex &idx, int from, int to);
-    void systemUpdated();
     void addAlbum();
     void playAlbum();
     void addSelection();

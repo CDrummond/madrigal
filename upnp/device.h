@@ -49,6 +49,7 @@ public:
     enum Notifications {
         Notif_PlayCommand,
         Notif_SearchResult,
+        Notif_Update,
 
         Notif_Count
     };
