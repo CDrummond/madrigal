@@ -610,8 +610,8 @@ void Upnp::MediaServer::notification(const QByteArray &sid, const QByteArray &da
         }
     }
 
-    if (containerUpdateIds.isEmpty()) {
-        // No cotainer update IDS, so just hande this update...
+    if (containerUpdateIds.isEmpty() || 0!=containerUpdateIds.count()%2) {
+        // No container update IDS, so just hande this update...
         checkSystemUpdateId(sysUpdateId);
     } else {
         // If we get ContainerUpdateIDs then we can use this to just update the
@@ -629,18 +629,15 @@ void Upnp::MediaServer::notification(const QByteArray &sid, const QByteArray &da
         cancelCommands();
 
         // Now update modified IDs...
-        QStringList update=reader.readElementText().split(',');
-        if (!update.isEmpty() && 0==update.count()%2) {
-            for (int i=0; i<update.count(); i+=2) {
-                QByteArray id=update.at(i).toLatin1();
-                if (constRootId==id) {
-                    refresh(QModelIndex());
-                } else {
-                    // See if we have loaded this id...
-                    QModelIndex idx=findItem(id, QModelIndex());
-                    if (idx.isValid()) {
-                        refresh(idx);
-                    }
+        for (int i=0; i<containerUpdateIds.count(); i+=2) {
+            QByteArray id=containerUpdateIds.at(i).toLatin1();
+            if (constRootId==id) {
+                refresh(QModelIndex());
+            } else {
+                // See if we have loaded this id...
+                QModelIndex idx=findItem(id, QModelIndex());
+                if (idx.isValid()) {
+                    refresh(idx);
                 }
             }
         }
