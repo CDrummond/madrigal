@@ -198,6 +198,7 @@ void Ui::ServerView::setActive(const QModelIndex &idx) {
     if (media->model()) {
         disconnect(media->model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateView(QModelIndex)));
         disconnect(media->model(), SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(aboutToRemove(QModelIndex,int,int)));
+        disconnect(media->model(), SIGNAL(modelReset()), this, SLOT(modelReset()));
         disconnect(media->model(), SIGNAL(searching(bool)), this, SLOT(searching(bool)));
         disconnect(media->model(), SIGNAL(searchEnabled(bool)), this, SLOT(controlSearch(bool)));
     }
@@ -209,6 +210,7 @@ void Ui::ServerView::setActive(const QModelIndex &idx) {
         if (media->model()) {
             connect(media->model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateView(QModelIndex)));
             connect(media->model(), SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(aboutToRemove(QModelIndex,int,int)));
+            connect(media->model(), SIGNAL(modelReset()), this, SLOT(modelReset()));
             connect(media->model(), SIGNAL(searching(bool)), this, SLOT(searching(bool)));
             connect(media->model(), SIGNAL(searchEnabled(bool)), this, SLOT(controlSearch(bool)));
             controlSearch(dev->isSearchEnabled());
@@ -306,15 +308,21 @@ void Ui::ServerView::aboutToRemove(const QModelIndex &idx, int from, int to) {
     QModelIndex r=media->rootIndex();
     while (r.isValid()) {
         if (r.parent()==idx && r.row()>=from && r.row()<=to) {
-            Upnp::Device *dev=static_cast<Upnp::Device *>(media->model());
-            nav->clear();
-            media->setRootIndex(QModelIndex());
-            nav->add(dev->name(), QModelIndex(), Core::MonoIcon::icon(dev->icon(), iconColor, iconColor));
-            updateView(QModelIndex());
+            modelReset();
             return;
         } else {
             r=r.parent();
         }
+    }
+}
+
+void Ui::ServerView::modelReset() {
+    Upnp::Device *dev=static_cast<Upnp::Device *>(media->model());
+    if (dev) {
+        nav->clear();
+        media->setRootIndex(QModelIndex());
+        nav->add(dev->name(), QModelIndex(), Core::MonoIcon::icon(dev->icon(), iconColor, iconColor));
+        updateView(QModelIndex());
     }
 }
 
