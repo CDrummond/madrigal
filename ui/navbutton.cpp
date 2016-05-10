@@ -30,6 +30,8 @@
 #include <QPainter>
 #include <QMenu>
 
+static const int constSpace=8;
+
 Ui::NavButton::ProxyStyle::ProxyStyle()
     : QProxyStyle()
 {
@@ -38,37 +40,35 @@ Ui::NavButton::ProxyStyle::ProxyStyle()
 
 void Ui::NavButton::ProxyStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option, QPainter *painter, const QWidget *widget) const {
     if (CC_ToolButton==control) {
-        if (const QStyleOptionToolButton *toolbutton = qstyleoption_cast<const QStyleOptionToolButton *>(option)) {
-            QStyleOptionToolButton copy=*toolbutton;
-            int iconWidth = copy.icon.isNull() ? 0 : copy.iconSize.isValid() ? copy.iconSize.width() : baseStyle()->pixelMetric(PM_ToolBarIconSize, option, widget);
+        if (const QStyleOptionToolButton *tb = qstyleoption_cast<const QStyleOptionToolButton *>(option)) {
+            int iconWidth = tb->icon.isNull() ? 0 : tb->iconSize.isValid() ? tb->iconSize.width() : baseStyle()->pixelMetric(PM_ToolBarIconSize, option, widget);
             int frameWidth=baseStyle()->pixelMetric(PM_DefaultFrameWidth, option, widget);
-            QRect textRect(toolbutton->rect);
+            QRect textRect(tb->rect);
             bool ltr=Qt::LeftToRight==qApp->layoutDirection();
-            int space=Utils::scaleForDpi(8);
-            int menuSpace=toolbutton->features&QStyleOptionToolButton::HasMenu ? space*2 : 0;
+            int space=Utils::scaleForDpi(constSpace);
+            int menuSpace=tb->features&QStyleOptionToolButton::HasMenu ? space*2 : 0;
             if (ltr) {
                 textRect.adjust(iconWidth+space+frameWidth, frameWidth, -(frameWidth+menuSpace), -frameWidth);
             } else {
                 textRect.adjust(frameWidth+menuSpace, frameWidth, -(iconWidth+space+frameWidth), -frameWidth);
             }
             QFontMetrics fm(painter->fontMetrics());
-            QString text=fm.elidedText(Core::Utils::strippedText(toolbutton->text), ltr ? Qt::ElideLeft : Qt::ElideRight, textRect.width());
-            copy.text=QString();
-            copy.icon=QIcon();
+            QString text=fm.elidedText(tb->text, ltr ? Qt::ElideLeft : Qt::ElideRight, textRect.width(), Qt::TextShowMnemonic);
+
             if (option->state&State_Sunken || option->state&State_MouseOver) {
-                baseStyle()->drawComplexControl(control, &copy, painter, widget);
-            } else if (!copy.icon.isNull()) {
-                copy.features=0;
+                QStyleOptionToolButton copy=*tb;
+                copy.text=QString();
+                copy.icon=QIcon();
                 baseStyle()->drawComplexControl(control, &copy, painter, widget);
             }
-            QTextOption textOpt(Qt::AlignVCenter|(ltr ? Qt::AlignLeft : Qt::AlignRight));
-            QPixmap pix=toolbutton->icon.pixmap(toolbutton->iconSize);
+
+            QPixmap pix=tb->icon.pixmap(tb->iconSize);
             painter->setPen(option->palette.windowText().color());
-            painter->drawText(textRect, text, textOpt);
+            painter->drawText(textRect, Qt::TextHideMnemonic|Qt::AlignVCenter|(ltr ? Qt::AlignLeft : Qt::AlignRight), text);
             if (ltr) {
-                painter->drawPixmap(frameWidth+4, (toolbutton->rect.height()-iconWidth)/2, pix);
+                painter->drawPixmap(frameWidth+(space/2), (tb->rect.height()-iconWidth)/2, pix);
             } else {
-                painter->drawPixmap(toolbutton->rect.width()-frameWidth+4+iconWidth, (toolbutton->rect.height()-iconWidth)/2, pix);
+                painter->drawPixmap(tb->rect.width()-frameWidth+(space/2)+iconWidth, (tb->rect.height()-iconWidth)/2, pix);
             }
             return;
         }
@@ -97,9 +97,6 @@ Ui::NavButton::NavButton(QWidget *p)
         proxyStyle=new ProxyStyle();
     }
     setStyle(proxyStyle);
-    setMenu(new QMenu(this));
-    connect(menu(), SIGNAL(triggered(QAction*)), SLOT(itemSelected(QAction*)));
-    setPopupMode(QToolButton::DelayedPopup);
     setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 }
 
@@ -205,7 +202,7 @@ void Ui::NavButton::clear() {
 }
 
 QSize Ui::NavButton::sizeHint() const {
-    return FlatToolButton::sizeHint()+QSize(Utils::scaleForDpi(16), Utils::scaleForDpi(8));
+    return FlatToolButton::sizeHint()+QSize(Utils::scaleForDpi(QToolButton::menu() ? (constSpace*2) : (constSpace/2)), Utils::scaleForDpi(constSpace));
 }
 
 void Ui::NavButton::itemSelected(QAction *act) {
@@ -214,4 +211,14 @@ void Ui::NavButton::itemSelected(QAction *act) {
     } else {
         emit selected(act->property(constIdProperty).toInt());
     }
+}
+
+QMenu * Ui::NavButton::menu() {
+    if (!QToolButton::menu()) {
+        QMenu *m=new QMenu(this);
+        setMenu(m);
+        connect(m, SIGNAL(triggered(QAction*)), SLOT(itemSelected(QAction*)));
+        setPopupMode(QToolButton::DelayedPopup);
+    }
+    return QToolButton::menu();
 }

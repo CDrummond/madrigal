@@ -23,11 +23,10 @@
 
 #include "ui/rendererview.h"
 #include "ui/listview.h"
-#include "ui/flattoolbutton.h"
+#include "ui/navbutton.h"
 #include "ui/listitemdelegate.h"
 #include "ui/groupeditemdelegate.h"
 #include "ui/viewtoolbar.h"
-#include "ui/flattoolbutton.h"
 #include "ui/squeezedtextlabel.h"
 #include "ui/utils.h"
 #include "ui/actioncollection.h"
@@ -82,9 +81,8 @@ Ui::RendererView::RendererView(QWidget *p)
     queue->setDragDropMode(QAbstractItemView::DragDrop);
     renderers=new ListView(stack);
     stack->addWidget(renderers);
-    rendererSelect=new FlatToolButton(toolbar);
+    rendererSelect=new NavButton(toolbar);
     rendererSelect->setToolTip(tr("Select Output"));
-    rendererSelect->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     toolbar->addWidget(rendererSelect);
     viewLayout->addWidget(queue);
     viewLayout->setMargin(0);

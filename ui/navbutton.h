@@ -61,6 +61,9 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     void itemSelected(QAction *act);
+
+private:
+    QMenu * menu();
 };
 
 }
