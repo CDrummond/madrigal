@@ -82,9 +82,9 @@ QSize Ui::GroupedItemDelegate::sizeHint(const QStyleOptionViewItem &option, cons
     }
     int textHeight = QApplication::fontMetrics().height()*constTextSizeAdjust;
     if (isHeader(index)) {
-        return QSize(64, qMax(coverSize, (qMax(22, textHeight)*2)+borderSize)+(2*borderSize));
+        return QSize(Utils::scaleForDpi(64), qMax(coverSize, (qMax(Utils::scaleForDpi(22), textHeight)*2)+borderSize)+(2*borderSize));
     }
-    return QSize(64, qMax(22, textHeight)+(2*borderSize));
+    return QSize(Utils::scaleForDpi(64), qMax(Utils::scaleForDpi(22), textHeight)+(2*borderSize));
 }
 
 void Ui::GroupedItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {

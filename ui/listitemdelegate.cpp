@@ -45,13 +45,12 @@ static int actionIconSize = 16;
 
 static int standardIconSize(int v) { return ((v/7)*7)+((v%7)>3 ? 7 : 0); }
 
-
 static void setupSizes() {
     if (-1==listCoverSize) {
         int height=QApplication::fontMetrics().height();
-        listIconSize=qMax(22, standardIconSize(2*height));
-        listCoverSize=qMax(32, standardIconSize(2.5*height));
-        gridCoverSize=qMax(128, standardIconSize(8.5*height));
+        listIconSize=qMax(Ui::Utils::scaleForDpi(22), standardIconSize(2*height));
+        listCoverSize=qMax(Ui::Utils::scaleForDpi(32), standardIconSize(2.5*height));
+        gridCoverSize=qMax(Ui::Utils::scaleForDpi(128), standardIconSize(8.5*height));
         borderSize=listCoverSize>48 ? 2 : 1;
         actionIconSize=Ui::ViewToolBar::iconSize();
         actionBorder=Ui::ViewToolBar::buttonSize()-actionIconSize;
@@ -129,7 +128,7 @@ QSize Ui::ListItemDelegate::sizeHint(const QStyleOptionViewItem &option, const Q
     } else {
         int textHeight = QApplication::fontMetrics().height()*2;
 
-        return QSize(qMax(64, listCoverSize) + (borderSize * 2),
+        return QSize(qMax(Utils::scaleForDpi(64), listCoverSize) + (borderSize * 2),
                      qMax(textHeight, listCoverSize) + (borderSize*2));
     }
 }
@@ -322,17 +321,18 @@ void Ui::ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 
 QRect Ui::ListItemDelegate::calcActionRect(bool rtl, bool onTop, const QRect &rect) const
 {
+    static int pad=Utils::scaleForDpi(4);
     return rtl
                 ? onTop
-                    ? QRect(rect.x()+(borderSize*4)+4,
-                            rect.y()+(borderSize*4)+4,
+                    ? QRect(rect.x()+(borderSize*4)+pad,
+                            rect.y()+(borderSize*4)+pad,
                             actionIconSize, actionIconSize)
                     : QRect(rect.x()+actionBorder,
                             rect.y()+((rect.height()-actionIconSize)/2),
                             actionIconSize, actionIconSize)
                 : onTop
-                    ? QRect(rect.x()+rect.width()-(actionIconSize+(borderSize*4))-4,
-                            rect.y()+(borderSize*4)+4,
+                    ? QRect(rect.x()+rect.width()-(actionIconSize+(borderSize*4))-pad,
+                            rect.y()+(borderSize*4)+pad,
                             actionIconSize, actionIconSize)
                     : QRect(rect.x()+rect.width()-(actionIconSize+actionBorder),
                             rect.y()+((rect.height()-actionIconSize)/2),

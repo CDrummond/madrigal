@@ -116,7 +116,7 @@ void Ui::Notification::setOpacity(float v) {
 }
 
 void Ui::Notification::setSizeAndPosition() {
-    int textWidth=fontMetrics().width(text)+(spacing*2)+4;
+    int textWidth=fontMetrics().width(text)+(spacing*2)+Utils::scaleForDpi(4);
     int desiredWidth=qMin(textWidth, parentWidget()->width()-(spacing*2));
     if (width()!=desiredWidth) {
         resize(desiredWidth, height());
