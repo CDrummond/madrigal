@@ -119,10 +119,10 @@ Ui::RendererView::RendererView(QWidget *p)
 
     repeatAction->setCheckable(true);
     shuffleAction->setCheckable(true);
-    FlatToolButton *repeatButton=new FlatToolButton(toolbar);
-    FlatToolButton *shuffleButton=new FlatToolButton(toolbar);
-    FlatToolButton *removeButton=new FlatToolButton(toolbar);
-    FlatToolButton *clearButton=new FlatToolButton(toolbar);
+    ToolButton *repeatButton=new ToolButton(toolbar);
+    ToolButton *shuffleButton=new ToolButton(toolbar);
+    ToolButton *removeButton=new ToolButton(toolbar);
+    ToolButton *clearButton=new ToolButton(toolbar);
     repeatButton->setDefaultAction(repeatAction);
     shuffleButton->setDefaultAction(shuffleAction);
     removeButton->setDefaultAction(removeAction);

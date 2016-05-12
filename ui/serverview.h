@@ -42,7 +42,7 @@ class LibraryView;
 class ListView;
 class NavButton;
 class ViewToolBar;
-class FlatToolButton;
+class ToolButton;
 class AlbumInfo;
 class Action;
 class AnimatedIcon;
@@ -95,7 +95,7 @@ private:
     QSortFilterProxyModel *proxy;
     QLabel *infoLabel;
     QPushButton *cancelButton;
-    FlatToolButton *searchButton;
+    ToolButton *searchButton;
     Action *searchAction;
     QLineEdit *searchText;
     QTimer *searchTimer;

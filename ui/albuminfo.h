@@ -32,7 +32,7 @@ class QLabel;
 
 namespace Ui {
 class SqueezedTextLabel;
-class FlatToolButton;
+class ToolButton;
 
 class AlbumInfo : public QWidget {
     Q_OBJECT
@@ -58,8 +58,8 @@ private:
     SqueezedTextLabel *artist;
     SqueezedTextLabel *details;
     QLabel *cover;
-    FlatToolButton *playButton;
-    FlatToolButton *addButton;
+    ToolButton *playButton;
+    ToolButton *addButton;
 };
 }
 #endif

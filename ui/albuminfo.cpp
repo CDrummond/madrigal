@@ -22,7 +22,7 @@
  */
 
 #include "ui/albuminfo.h"
-#include "ui/flattoolbutton.h"
+#include "ui/toolbutton.h"
 #include "ui/squeezedtextlabel.h"
 #include "ui/utils.h"
 #include "ui/viewtoolbar.h"
@@ -43,8 +43,8 @@ Ui::AlbumInfo::AlbumInfo(QWidget *p)
     artist=new SqueezedTextLabel(this);
     details=new SqueezedTextLabel(this);
     cover=new QLabel(this);
-    playButton=new FlatToolButton(controls);
-    addButton=new FlatToolButton(controls);
+    playButton=new ToolButton(controls);
+    addButton=new ToolButton(controls);
     controlLayout->addWidget(playButton);
     controlLayout->addWidget(addButton);
     layout->addWidget(cover, 0, 0, 5, 1);

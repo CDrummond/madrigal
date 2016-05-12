@@ -24,14 +24,14 @@
 #ifndef UI_NAVBUTTON_H
 #define UI_NAVBUTTON_H
 
-#include "ui/flattoolbutton.h"
+#include "ui/toolbutton.h"
 #include <QProxyStyle>
 
 class QModelIndex;
 
 namespace Ui {
 
-class NavButton : public FlatToolButton {
+class NavButton : public ToolButton {
     Q_OBJECT
 
 private:

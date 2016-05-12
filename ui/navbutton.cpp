@@ -91,7 +91,7 @@ static QString actPath(QAction *act) {
 }
 
 Ui::NavButton::NavButton(QWidget *p)
-    : Ui::FlatToolButton(p)
+    : Ui::ToolButton(p)
 {
     if (!proxyStyle) {
         proxyStyle=new ProxyStyle();
@@ -202,7 +202,7 @@ void Ui::NavButton::clear() {
 }
 
 QSize Ui::NavButton::sizeHint() const {
-    return FlatToolButton::sizeHint()+QSize(Utils::scaleForDpi(QToolButton::menu() ? (constSpace*2) : (constSpace/2)), Utils::scaleForDpi(constSpace));
+    return ToolButton::sizeHint()+QSize(Utils::scaleForDpi(QToolButton::menu() ? (constSpace*2) : (constSpace/2)), Utils::scaleForDpi(constSpace));
 }
 
 void Ui::NavButton::itemSelected(QAction *act) {
@@ -219,6 +219,7 @@ QMenu * Ui::NavButton::menu() {
         setMenu(m);
         connect(m, SIGNAL(triggered(QAction*)), SLOT(itemSelected(QAction*)));
         setPopupMode(QToolButton::DelayedPopup);
+        setHideMenuIndicator(false);
     }
     return QToolButton::menu();
 }

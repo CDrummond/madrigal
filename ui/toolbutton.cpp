@@ -22,7 +22,6 @@
  */
 
 #include "ui/toolbutton.h"
-#include "ui/gtkstyle.h"
 #ifdef Q_OS_MAC
 #include "ui/utils.h"
 #endif
@@ -34,11 +33,7 @@
 
 Ui::ToolButton::ToolButton(QWidget *parent)
     : QToolButton(parent)
-    #if defined USE_SYSTEM_MENU_ICON && !defined Q_OS_MAC
-    , hideMenuIndicator(GtkStyle::isActive())
-    #else
     , hideMenuIndicator(true)
-    #endif
 {
 //    Icon::init(this);
     #ifdef Q_OS_MAC
@@ -46,6 +41,7 @@ Ui::ToolButton::ToolButton(QWidget *parent)
     allowMouseOver=parent && parent->objectName()!=QLatin1String("toolbar");
     #endif
     setFocusPolicy(Qt::NoFocus);
+    setAutoRaise(true);
 }
 
 void Ui::ToolButton::paintEvent(QPaintEvent *e) {
@@ -74,7 +70,6 @@ void Ui::ToolButton::paintEvent(QPaintEvent *e) {
         }
     }
     #endif
-    #if QT_VERSION > 0x050000 || defined UNITY_MENU_HACK
     Q_UNUSED(e)
     // Hack to work-around Qt5 sometimes leaving toolbutton in 'raised' state.
     QStylePainter p(this);
@@ -93,45 +88,6 @@ void Ui::ToolButton::paintEvent(QPaintEvent *e) {
     }
     #endif
     p.drawComplexControl(QStyle::CC_ToolButton, opt);
-    #else // QT_VERSION > 0x050000 || defined UNITY_MENU_HACK
-    if (menu() && hideMenuIndicator) {
-        QStylePainter p(this);
-        QStyleOptionToolButton opt;
-        initStyleOption(&opt);
-        opt.features=QStyleOptionToolButton::None;
-        p.drawComplexControl(QStyle::CC_ToolButton, opt);
-    } else {
-        QToolButton::paintEvent(e);
-    }
-    #endif
-}
-
-QSize Ui::ToolButton::sizeHint() const {
-    if (!sh.isValid()) {
-        ensurePolished();
-        QSize sz;
-        #ifdef UNITY_MENU_HACK
-        if (!icon.isNull()) {
-            QStyleOptionToolButton opt;
-            opt.icon=icon;
-            opt.toolButtonStyle=Qt::ToolButtonIconOnly;
-            initStyleOption(&opt);
-            opt.features=QStyleOptionToolButton::None;
-            sz = style()->sizeFromContents(QStyle::CT_ToolButton, &opt, opt.iconSize, this).expandedTo(QApplication::globalStrut());
-        } else
-        #endif
-            sz = QToolButton::sizeHint();
-
-        if (hideMenuIndicator && sh.width()>sh.height()) {
-            sh.setWidth(sh.height());
-        }
-
-        sh=QSize(qMax(sh.width(), sh.height()), qMax(sh.width(), sh.height()));
-        #ifdef Q_OS_MAC
-        sh=QSize(qMax(sh.width(), Utils::scaleForDpi(22)), qMax(sh.height(), Utils::scaleForDpi(20));
-        #endif
-    }
-    return sh;
 }
 
 void Ui::ToolButton::setMenu(QMenu *m) {

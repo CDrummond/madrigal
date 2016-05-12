@@ -33,7 +33,6 @@ namespace Ui {
 class ToolButton : public QToolButton {
 public:
     explicit ToolButton(QWidget *parent = 0);
-    QSize sizeHint() const;
     void setMenu(QMenu *m);
     void paintEvent(QPaintEvent *e);
     void setHideMenuIndicator(bool h) { hideMenuIndicator=h; }
