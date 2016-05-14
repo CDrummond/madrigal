@@ -111,7 +111,6 @@ Ui::MainWindow::MainWindow(QWidget *p)
     #ifdef Q_OS_MAC
     addToolBar(toolBar);
     WindowManager *wm=new WindowManager(toolBar);
-    wm->initialize(WindowManager::WM_DRAG_MENU_AND_TOOLBAR);
     wm->registerWidgetAndChildren(toolBar);
     toolBar->setMovable(false);
     toolBar->setContextMenuPolicy(Qt::PreventContextMenu);
