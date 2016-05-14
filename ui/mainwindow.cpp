@@ -77,7 +77,7 @@ Ui::MainWindow::MainWindow(QWidget *p)
     setCentralWidget(mainWidget);
     setWindowTitle(PACKAGE_NAME_CASE);
     Core::Configuration cfg(this);
-    resize(cfg.get("size", QSize(640, 480)));
+    resize(cfg.get("size", QSize(Utils::scaleForDpi(640), Utils::scaleForDpi(480))));
     QByteArray s=cfg.get("splitter", QByteArray());
     if (!s.isEmpty()) {
         splitter->restoreState(s);

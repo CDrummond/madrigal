@@ -22,6 +22,7 @@
  */
  
 #include "ui/thinsplitter.h"
+#include "ui/utils.h"
 #include <QResizeEvent>
 #include <QPainter>
 
@@ -52,7 +53,7 @@ Ui::ThinSplitterHandle::ThinSplitterHandle(Qt::Orientation orientation, QSplitte
     , highlightUnderMouse(false)
     , underMouse(false)
 {
-    sz=4; // Utils::scaleForDpi(4);
+    sz=Utils::scaleForDpi(4);
     updateMask();
     setAttribute(Qt::WA_MouseNoMask, true);
 }
@@ -68,7 +69,7 @@ void Ui::ThinSplitterHandle::paintEvent(QPaintEvent *event) {
     if (underMouse) {
         QColor col(palette().highlight().color());
         QPainter p(this);
-        int width=2; // Utils::scaleForDpi(2);
+        int width=Utils::scaleForDpi(2);
         QRect r=event->rect();
         r=QRect(r.x()+((r.width()-width)/2), r.y(), width, r.height());
         col.setAlphaF(0.5);

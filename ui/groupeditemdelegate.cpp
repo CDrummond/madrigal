@@ -167,9 +167,10 @@ void Ui::GroupedItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
           }
           gradCol.setAlphaF(selected ? 0.4 : 0.25);
           painter->setRenderHint(QPainter::Antialiasing, true);
-          painter->fillPath(Ui::Utils::buildPath(border, 3), gradCol);
+          int radius=Utils::scaleForDpi(3);
+          painter->fillPath(Ui::Utils::buildPath(border, radius), gradCol);
           painter->setPen(QPen(borderCol, 1));
-          painter->drawPath(Ui::Utils::buildPath(border, 3));
+          painter->drawPath(Ui::Utils::buildPath(border, radius));
           painter->setRenderHint(QPainter::Antialiasing, false);
       }
 

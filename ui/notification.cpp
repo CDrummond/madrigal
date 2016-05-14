@@ -30,7 +30,7 @@
 
 Ui::Notification::Notification(QWidget *p)
     : QWidget(p)
-    , offset(64)
+    , offset(Utils::scaleForDpi(64))
     , timer(0)
     , opacityValue(0.0)
 {

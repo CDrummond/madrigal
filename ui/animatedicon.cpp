@@ -55,7 +55,8 @@ void Ui::AnimatedIcon::setIconSize(int size) {
     if (size!=iconSize) {
         pix=QPixmap();
         iconSize=size;
-        setFixedSize(QSize(size+4, size+4));
+        int pad=Utils::scaleForDpi(4);
+        setFixedSize(QSize(size+pad, size+pad));
     }
 }
 
@@ -101,7 +102,7 @@ void Ui::AnimatedIcon::rotate() {
 }
 
 void Ui::AnimatedIcon::create() {
-    if (!pix.isNull() || iconSize<4) {
+    if (!pix.isNull() || iconSize<Utils::scaleForDpi(4)) {
         return;
     }
     QColor col=Utils::clampColor(palette().color(QPalette::WindowText));
