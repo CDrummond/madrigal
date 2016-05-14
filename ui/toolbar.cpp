@@ -46,7 +46,10 @@ Ui::ToolBar::ToolBar(QWidget *parent)
     setMovable(false);
     setContextMenuPolicy(Qt::NoContextMenu);
     GtkStyle::applyTheme(this);
-    QColor col=GtkStyle::isActive() ? GtkStyle::symbolicColor() : palette().color(QPalette::Foreground);
+    ensurePolished();
+    QLabel lbl(this);
+    lbl.ensurePolished();
+    QColor col=Utils::clampColor(lbl.palette().text().color());
 
     playIcon=Core::MonoIcon::icon(Core::MonoIcon::ex_mediaplay, col, col);
     pauseIcon=Core::MonoIcon::icon(Core::MonoIcon::ex_mediapause, col, col);
@@ -94,13 +97,14 @@ Ui::ToolBar::ToolBar(QWidget *parent)
     layout()->setMargin(0);
     nowPlaying->update(QModelIndex());
     enableControls(false);
-    ensurePolished();
     connect(Upnp::Model::self()->renderersModel(), SIGNAL(activeDevice(QModelIndex)), SLOT(setRenderer(QModelIndex)));
 }
 
 void Ui::ToolBar::addMenuButton(QMenu *mnu) {
     int btnSize=Utils::scaleForDpi(8)+iconSize().height();
-    QColor col=GtkStyle::isActive() ? GtkStyle::symbolicColor() : palette().color(QPalette::Foreground);
+    QLabel lbl(this);
+    lbl.ensurePolished();
+    QColor col=Utils::clampColor(lbl.palette().text().color());
     MenuButton *btn=new MenuButton(this);
     btn->setAlignedMenu(mnu);
     btn->setIcon(Core::MonoIcon::icon(Core::MonoIcon::bars, col, col));

@@ -234,8 +234,6 @@ extern void Ui::GtkStyle::setThemeName(const QString &n) {
 static Ui::WindowManager *wm=0;
 #endif
 static QProxyStyle *proxyStyle=0;
-static bool symbolicIcons=false;
-static QColor symbolicIconColor(0, 0, 0);
 static bool thinSbar=false;
 
 bool Ui::GtkStyle::thinScrollbars() {
@@ -254,8 +252,6 @@ void Ui::GtkStyle::applyTheme(QWidget *widget) {
         if (!theme.isEmpty()) {
             QFile cssFile(Core::Utils::systemDir(QLatin1String("themes"))+theme+QLatin1String(".css"));
             if (cssFile.open(QFile::ReadOnly|QFile::Text)) {
-                const QString symKey=QLatin1String("symbolic-icons:#");
-
                 while (!cssFile.atEnd()) {
                     QString line = cssFile.readLine().trimmed();
                     if (line.isEmpty()) {
@@ -279,11 +275,6 @@ void Ui::GtkStyle::applyTheme(QWidget *widget) {
                                         : line.contains("modview:true")
                                             ? ProxyStyle::VF_Side
                                             : 0;
-                        int pos=line.indexOf(symKey);
-                        if (pos>0 && pos+6<line.length()) {
-                            symbolicIcons=true;
-                            symbolicIconColor=QColor(line.mid(pos+symKey.length()-1, 7));
-                        }
                     } else {
                         int space=line.indexOf(' ');
                         if (space>2) {
@@ -328,12 +319,4 @@ void Ui::GtkStyle::registerWidget(QWidget *widget) {
         wm->registerWidgetAndChildren(widget);
     }
     #endif
-}
-
-bool Ui::GtkStyle::useSymbolicIcons() {
-    return symbolicIcons;
-}
-
-QColor Ui::GtkStyle::symbolicColor() {
-    return symbolicIconColor;
 }
