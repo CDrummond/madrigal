@@ -27,12 +27,11 @@
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDir>
-#include <QIcon>
 
 Ui::Application::Application(int &argc, char **argv)
     : QApplication(argc, argv)
 {
-//    setAttribute(Qt::AA_UseHighDpiPixmaps);
+    setAttribute(Qt::AA_UseHighDpiPixmaps);
 }
 
 Ui::Application::~Application() {
@@ -40,14 +39,6 @@ Ui::Application::~Application() {
 
 bool Ui::Application::start() {
     if (QDBusConnection::sessionBus().registerService(APP_REV_URL)) {
-        QIcon::setThemeSearchPaths(QStringList() << SHARE_INSTALL_PREFIX"/icons" << QIcon::themeSearchPaths());
-//        if (Ui::Utils::KDE!=Ui::Utils::currentDe() || QLatin1String("breeze")==QIcon::themeName()) {
-//            QIcon::setThemeSearchPaths(QStringList() << SYS_ICONS_DIR << QIcon::themeSearchPaths());
-//            QIcon::setThemeName(PACKAGE_NAME);
-//            if (Ui::Utils::KDE!=Ui::Utils::currentDe()) {
-//                setAttribute(Qt::AA_DontShowIconsInMenus, true);
-//            }
-//        }
         if (Ui::Utils::KDE!=Ui::Utils::currentDe()) {
             setAttribute(Qt::AA_DontShowIconsInMenus, true);
         }

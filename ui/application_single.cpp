@@ -23,17 +23,12 @@
 
 #include "ui/application_single.h"
 #include "ui/mainwindow.h"
-#include "core/utils.h"
-#include "config.h"
-#include <QIcon>
-#include <QDebug>
+
 Ui::Application::Application(int &argc, char **argv)
     : QtSingleApplication(argc, argv)
 {
     setAttribute(Qt::AA_DontShowIconsInMenus, true);
-    //setAttribute(Qt::AA_UseHighDpiPixmaps);
-    QIcon::setThemeSearchPaths(QStringList() << Core::Utils::systemDir("icons") << QIcon::themeSearchPaths());
-    QIcon::setThemeName(PACKAGE_NAME);
+    setAttribute(Qt::AA_UseHighDpiPixmaps);
 }
 
 Ui::Application::~Application() {
