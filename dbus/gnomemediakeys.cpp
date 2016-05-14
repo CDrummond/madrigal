@@ -43,8 +43,7 @@ Dbus::GnomeMediaKeys::GnomeMediaKeys(QObject *p)
 {
 }
 
-bool Dbus::GnomeMediaKeys::activate()
-{
+bool Dbus::GnomeMediaKeys::activate() {
     if (mk) {
         return true;
     }
@@ -55,8 +54,7 @@ bool Dbus::GnomeMediaKeys::activate()
     return false;
 }
 
-void Dbus::GnomeMediaKeys::deactivate()
-{
+void Dbus::GnomeMediaKeys::deactivate() {
     if (mk) {
         releaseKeys();
         disconnectDaemon();
@@ -67,8 +65,7 @@ void Dbus::GnomeMediaKeys::deactivate()
     }
 }
 
-bool Dbus::GnomeMediaKeys::daemonIsRunning()
-{
+bool Dbus::GnomeMediaKeys::daemonIsRunning() {
     // Check if the service is available
     if (!QDBusConnection::sessionBus().interface()->isServiceRegistered(constService)) {
         //...not already started, so attempt to start!
@@ -83,8 +80,7 @@ bool Dbus::GnomeMediaKeys::daemonIsRunning()
     return true;
 }
 
-void Dbus::GnomeMediaKeys::releaseKeys()
-{
+void Dbus::GnomeMediaKeys::releaseKeys() {
     if (mk) {
         mk->ReleaseMediaPlayerKeys(QCoreApplication::applicationName());
         disconnect(mk, SIGNAL(MediaPlayerKeyPressed(QString,QString)), this, SLOT(keyPressed(QString,QString)));
@@ -93,8 +89,7 @@ void Dbus::GnomeMediaKeys::releaseKeys()
     }
 }
 
-void Dbus::GnomeMediaKeys::grabKeys()
-{
+void Dbus::GnomeMediaKeys::grabKeys() {
     if (QDBusConnection::sessionBus().interface()->isServiceRegistered(constService)) {
         if (!mk) {
             mk = new OrgGnomeSettingsDaemonMediaKeysInterface(constService, constMediaKeysPath, QDBusConnection::sessionBus(), this);
@@ -113,8 +108,7 @@ void Dbus::GnomeMediaKeys::grabKeys()
     }
 }
 
-void Dbus::GnomeMediaKeys::disconnectDaemon()
-{
+void Dbus::GnomeMediaKeys::disconnectDaemon() {
     if (daemon) {
         disconnect(daemon, SIGNAL(PluginActivated(QString)), this, SLOT(pluginActivated(QString)));
         daemon->deleteLater();
@@ -122,8 +116,7 @@ void Dbus::GnomeMediaKeys::disconnectDaemon()
     }
 }
 
-void Dbus::GnomeMediaKeys::serviceOwnerChanged(const QString &name, const QString &, const QString &)
-{
+void Dbus::GnomeMediaKeys::serviceOwnerChanged(const QString &name, const QString &, const QString &) {
     if (name==constService) {
         releaseKeys();
         disconnectDaemon();
@@ -133,8 +126,7 @@ void Dbus::GnomeMediaKeys::serviceOwnerChanged(const QString &name, const QStrin
     }
 }
 
-void Dbus::GnomeMediaKeys::registerFinished(QDBusPendingCallWatcher *watcher)
-{
+void Dbus::GnomeMediaKeys::registerFinished(QDBusPendingCallWatcher *watcher) {
     QDBusMessage reply = watcher->reply();
     watcher->deleteLater();
 
@@ -144,8 +136,7 @@ void Dbus::GnomeMediaKeys::registerFinished(QDBusPendingCallWatcher *watcher)
     }
 }
 
-void Dbus::GnomeMediaKeys::keyPressed(const QString &app, const QString &key)
-{
+void Dbus::GnomeMediaKeys::keyPressed(const QString &app, const QString &key) {
     if (QCoreApplication::applicationName()!=app) {
         return;
     }
@@ -160,8 +151,7 @@ void Dbus::GnomeMediaKeys::keyPressed(const QString &app, const QString &key)
     }
 }
 
-void Dbus::GnomeMediaKeys::pluginActivated(const QString &name)
-{
+void Dbus::GnomeMediaKeys::pluginActivated(const QString &name) {
     if (QLatin1String("media-keys")==name) {
         grabKeys();
     }

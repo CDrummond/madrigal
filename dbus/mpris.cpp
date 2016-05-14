@@ -150,13 +150,11 @@ void Dbus::Mpris::SetLoopStatus(const QString &s) {
     }
 }
 
-qlonglong Dbus::Mpris::Position() const
-{
+qlonglong Dbus::Mpris::Position() const {
     return convertTime(renderer ? renderer->playback().seconds : 0.0);
 }
 
-void Dbus::Mpris::updateStatus()
-{
+void Dbus::Mpris::updateStatus() {
     QVariantMap map;
 
     map.insert("LoopStatus", LoopStatus());
@@ -173,8 +171,7 @@ void Dbus::Mpris::updateStatus()
     signalUpdate(map);
 }
 
-void Dbus::Mpris::updateCurrentCover(const Core::ImageDetails &image)
-{
+void Dbus::Mpris::updateCurrentCover(const Core::ImageDetails &image) {
     if (image.artist==currentSong.artistName() && image.album==currentSong.album) {
         QImage *i=Core::Images::self()->get(Core::ImageDetails(currentSong.artUrl, currentSong.artistName(), currentSong.album), 0, true);
         if (i && i->text(Core::Images::constCacheFilename)!=currentCover) {
@@ -192,8 +189,7 @@ void Dbus::Mpris::update(const QModelIndex &idx) {
     }
 }
 
-void Dbus::Mpris::update(const Upnp::Device::MusicTrack &song)
-{
+void Dbus::Mpris::update(const Upnp::Device::MusicTrack &song) {
     if (song.artistName()!=currentSong.artistName() || song.album!=currentSong.album ||
         song.track!=currentSong.track || song.name!=currentSong.name) {
         if (song.artistName()!=currentSong.artistName() || song.album!=currentSong.album) {

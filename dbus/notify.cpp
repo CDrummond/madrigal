@@ -167,8 +167,7 @@ void Dbus::Notify::update(const QModelIndex &idx) {
     }
 }
 
-void Dbus::Notify::update(const Upnp::Device::MusicTrack &song)
-{
+void Dbus::Notify::update(const Upnp::Device::MusicTrack &song) {
     if (song.artistName()!=currentSong.artistName() || song.album!=currentSong.album ||
         song.track!=currentSong.track || song.name!=currentSong.name) {
         currentSong = song;

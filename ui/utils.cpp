@@ -30,8 +30,7 @@
 #include <QStyle>
 #include <QProcess>
 
-double Ui::Utils::smallFontFactor(const QFont &f)
-{
+double Ui::Utils::smallFontFactor(const QFont &f) {
     double sz=f.pointSizeF();
     if (sz<=8.5) {
         return 1.0;
@@ -42,14 +41,12 @@ double Ui::Utils::smallFontFactor(const QFont &f)
     return 0.85;
 }
 
-QFont Ui::Utils::smallFont(QFont f)
-{
+QFont Ui::Utils::smallFont(QFont f) {
     f.setPointSizeF(f.pointSizeF()*smallFontFactor(f));
     return f;
 }
 
-int Ui::Utils::layoutSpacing(QWidget *w)
-{
+int Ui::Utils::layoutSpacing(QWidget *w) {
     int spacing=(w ? w->style() : qApp->style())->layoutSpacing(QSizePolicy::DefaultType, QSizePolicy::DefaultType, Qt::Vertical);
     if (spacing<0) {
         spacing=scaleForDpi(4);
@@ -57,8 +54,7 @@ int Ui::Utils::layoutSpacing(QWidget *w)
     return spacing;
 }
 
-double Ui::Utils::screenDpiScale()
-{
+double Ui::Utils::screenDpiScale() {
     static double scaleFactor=-1.0;
     if (scaleFactor<0) {
         QWidget *dw=QApplication::desktop();
@@ -70,8 +66,7 @@ double Ui::Utils::screenDpiScale()
     return scaleFactor;
 }
 
-bool Ui::Utils::limitedHeight(QWidget *w)
-{
+bool Ui::Utils::limitedHeight(QWidget *w) {
     static bool init=false;
     static bool limited=false;
     if (!init) {
@@ -83,8 +78,7 @@ bool Ui::Utils::limitedHeight(QWidget *w)
     return limited;
 }
 
-void Ui::Utils::resizeWindow(QWidget *w, bool preserveWidth, bool preserveHeight)
-{
+void Ui::Utils::resizeWindow(QWidget *w, bool preserveWidth, bool preserveHeight) {
     QWidget *window=w ? w->window() : 0;
     if (window) {
         QSize was=window->size();
@@ -103,8 +97,7 @@ void Ui::Utils::resizeWindow(QWidget *w, bool preserveWidth, bool preserveHeight
     }
 }
 
-Ui::Utils::Desktop Ui::Utils::currentDe()
-{
+Ui::Utils::Desktop Ui::Utils::currentDe() {
     #if !defined Q_OS_WIN && !defined Q_OS_MAC
     static int de=-1;
     if (-1==de) {
@@ -128,8 +121,7 @@ Ui::Utils::Desktop Ui::Utils::currentDe()
     return Other;
 }
 
-QPainterPath Ui::Utils::buildPath(const QRectF &r, double radius)
-{
+QPainterPath Ui::Utils::buildPath(const QRectF &r, double radius) {
     QPainterPath path;
     double diameter(radius*2);
 
@@ -146,8 +138,7 @@ QPainterPath Ui::Utils::buildPath(const QRectF &r, double radius)
 #include <windows.h>
 #endif
 
-void Ui::Utils::raiseWindow(QWidget *w)
-{
+void Ui::Utils::raiseWindow(QWidget *w) {
     if (!w) {
         return;
     }

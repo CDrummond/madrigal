@@ -77,8 +77,7 @@ void Mac::Notify::update(const QModelIndex &idx) {
     }
 }
 
-void Mac::Notify::update(const Upnp::Device::MusicTrack &song)
-{
+void Mac::Notify::update(const Upnp::Device::MusicTrack &song) {
     if (song.artistName()!=currentSong.artistName() || song.album!=currentSong.album ||
         song.track!=currentSong.track || song.name!=currentSong.name) {
         currentSong = song;
