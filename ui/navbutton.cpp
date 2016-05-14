@@ -48,9 +48,9 @@ void Ui::NavButton::ProxyStyle::drawComplexControl(ComplexControl control, const
             int space=Utils::scaleForDpi(constSpace);
             int menuSpace=tb->features&QStyleOptionToolButton::HasMenu ? space*2 : 0;
             if (ltr) {
-                textRect.adjust(iconWidth+space+frameWidth, frameWidth, -(frameWidth+menuSpace), -frameWidth);
+                textRect.adjust(iconWidth+space+frameWidth, 0, -(frameWidth+menuSpace), 0);
             } else {
-                textRect.adjust(frameWidth+menuSpace, frameWidth, -(iconWidth+space+frameWidth), -frameWidth);
+                textRect.adjust(frameWidth+menuSpace, 0, -(iconWidth+space+frameWidth), 0);
             }
             QFontMetrics fm(painter->fontMetrics());
             QString text=fm.elidedText(tb->text, ltr ? Qt::ElideLeft : Qt::ElideRight, textRect.width(), Qt::TextShowMnemonic);
@@ -64,11 +64,14 @@ void Ui::NavButton::ProxyStyle::drawComplexControl(ComplexControl control, const
 
             QPixmap pix=tb->icon.pixmap(tb->iconSize);
             painter->setPen(option->palette.windowText().color());
+            if (0==textRect.height()%2) {
+                textRect.setHeight(textRect.height()-1);
+            }
             painter->drawText(textRect, Qt::TextHideMnemonic|Qt::AlignVCenter|(ltr ? Qt::AlignLeft : Qt::AlignRight), text);
             if (ltr) {
-                painter->drawPixmap(frameWidth+(space/2), (tb->rect.height()-iconWidth)/2, pix);
+                painter->drawPixmap(frameWidth+(space/2), (tb->rect.height()-pix.height())/2, pix);
             } else {
-                painter->drawPixmap(tb->rect.width()-frameWidth+(space/2)+iconWidth, (tb->rect.height()-iconWidth)/2, pix);
+                painter->drawPixmap(tb->rect.width()-frameWidth+(space/2)+iconWidth, (tb->rect.height()-pix.height())/2, pix);
             }
             return;
         }
