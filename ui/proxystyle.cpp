@@ -31,6 +31,9 @@
 #include <QPainter>
 #include <QStyleOption>
 #include <QApplication>
+#include <QDialog>
+#include <QMainWindow>
+#include <QKeyEvent>
 
 #if defined HAVE_ACCEL_MGR && !defined Q_OS_MAC
 static const char * constAccelProp="managed-accel";
@@ -44,6 +47,10 @@ void Ui::ProxyStyle::polish(QWidget *widget) {
         widget->setProperty(constAccelProp, true);
     }
     #endif
+    if (controlMnemonics && widget && (qobject_cast<QDialog *>(widget) || qobject_cast<QMainWindow *>(widget) || qobject_cast<QMenu *>(widget))) {
+        widget->removeEventFilter(this);
+        widget->installEventFilter(this);
+    }
     baseStyle()->polish(widget);
 }
 
@@ -69,6 +76,43 @@ void Ui::ProxyStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
             if (mod&VF_Top && modViewFrame&VF_Top) {
                 painter->drawLine(r.topLeft()+QPoint(1, 0), r.topRight());
             }
+        }
+    }
+}
+
+void Ui::ProxyStyle::drawItemText(QPainter *painter, const QRect &rect, int flags, const QPalette &pal, bool enabled, const QString &text, QPalette::ColorRole textRole) const {
+    if (controlMnemonics && !mnenomicsVisible && flags&Qt::TextShowMnemonic) {
+        flags-=Qt::TextShowMnemonic;
+        flags+=Qt::TextHideMnemonic;
+    }
+    baseStyle()->drawItemText(painter, rect, flags, pal, enabled, text, textRole);
+}
+
+bool Ui::ProxyStyle::eventFilter(QObject *obj, QEvent *ev) {
+    if (controlMnemonics) {
+        switch (ev->type()) {
+        case QEvent::KeyPress:
+            if (Qt::Key_Alt==static_cast<QKeyEvent *>(ev)->key()) {
+                setMnemonicsVisible(true);
+            }
+            break;
+        case QEvent::KeyRelease:
+            if (Qt::Key_Alt==static_cast<QKeyEvent *>(ev)->key()) {
+                setMnemonicsVisible(false);
+            }
+            break;
+        case QEvent::ApplicationStateChange:
+            setMnemonicsVisible(false);
+        }
+    }
+    return false;
+}
+
+void Ui::ProxyStyle::setMnemonicsVisible(bool v) {
+    if (v!=mnenomicsVisible) {
+        mnenomicsVisible=v;
+        foreach (QWidget *w, qApp->topLevelWidgets()) {
+            w->update();
         }
     }
 }

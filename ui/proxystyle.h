@@ -38,7 +38,8 @@ public:
         VF_Top  = 0x02
     };
 
-    ProxyStyle(int modView=VF_None) : modViewFrame(modView) { }
+    ProxyStyle(int modView=VF_None, bool ctrlMnemonics=false)
+        : modViewFrame(modView), controlMnemonics(ctrlMnemonics), mnenomicsVisible(false) { }
     virtual ~ProxyStyle() { }
     void setModifyViewFrame(int modView) { modViewFrame=modView; }
     int modifyViewFrame() const { return modViewFrame; }
@@ -46,9 +47,16 @@ public:
     void polish(QApplication *app) { QProxyStyle::polish(app); }
     void polish(QWidget *widget);
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const;
+    void drawItemText(QPainter *painter, const QRect &rect, int flags, const QPalette &pal, bool enabled, const QString &text, QPalette::ColorRole textRole) const;
+    bool eventFilter(QObject *obj, QEvent *ev);
+
+private:
+    void setMnemonicsVisible(bool v);
 
 private:
     int modViewFrame;
+    bool controlMnemonics;
+    bool mnenomicsVisible;
 };
 }
 #endif

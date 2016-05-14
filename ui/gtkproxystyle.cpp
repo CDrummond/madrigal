@@ -23,12 +23,6 @@
 
 #include "ui/gtkproxystyle.h"
 #include "ui/gtkstyle.h"
-#if defined HAVE_SHORTCUT_HANDLER
-#include "ui/shortcuthandler.h"
-#endif
-#if defined HAVE_ACCEL_MGR
-#include "ui/acceleratormanager.h"
-#endif
 #include "ui/utils.h"
 #include <QSpinBox>
 #include <QAbstractScrollArea>
@@ -41,18 +35,6 @@
 #include <QStyleOptionSpinBox>
 #include <QStyledItemDelegate>
 #include <QApplication>
-#include <QApplication>
-
-#if defined HAVE_ACCEL_MGR
-static const char * constAccelProp="catata-accel";
-#endif
-
-#if defined HAVE_SHORTCUT_HANDLER
-static inline void addEventFilter(QObject *object, QObject *filter) {
-    object->removeEventFilter(filter);
-    object->installEventFilter(filter);
-}
-#endif
 
 static bool useOverlayStyleScrollbars(bool use) {
     if (use) {
@@ -93,15 +75,12 @@ static void drawSpinButton(QPainter *painter, const QRect &r, const QColor &col,
 }
 
 Ui::GtkProxyStyle::GtkProxyStyle(int modView, bool thinSb, bool styleSpin, const QMap<QString, QString> &c)
-    : ProxyStyle(modView)
+    : ProxyStyle(modView, true)
     , css(c)
     , touchStyleSpin(styleSpin)
     , spinButtonRatio(1.25)
     , sbarPlainViewWidth(-1)
 {
-    #if defined HAVE_SHORTCUT_HANDLER
-    shortcutHander=new ShortcutHandler(this);
-    #endif
     setBaseStyle(qApp->style());
 
     if (useOverlayStyleScrollbars(thinSb)) {
@@ -135,9 +114,6 @@ QSize Ui::GtkProxyStyle::sizeFromContents(ContentsType type, const QStyleOption 
     if (touchStyleSpin && CT_SpinBox==type) {
         if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
             if (QAbstractSpinBox::NoButtons!=spinBox->buttonSymbols) {
-                #if QT_VERSION < 0x050200
-                sz += QSize(0, 1);
-                #endif
                 // Qt5 does not seem to be taking special value, or suffix, into account when calculatng width...
                 if (widget && qobject_cast<const QSpinBox *>(widget)) {
                     const QSpinBox *spin=static_cast<const QSpinBox *>(widget);
@@ -172,10 +148,6 @@ int Ui::GtkProxyStyle::styleHint(StyleHint hint, const QStyleOption *option, con
     switch (hint) {
     case SH_DialogButtonBox_ButtonsHaveIcons:
         return false;
-    #if defined HAVE_SHORTCUT_HANDLER
-    case SH_UnderlineShortcut:
-        return widget ? shortcutHander->showShortcut(widget) : true;
-    #endif
     case SH_ScrollView_FrameOnlyAroundContents:
         if (SB_Standard!=sbarType) {
             return false;
@@ -222,8 +194,7 @@ QRect Ui::GtkProxyStyle::subControlRect(ComplexControl control, const QStyleOpti
             int sliderstart(sliderPositionFromValue(sb->minimum, sb->maximum, sb->sliderPosition, sliderMaxLength - sliderLength, sb->upsideDown));
 
             // Subcontrols
-            switch(subControl)
-            {
+            switch(subControl) {
             case SC_ScrollBarSubLine:
             case SC_ScrollBarAddLine:
                 return QRect();
@@ -403,13 +374,6 @@ void Ui::GtkProxyStyle::drawPrimitive(PrimitiveElement element, const QStyleOpti
 }
 
 void Ui::GtkProxyStyle::polish(QWidget *widget) {
-    #if defined HAVE_ACCEL_MGR
-    if (widget && qobject_cast<QMenu *>(widget) && !widget->property(constAccelProp).isValid()) {
-        AcceleratorManager::manage(widget);
-        widget->setProperty(constAccelProp, true);
-    }
-    #endif
-
     // Apply CSS only to particular widgets. With Qt5.2 if we apply CSS to whole application, then QStyleSheetStyle does
     // NOT call sizeFromContents for spinboxes :-(
     if (widget->styleSheet().isEmpty()) {
@@ -450,9 +414,6 @@ void Ui::GtkProxyStyle::polish(QPalette &pal) {
 }
 
 void Ui::GtkProxyStyle::polish(QApplication *app) {
-    #if defined HAVE_SHORTCUT_HANDLER
-    addEventFilter(app, shortcutHander);
-    #endif
     ProxyStyle::polish(app);
 }
 
@@ -461,8 +422,5 @@ void Ui::GtkProxyStyle::unpolish(QWidget *widget) {
 }
 
 void Ui::GtkProxyStyle::unpolish(QApplication *app) {
-    #if defined HAVE_SHORTCUT_HANDLER
-    app->removeEventFilter(shortcutHander);
-    #endif
     ProxyStyle::unpolish(app);
 }

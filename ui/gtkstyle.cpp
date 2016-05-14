@@ -302,14 +302,17 @@ void Ui::GtkStyle::applyTheme(QWidget *widget) {
     if (!proxyStyle) {
         #if defined Q_OS_WIN
         int modViewFrame=ProxyStyle::VF_Side;
+        bool controlMnemonics=true;
         #elif defined Q_OS_MAC
         int modViewFrame=ProxyStyle::VF_Side|ProxyStyle::VF_Top;
+        bool controlMnemonics=true;
         #else
         int modViewFrame=qApp->style() && qApp->style()->inherits("QFusionStyle") ? ProxyStyle::VF_Side : 0;
+        bool controlMnemonics=0!=modViewFrame;
         #endif
 
-        if (modViewFrame) {
-            proxyStyle=new ProxyStyle(modViewFrame);
+        if (modViewFrame || controlMnemonics) {
+            proxyStyle=new ProxyStyle(modViewFrame, controlMnemonics);
         }
     }
     if (proxyStyle) {
