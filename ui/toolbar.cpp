@@ -56,6 +56,8 @@ Ui::ToolBar::ToolBar(QWidget *parent)
     prevAction=ActionCollection::get()->createAction("previous", tr("Previous Track"), Core::MonoIcon::icon(Core::MonoIcon::ex_mediaprevious, col, col));
     playPauseAction=ActionCollection::get()->createAction("play", tr("Play/Pause"), playIcon);
     nextAction=ActionCollection::get()->createAction("next", tr("Next Track"), Core::MonoIcon::icon(Core::MonoIcon::ex_medianext, col, col));
+    showLyricsAction=ActionCollection::get()->createAction("lyrics", tr("Show Lyrics"), Core::MonoIcon::icon(Core::MonoIcon::filetexto, col, col));
+    showLyricsAction->setCheckable(true);
 
     playPauseAction->setShortcut(Qt::ControlModifier+Qt::Key_P);
     prevAction->setShortcut(Qt::ControlModifier+Qt::Key_Left);
@@ -92,12 +94,18 @@ Ui::ToolBar::ToolBar(QWidget *parent)
     addSpacer();
     addWidget(volumeSlider);
     addSpacer();
+    ToolButton *lyricsButton=new ToolButton(this);
+    lyricsButton->setDefaultAction(showLyricsAction);
+    lyricsButton->setFixedSize(QSize(pad+tbIconSize, pad+tbIconSize));
+    addWidget(lyricsButton);
+    addSpacer();
 
     layout()->setSpacing(0);
     layout()->setMargin(0);
     nowPlaying->update(QModelIndex());
     enableControls(false);
     connect(Upnp::Model::self()->renderersModel(), SIGNAL(activeDevice(QModelIndex)), SLOT(setRenderer(QModelIndex)));
+    connect(showLyricsAction, SIGNAL(triggered(bool)), this, SIGNAL(showLyrics(bool)));
 }
 
 void Ui::ToolBar::addMenuButton(QMenu *mnu) {
@@ -110,6 +118,14 @@ void Ui::ToolBar::addMenuButton(QMenu *mnu) {
     btn->setIcon(Core::MonoIcon::icon(Core::MonoIcon::bars, col, col));
     btn->setFixedSize(QSize(btnSize, btnSize));
     addWidget(btn);
+}
+
+void Ui::ToolBar::setLyricsVisible(bool v) {
+    showLyricsAction->setChecked(v);
+}
+
+bool Ui::ToolBar::isLyricsVisible() const {
+    return showLyricsAction->isChecked();
 }
 
 void Ui::ToolBar::setRenderer(const QModelIndex &idx) {

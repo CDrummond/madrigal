@@ -42,6 +42,7 @@ public:
         Ui            = 0x0040,
         Images        = 0x0080,
         Notifications = 0x0100,
+        Lyrics        = 0x0200,
 
         All           = 0xFFFF
     };

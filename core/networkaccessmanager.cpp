@@ -51,16 +51,16 @@ Core::NetworkJob::NetworkJob(QNetworkReply *j)
 {
     origU=j->url();
     connectJob();
-    DBUG(Network) << (void *)this << (void *)job;
+    DBUG(Network) << (void *)this << (void *)job << origU;
 }
 
 Core::NetworkJob::~NetworkJob() {
-    DBUG(Network) << (void *)this << (void *)job;
+    DBUG(Network) << (void *)this << (void *)job << origU;
     cancelJob();
 }
 
 void Core::NetworkJob::cancelAndDelete() {
-    DBUG(Network) << (void *)this << (void *)job;
+    DBUG(Network) << (void *)this << (void *)job << origU;
     cancelJob();
     deleteLater();
 }
@@ -79,7 +79,7 @@ void Core::NetworkJob::connectJob() {
 }
 
 void Core::NetworkJob::cancelJob() {
-    DBUG(Network) << (void *)this << (void *)job;
+    DBUG(Network) << (void *)this << (void *)job << origU;
     if (job) {
         QNetworkAccessManager *mgr=job->manager();
         if (mgr && qobject_cast<NetworkAccessManager *>(mgr)) {
@@ -99,14 +99,14 @@ void Core::NetworkJob::cancelJob() {
 }
 
 void Core::NetworkJob::abortJob() {
-    DBUG(Network) << (void *)this << (void *)job;
+    DBUG(Network) << (void *)this << (void *)job << origU;
     if (job) {
         job->abort();
     }
 }
 
 void Core::NetworkJob::jobFinished() {
-    DBUG(Network) << (void *)this << (void *)job;
+    DBUG(Network) << (void *)this << (void *)job << origU;
     if (!job) {
         emit finished();
     }
@@ -131,7 +131,7 @@ void Core::NetworkJob::jobFinished() {
 }
 
 void Core::NetworkJob::jobDestroyed(QObject *o) {
-    DBUG(Network) << (void *)this << (void *)job;
+    DBUG(Network) << (void *)this << (void *)job << origU;
     if (o==job) {
         job=0;
     }
@@ -147,7 +147,7 @@ void Core::NetworkJob::downloadProg(qint64 bytesReceived, qint64 bytesTotal) {
 }
 
 void Core::NetworkJob::handleReadyRead() {
-    DBUG(Network) << (void *)this << (void *)job;
+    DBUG(Network) << (void *)this << (void *)job << origU;
     QNetworkReply *j=dynamic_cast<QNetworkReply *>(sender());
     if (!j || j!=job) {
         return;
@@ -168,14 +168,8 @@ Core::NetworkAccessManager::NetworkAccessManager(QObject *parent)
 Core::NetworkJob * Core::NetworkAccessManager::get(const QNetworkRequest &req, int timeout) {
     DBUG(Network) << req.url().toString();
 
-    // Set User-Agent - required for some Podcasts...
-    QByteArray userAgent = QString("%1 %2").arg(QCoreApplication::applicationName(), QCoreApplication::applicationVersion()).toUtf8();
-    if (req.hasRawHeader("User-Agent")) {
-        userAgent+=' '+req.rawHeader("User-Agent");
-    }
     QNetworkRequest request=req;
-    request.setRawHeader("User-Agent", userAgent);
-//    request.setRawHeader("Connection", "close");
+    request.setRawHeader("Connection", "close");
 
     // Windows builds do not support HTTPS - unless QtNetwork is recompiled...
     NetworkJob *reply=0;

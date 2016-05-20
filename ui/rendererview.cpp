@@ -31,6 +31,7 @@
 #include "ui/utils.h"
 #include "ui/actioncollection.h"
 #include "ui/action.h"
+#include "ui/proxystyle.h"
 #include "upnp/model.h"
 #include "upnp/renderers.h"
 #include "upnp/renderer.h"
@@ -100,6 +101,9 @@ Ui::RendererView::RendererView(QWidget *p)
     queue->setItemDelegate(new GroupedItemDelegate(queue));
     queue->setUniformItemSizes(false);
     renderers->setItemDelegate(new ListItemDelegate(renderers));
+    info->setProperty(ProxyStyle::constModifyFrameProp, ProxyStyle::VF_Side);
+    queue->setProperty(ProxyStyle::constModifyFrameProp, ProxyStyle::VF_Side);
+    renderers->setProperty(ProxyStyle::constModifyFrameProp, ProxyStyle::VF_Side);
     mainLayout->setMargin(0);
     mainLayout->setSpacing(0);
     mainLayout->addWidget(toolbar);

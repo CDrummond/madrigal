@@ -118,9 +118,9 @@ Ui::ServerView::ServerView(QWidget *p)
     nav->add(tr("Select Source"), -1);
     setInfoLabel();
     servers->setItemDelegate(new ListItemDelegate(servers));
-    info->setProperty(Ui::ProxyStyle::constModifyFrameProp, ProxyStyle::VF_Side);
-    media->setProperty(Ui::ProxyStyle::constModifyFrameProp, ProxyStyle::VF_Side);
-    servers->setProperty(Ui::ProxyStyle::constModifyFrameProp, ProxyStyle::VF_Side);
+    info->setProperty(ProxyStyle::constModifyFrameProp, ProxyStyle::VF_Side);
+    media->setProperty(ProxyStyle::constModifyFrameProp, ProxyStyle::VF_Side);
+    servers->setProperty(ProxyStyle::constModifyFrameProp, ProxyStyle::VF_Side);
     mainLayout->setMargin(0);
     mainLayout->setSpacing(0);
     mainLayout->addWidget(toolbar);

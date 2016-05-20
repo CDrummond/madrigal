@@ -103,14 +103,14 @@ qt5_add_resources(APP_RC_SRCS ${APP_RCS})
 set(APP_SRCS ${APP_SRCS} ${APP_RC_SRCS}
     core/main.cpp core/debug.cpp core/thread.cpp core/utils.cpp core/networkaccessmanager.cpp
     core/configuration.cpp core/monoicon.cpp core/images.cpp core/actions.cpp core/mediakeys.cpp
-    core/notificationmanager.cpp
+    core/notificationmanager.cpp core/lyrics.cpp
     upnp/ssdp.cpp upnp/device.cpp upnp/devicesmodel.cpp upnp/mediaservers.cpp upnp/mediaserver.cpp
     upnp/renderers.cpp upnp/ohrenderer.cpp upnp/httpserver.cpp upnp/httpconnection.cpp
     upnp/model.cpp upnp/renderer.cpp)
 
 set(APP_MOC_HDRS ${APP_MOC_HDRS}
     core/thread.h core/networkaccessmanager.h core/images.h core/mediakeys.h
-    core/notificationmanager.h
+    core/notificationmanager.h core/lyrics.h
     upnp/ssdp.h upnp/device.h upnp/devicesmodel.h upnp/mediaservers.h upnp/mediaserver.h
     upnp/renderers.h upnp/renderer.h upnp/renderer.h upnp/ohrenderer.h upnp/httpserver.h
     upnp/httpconnection.h upnp/model.h)
@@ -145,11 +145,12 @@ if (ENABLE_QTWIDGETS_UI)
         ui/listview.cpp ui/toolbar.cpp ui/toolbutton.cpp ui/volumeslider.cpp ui/nowplayingwidget.cpp
         ui/squeezedtextlabel.cpp ui/action.cpp ui/actioncollection.cpp ui/viewtoolbar.cpp
         ui/libraryview.cpp ui/listitemdelegate.cpp ui/albuminfo.cpp ui/animatedicon.cpp
-        ui/notification.cpp ui/groupeditemdelegate.cpp ui/menubutton.cpp ui/preferencesdialog.cpp)
+        ui/notification.cpp ui/groupeditemdelegate.cpp ui/menubutton.cpp ui/preferencesdialog.cpp
+        ui/lyricsview.cpp)
     set(APP_MOC_HDRS ${APP_MOC_HDRS} ui/mainwindow.h ui/serverview.h ui/rendererview.h
         ui/navbutton.h ui/listview.h ui/volumeslider.h ui/nowplayingwidget.h ui/action.h ui/actioncollection.h
         ui/toolbar.h ui/libraryview.h ui/listitemdelegate.h ui/albuminfo.h ui/animatedicon.h ui/notification.h
-        ui/preferencesdialog.h)
+        ui/preferencesdialog.h ui/lyricsview.h)
 endif()
 
 if (QT_QTDBUS_FOUND)

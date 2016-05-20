@@ -26,6 +26,26 @@
 
 QLatin1String Core::Configuration::constMainGroup("General");
 
+static QList<int> toIntList(const QList<QVariant> &varList) {
+    QList<int> intList;
+
+    foreach (const QVariant &v, varList) {
+        intList.append(v.toInt());
+    }
+
+    return intList;
+}
+
+static QList<QVariant> toVariantList(const QList<int> &intList) {
+    QList<QVariant> varList;
+
+    foreach (int i, intList) {
+        varList.append(QVariant(i));
+    }
+
+    return varList;
+}
+
 Core::Configuration::Configuration(const QString &group) {
     beginGroup(QString(group).replace("::", "."));
 }
@@ -58,4 +78,14 @@ QString Core::Configuration::getDirPath(const QString &key, const QString &def) 
     #else
     return Utils::tildaToHome(Utils::fixPath(get(key, def)));
     #endif
+}
+
+QList<int> Core::Configuration::get(const QString &key, const QList<int> &def) {
+    return contains(key) ? toIntList(value(key).toList()) : def;
+}
+
+void Core::Configuration::set(const QString &key, const QList<int> &val) {
+    if (!hasEntry(key) || get(key, val)!=val) {
+        setValue(key, toVariantList(val));
+    }
 }

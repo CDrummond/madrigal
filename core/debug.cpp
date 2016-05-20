@@ -52,6 +52,8 @@ void Core::Debug::setAreas(const QString &a) {
             setAreas(Images);
         } else if (QLatin1String("notifications")==i) {
             setAreas(Notifications);
+        } else if (QLatin1String("lyrics")==i) {
+            setAreas(Lyrics);
         }
     }
 }

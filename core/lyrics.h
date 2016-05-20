@@ -21,39 +21,46 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef UI_MAINWINDOW_H
-#define UI_MAINWINDOW_H
+#ifndef CORE_LYRICS_H
+#define CORE_LYRICS_H
 
-#include <QMainWindow>
+#include <QObject>
+#include "upnp/renderer.h"
 
-namespace Ui {
-class ToolBar;
-class ThinSplitter;
-class RendererView;
-class LyricsView;
-class PreferencesDialog;
+namespace Core {
+class NetworkJob;
 
-class MainWindow : public QMainWindow {
+class Lyrics : public QObject {
     Q_OBJECT
 public:
-    MainWindow(QWidget *p);
-    virtual ~MainWindow();
+    Lyrics(QObject *p);
+    virtual ~Lyrics() { cancel(); }
 
-public Q_SLOTS:
-    void raise();
+    void setEnabled(bool en);
+
+Q_SIGNALS:
+    void fetched(const QString &artist, const QString &title, const QString &text);
 
 private Q_SLOTS:
-    void showPreferences();
-    void showAbout();
-    void preferencesDestroyed();
+    void setRenderer(const QModelIndex &idx);
+    void update(const QModelIndex &idx);
+    void jobFinished();
 
 private:
-    ToolBar *toolBar;
-    ThinSplitter *splitter;
-    RendererView *renderer;
-    LyricsView *lyrics;
-    PreferencesDialog *preferences;
+    void setRenderer(Upnp::Renderer *r);
+    void update(const Upnp::Device::MusicTrack &song);
+
+private:
+    void cancel();
+    void searchResponse(NetworkJob *reply);
+    void lyricsResponse(NetworkJob *reply);
+
+private:
+    bool enabled;
+    NetworkJob *job;
+    Upnp::Renderer *renderer;
+    Upnp::Device::MusicTrack songWhenDisabled;
+    Upnp::Device::MusicTrack currentSong;
 };
 }
-
 #endif

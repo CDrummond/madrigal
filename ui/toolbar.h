@@ -44,6 +44,11 @@ public:
     virtual ~ToolBar() { }
 
     void addMenuButton(QMenu *mnu);
+    void setLyricsVisible(bool v);
+    bool isLyricsVisible() const;
+
+Q_SIGNALS:
+    void showLyrics(bool s);
 
 private Q_SLOTS:
     void setRenderer(const QModelIndex &idx);
@@ -58,6 +63,7 @@ private:
     Action *prevAction;
     Action *playPauseAction;
     Action *nextAction;
+    Action *showLyricsAction;
     NowPlayingWidget *nowPlaying;
     VolumeSlider *volumeSlider;
     Upnp::Renderer *renderer;

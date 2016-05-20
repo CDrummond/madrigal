@@ -97,6 +97,25 @@ QString Upnp::Device::MusicTrack::mainText() const {
            (!albumArtist.isEmpty() && !artist.isEmpty() && artist!=albumArtist ? QLatin1String(" - ")+artist : QString());
 }
 
+QString Upnp::Device::MusicTrack::basicArtist() const {
+    if (!albumArtist.isEmpty() && (artist.isEmpty() || albumArtist==artist || (albumArtist.length()<artist.length() && artist.startsWith(albumArtist)))) {
+        return albumArtist;
+    }
+
+    QStringList toStrip=QStringList() << QLatin1String("ft. ") << QLatin1String("feat. ") << QLatin1String("featuring ") << QLatin1String("f. ");
+    QStringList prefixes=QStringList() << QLatin1String(" ") << QLatin1String(" (") << QLatin1String(" [");
+
+    foreach (const QString s, toStrip) {
+        foreach (const QString p, prefixes) {
+            int strip = artist.toLower().indexOf(p+s);
+            if (-1!=strip) {
+                return artist.mid(0, strip);
+            }
+        }
+    }
+    return artist;
+}
+
 QString Upnp::Device::MusicTrack::artistAndAlbum() const {
     if (album.isEmpty() && artist.isEmpty()) {
         return name.isEmpty() || isBroadcast ? QString() : QObject::tr("Unknown");

@@ -21,38 +21,31 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef UI_MAINWINDOW_H
-#define UI_MAINWINDOW_H
+#ifndef UI_LYRICSVIEW_H
+#define UI_LYRICSVIEW_H
 
-#include <QMainWindow>
+#include <QWidget>
+#include "core/lyrics.h"
+
+class QTextEdit;
 
 namespace Ui {
-class ToolBar;
-class ThinSplitter;
-class RendererView;
-class LyricsView;
-class PreferencesDialog;
 
-class MainWindow : public QMainWindow {
+class LyricsView : public QWidget {
     Q_OBJECT
 public:
-    MainWindow(QWidget *p);
-    virtual ~MainWindow();
+    LyricsView(QWidget *p);
+    virtual ~LyricsView() { }
 
-public Q_SLOTS:
-    void raise();
+    void showEvent(QShowEvent *ev);
+    void hideEvent(QHideEvent *ev);
 
 private Q_SLOTS:
-    void showPreferences();
-    void showAbout();
-    void preferencesDestroyed();
+    void fetched(const QString &artist, const QString &title, const QString &contents);
 
 private:
-    ToolBar *toolBar;
-    ThinSplitter *splitter;
-    RendererView *renderer;
-    LyricsView *lyrics;
-    PreferencesDialog *preferences;
+    Core::Lyrics *lyrics;
+    QTextEdit *text;
 };
 }
 

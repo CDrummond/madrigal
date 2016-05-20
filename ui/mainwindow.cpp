@@ -26,6 +26,7 @@
 #include "ui/thinsplitter.h"
 #include "ui/serverview.h"
 #include "ui/rendererview.h"
+#include "ui/lyricsview.h"
 #include "ui/toolbar.h"
 #include "ui/actioncollection.h"
 #include "ui/notification.h"
@@ -68,7 +69,11 @@ Ui::MainWindow::MainWindow(QWidget *p)
     splitter=new ThinSplitter(mainWidget);
     ServerView *server=new ServerView(splitter);
     renderer=new RendererView(splitter);
+    lyrics=new LyricsView(splitter);
     toolBar=new ToolBar(this);
+    server->setMinimumWidth(Utils::scaleForDpi(340));
+    lyrics->setMinimumWidth(Utils::scaleForDpi(300));
+    setMinimumWidth(Utils::scaleForDpi(800));
 
     mainLayout->setMargin(0);
     mainLayout->setSpacing(0);
@@ -76,21 +81,25 @@ Ui::MainWindow::MainWindow(QWidget *p)
     mainLayout->addWidget(splitter);
     setCentralWidget(mainWidget);
     setWindowTitle(PACKAGE_NAME_CASE);
+
     Core::Configuration cfg(this);
     resize(cfg.get("size", QSize(Utils::scaleForDpi(640), Utils::scaleForDpi(480))));
-    QByteArray s=cfg.get("splitter", QByteArray());
-    if (!s.isEmpty()) {
-        splitter->restoreState(s);
-    } else {
-        splitter->setSizes(QList<int>() << 200 << 600);
-    }
+
+    QList<int> s=cfg.get("splitter", QList<int>());
+    splitter->setSizes(3==s.count() ? s : QList<int>() << server->minimumWidth() << Utils::scaleForDpi(400) << lyrics->minimumWidth());
+    splitter->setStretchFactor(0, 0);
+    splitter->setStretchFactor(1, 2);
+    splitter->setStretchFactor(2, 1);
+
     QPoint pos=cfg.get("pos", QPoint());
     if (!pos.isNull()) {
         move(pos);
     }
 
+    toolBar->setLyricsVisible(cfg.get("lyrics", false));
+    lyrics->setVisible(toolBar->isLyricsVisible());
     toolBar->adjustSize();
-    notif->setOffset(toolBar->height()+32);
+    notif->setOffset(toolBar->height()+Utils::scaleForDpi(32));
 
     QMenu *mnu=new QMenu(PACKAGE_NAME_CASE, this);
     mnu->addAction(tr("Preferences..."), this, SLOT(showPreferences()))->setMenuRole(QAction::PreferencesRole);
@@ -124,6 +133,7 @@ Ui::MainWindow::MainWindow(QWidget *p)
     #endif
 
     connect(new Core::NotificationManager(this), SIGNAL(msg(QString)), notif, SLOT(show(QString)));
+    connect(toolBar, SIGNAL(showLyrics(bool)), lyrics, SLOT(setVisible(bool)));
 }
 
 Ui::MainWindow::~MainWindow() {
@@ -131,7 +141,13 @@ Ui::MainWindow::~MainWindow() {
     Core::Configuration cfg(this);
     cfg.set("size", size());
     cfg.set("pos", pos());
-    cfg.set("splitter", splitter->saveState());
+    QList<int> sizes=splitter->sizes();
+    if (3==sizes.count() && 0==sizes.at(2) && !toolBar->isLyricsVisible()) {
+        int lw=lyrics->width();
+        sizes=QList<int>() << sizes.at(0) << (sizes.at(1)-lw) << lw;
+    }
+    cfg.set("splitter", sizes);
+    cfg.set("lyrics", toolBar->isLyricsVisible());
 }
 
 void Ui::MainWindow::raise() {

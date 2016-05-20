@@ -28,9 +28,9 @@ Ui::ViewToolBar::ViewToolBar(QWidget *p)
     : QStackedWidget(p)
 {
     title=new QLabel(this);
-    QFont f=title->font();
-    f.setBold(true);
-    title->setFont(f);
+//    QFont f=title->font();
+//    f.setBold(true);
+//    title->setFont(f);
     QStackedWidget::addWidget(title);
     QWidget *main=new QWidget(this);
     layout=new QHBoxLayout(main);

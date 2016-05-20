@@ -90,6 +90,7 @@ public:
         virtual QString mainText() const;
         virtual QString subText() const { return 0==duration ? QString() : Core::Utils::formatTime(duration); }
         const QString & artistName() const { return albumArtist.isEmpty() ? artist : albumArtist; }
+        QString basicArtist() const;
         virtual Core::ImageDetails cover() const;
         virtual Core::MonoIcon::Type icon() const { return isBroadcast ? Core::MonoIcon::ex_radio : Core::MonoIcon::music; }
         QByteArray toXml() const;
