@@ -161,6 +161,10 @@ QByteArray Upnp::Device::MusicTrack::toXml() const {
         writer.writeStartElement(QLatin1String("upnp:albumArtist"));
         writer.writeCharacters(albumArtist);
         writer.writeEndElement();
+        writer.writeStartElement(QLatin1String("upnp:artist"));
+        writer.writeAttribute(QLatin1String("role"), QLatin1String("AlbumArtist"));
+        writer.writeCharacters(albumArtist);
+        writer.writeEndElement();
     }
     if (!album.isEmpty()) {
         writer.writeStartElement(QLatin1String("upnp:album"));
