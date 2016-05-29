@@ -166,6 +166,7 @@ void Ui::ToolBar::setRenderer(const QModelIndex &idx) {
         nowPlaying->updatePos(renderer->playback().seconds);
         nowPlaying->updateDuration(renderer->playback().duration);
         volumeSlider->set(renderer->volume());
+        playbackState(renderer->playback().state);
     } else {
         nowPlaying->update(QModelIndex());
         nowPlaying->updatePos(0);
