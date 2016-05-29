@@ -118,8 +118,7 @@ QModelIndex Upnp::MediaServer::index(int row, int column, const QModelIndex &par
     return c ? createIndex(row, column, (void *)c) : QModelIndex();
 }
 
-QModelIndex Upnp::MediaServer::parent(const QModelIndex &child) const
-{
+QModelIndex Upnp::MediaServer::parent(const QModelIndex &child) const {
     if (!child.isValid()) {
         return QModelIndex();
     }

@@ -106,14 +106,14 @@ set(APP_SRCS ${APP_SRCS} ${APP_RC_SRCS}
     core/notificationmanager.cpp core/lyrics.cpp
     upnp/ssdp.cpp upnp/device.cpp upnp/devicesmodel.cpp upnp/mediaservers.cpp upnp/mediaserver.cpp
     upnp/renderers.cpp upnp/ohrenderer.cpp upnp/httpserver.cpp upnp/httpconnection.cpp
-    upnp/model.cpp upnp/renderer.cpp)
+    upnp/model.cpp upnp/renderer.cpp upnp/localplaylists.cpp)
 
 set(APP_MOC_HDRS ${APP_MOC_HDRS}
     core/thread.h core/networkaccessmanager.h core/images.h core/mediakeys.h
     core/notificationmanager.h core/lyrics.h
     upnp/ssdp.h upnp/device.h upnp/devicesmodel.h upnp/mediaservers.h upnp/mediaserver.h
     upnp/renderers.h upnp/renderer.h upnp/renderer.h upnp/ohrenderer.h upnp/httpserver.h
-    upnp/httpconnection.h upnp/model.h)
+    upnp/httpconnection.h upnp/model.h upnp/localplaylists.h)
 
 if (ENABLE_QTWIDGETS_UI)
     if (WIN32 OR APPLE)

@@ -36,6 +36,7 @@
 #include "upnp/renderers.h"
 #include "upnp/renderer.h"
 #include "upnp/device.h"
+#include "upnp/localplaylists.h"
 #include "core/debug.h"
 #include "core/configuration.h"
 #include "core/monoicon.h"
@@ -48,6 +49,7 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <QMenu>
+#include <QInputDialog>
 
 enum Pages {
     Page_Info,
@@ -116,19 +118,24 @@ Ui::RendererView::RendererView(QWidget *p)
     shuffleAction=ActionCollection::get()->createAction("random", tr("Random"), Core::MonoIcon::icon(Core::MonoIcon::random, iconColor, iconColor));
     clearAction=ActionCollection::get()->createAction("clear", tr("Clear"), Core::MonoIcon::icon(Core::MonoIcon::timescircle, red, red));
     removeAction=ActionCollection::get()->createAction("remove", tr("Remove Selected Tracks"), Core::MonoIcon::icon(Core::MonoIcon::scissors, red, red));
+    saveAction=ActionCollection::get()->createAction("save", tr("Save To Playlist"), Core::MonoIcon::icon(Core::MonoIcon::save, iconColor, iconColor));
+
     clearAction->setShortcut(Qt::ControlModifier+Qt::Key_K);
     removeAction->setShortcut(Qt::ControlModifier+Qt::Key_X);
     repeatAction->setShortcut(Qt::ControlModifier+Qt::Key_R);
     shuffleAction->setShortcut(Qt::ControlModifier+Qt::Key_U);
+    saveAction->setShortcut(Qt::ControlModifier+Qt::Key_S);
 
     repeatAction->setCheckable(true);
     shuffleAction->setCheckable(true);
     ToolButton *repeatButton=new ToolButton(toolbar);
     ToolButton *shuffleButton=new ToolButton(toolbar);
+    ToolButton *saveButton=new ToolButton(toolbar);
     ToolButton *removeButton=new ToolButton(toolbar);
     ToolButton *clearButton=new ToolButton(toolbar);
     repeatButton->setDefaultAction(repeatAction);
     shuffleButton->setDefaultAction(shuffleAction);
+    saveButton->setDefaultAction(saveAction);
     removeButton->setDefaultAction(removeAction);
     clearButton->setDefaultAction(clearAction);
     queueInfo=new SqueezedTextLabel(toolbar);
@@ -139,6 +146,8 @@ Ui::RendererView::RendererView(QWidget *p)
     toolbar->addWidget(repeatButton, false);
     toolbar->addWidget(shuffleButton, false);
     toolbar->addSpacer(Utils::layoutSpacing(this), false);
+    toolbar->addWidget(saveButton, false);
+    toolbar->addSpacer(Utils::layoutSpacing(this), false);
     toolbar->addWidget(removeButton, false);
     toolbar->addWidget(clearButton, false);
     backIcon=Core::MonoIcon::icon(Qt::LeftToRight==layoutDirection() ? Core::MonoIcon::chevronleft : Core::MonoIcon::chevronright, iconColor, iconColor);
@@ -148,6 +157,7 @@ Ui::RendererView::RendererView(QWidget *p)
     connect(queue, SIGNAL(itemsSelected(bool)), removeAction, SLOT(setEnabled(bool)));
     connect(removeAction, SIGNAL(triggered(bool)), this, SLOT(removeSelectedTracks()));
     connect(clearAction, SIGNAL(triggered(bool)), this, SLOT(clearQueue()));
+    connect(saveAction, SIGNAL(triggered(bool)), this, SLOT(saveQueue()));
     autoScrollQueue=Core::Configuration(this).get("scroll", true);
 }
 
@@ -271,6 +281,7 @@ void Ui::RendererView::updateStats(quint32 num, quint32 dur) {
         }
     }
     clearAction->setEnabled(num>0);
+    saveAction->setEnabled(num>0);
     removeAction->setEnabled(queue->haveSelectedItems());
 }
 
@@ -280,6 +291,31 @@ void Ui::RendererView::clearQueue() {
         Upnp::Renderer *renderer=(Upnp::Renderer *)queue->model();
         if (renderer) {
             renderer->clearQueue();
+        }
+    }
+}
+
+void Ui::RendererView::saveQueue() {
+    if (queue->model() && queue->model()->rowCount()>0) {
+        Upnp::Renderer *renderer=(Upnp::Renderer *)queue->model();
+        if (renderer) {
+            for (;;) {
+                QString name=QInputDialog::getText(this, tr("Save Playlist"), tr("Please enter name of playlist")).trimmed();
+                if (name.isEmpty()) {
+                    return;
+                }
+
+                if (Upnp::LocalPlaylists::self()->exists(name)) {
+                    switch (QMessageBox::question(this, tr("Overite Playlist"), tr("A playlist with this name already exists, overwrite?"), QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel)) {
+                    case QMessageBox::No:
+                        continue;
+                    case QMessageBox::Cancel:
+                        return;
+                    }
+                }
+                Upnp::LocalPlaylists::self()->save(name, renderer->toXml());
+                break;
+            }
         }
     }
 }

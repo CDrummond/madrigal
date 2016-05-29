@@ -50,6 +50,7 @@ public:
         };
         typedef QMap<QByteArray, Service> Services;
 
+        Device(const QByteArray &id=QByteArray(), const QString &n=QString()) : uuid(id), name(n) { }
         QByteArray type;
         QByteArray uuid;
         QString manufacturer;

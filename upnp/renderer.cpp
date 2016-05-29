@@ -26,6 +26,7 @@
 #include "config.h"
 #include <QMimeData>
 #include <QTimer>
+#include <QXmlStreamWriter>
 
 static const char * constRowListMimeType=APP_REV_URL"/row-list";
 
@@ -120,6 +121,21 @@ bool Upnp::Renderer::dropMimeData(const QMimeData *data,
         return true;
     }
     return false;
+}
+
+QByteArray Upnp::Renderer::toXml() const {
+    QByteArray xml;
+    QXmlStreamWriter writer(&xml);
+    writer.writeStartDocument();
+    writer.writeStartElement(QLatin1String("Tracks"));
+    foreach (const Item *item, items) {
+        writer.writeStartElement(QLatin1String("Track"));
+        writer.writeCharacters(static_cast<const MusicTrack *>(item)->toXml());
+        writer.writeEndElement();
+    }
+    writer.writeEndElement();
+    writer.writeEndDocument();
+    return xml;
 }
 
 void Upnp::Renderer::messageReceived() {

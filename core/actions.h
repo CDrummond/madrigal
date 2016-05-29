@@ -30,7 +30,8 @@ namespace Actions {
     enum Type {
         Action_None,
         Action_Add,
-        Action_Play
+        Action_Play,
+        Action_Delete
     };
 
     extern void setColor(const QColor &col);

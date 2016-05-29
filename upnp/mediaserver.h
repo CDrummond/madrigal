@@ -191,8 +191,9 @@ public:
     bool isSearchEnabled() const { return !searchCap.isEmpty(); }
 
 public Q_SLOTS:
-    void play(const QModelIndexList &indexes, qint32 pos, PlayCommand::Type type);
-    void play(const QList<QByteArray> &ids, qint32 row);
+    virtual void play(const QModelIndexList &indexes, qint32 pos, PlayCommand::Type type);
+    virtual void play(const QList<QByteArray> &ids, qint32 row);
+    virtual void remove(const QModelIndexList &indexes) { Q_UNUSED(indexes) }
     void search(const QString &text);
 
 private Q_SLOTS:
@@ -208,7 +209,7 @@ Q_SIGNALS:
 private:
     void search(quint32 start);
     void populate();
-    void populate(const QModelIndex &index, int start=0);
+    virtual void populate(const QModelIndex &index, int start=0);
     void commandResponse(QXmlStreamReader &reader, const QByteArray &type, Core::NetworkJob *job);
     void notification(const QByteArray &sid, const QByteArray &data);
     QModelIndex parseBrowse(QXmlStreamReader &reader);
@@ -220,9 +221,11 @@ private:
     const QList<Item *> * children(const QModelIndex &index) const;
     void populateCommand(const QModelIndex &idx);
     void checkCommand();
-    void checkCommand(const QModelIndex &idx);
     void removeSearchItem();
     void cancelCommands();
+
+protected:
+    void checkCommand(const QModelIndex &idx);
 
 private:
     Manufacturer manufacturer;

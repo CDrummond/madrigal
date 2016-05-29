@@ -42,6 +42,7 @@ QIcon Core::Actions::icon(Type t) {
     switch (t) {
     case Action_Add: icn=Core::MonoIcon::icon(Core::MonoIcon::plus, iconColor, iconColor); break;
     case Action_Play: icn=Core::MonoIcon::icon(Core::MonoIcon::ex_mediaplay, iconColor, iconColor); break;
+    case Action_Delete: icn=Core::MonoIcon::icon(Core::MonoIcon::trash, iconColor, iconColor); break;
     default: break;
     }
     if (!icn.isNull()) {
@@ -54,6 +55,7 @@ QString Core::Actions::toolTip(Type t) {
     switch (t) {
     case Action_Add: return QObject::tr("Append To Play Queue");
     case Action_Play: return QObject::tr("Add And Play");
+    case Action_Delete: return QObject::tr("Delete");
     default: return QString();
     }
 }

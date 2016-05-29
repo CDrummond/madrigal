@@ -23,11 +23,16 @@
 
 #include "upnp/mediaservers.h"
 #include "upnp/mediaserver.h"
+#include "upnp/localplaylists.h"
 #include "core/debug.h"
 
 Upnp::MediaServers::MediaServers(HttpServer *h, QObject *parent)
     : DevicesModel("Upnp::MediaServers", h, parent)
 {
+    connect(LocalPlaylists::self(), SIGNAL(addTracks(Upnp::Command*)), SIGNAL(addTracks(Upnp::Command*)));
+    beginInsertRows(QModelIndex(), devices.size(), devices.size());
+    devices.append(LocalPlaylists::self());
+    endInsertRows();
 }
 
 Upnp::MediaServers::~MediaServers() {

@@ -61,6 +61,7 @@ private Q_SLOTS:
     void selectRenderer();
     void updateStats(quint32 num, quint32 dur);
     void clearQueue();
+    void saveQueue();
     void removeSelectedTracks();
     void scrollTo(const QModelIndex &idx);
 
@@ -79,6 +80,7 @@ private:
     Action *shuffleAction;
     Action *clearAction;
     Action *removeAction;
+    Action *saveAction;
     SqueezedTextLabel *queueInfo;
     QColor iconColor;
     QIcon backIcon;

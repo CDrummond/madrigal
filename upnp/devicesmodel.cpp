@@ -23,6 +23,7 @@
 
 #include "upnp/devicesmodel.h"
 #include "upnp/device.h"
+#include "upnp/localplaylists.h"
 #include "core/configuration.h"
 #include "core/debug.h"
 #include "core/roles.h"
@@ -56,6 +57,7 @@ Upnp::DevicesModel::~DevicesModel() {
             dev->setActive(false);
         }
 
+        devices.removeAll(LocalPlaylists::self());
         qDeleteAll(devices);
         devices.clear();
     }

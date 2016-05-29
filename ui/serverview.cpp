@@ -49,6 +49,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QTimer>
+#include <QMessageBox>
 
 enum Pages {
     Page_Info,
@@ -254,9 +255,19 @@ void Ui::ServerView::doAction(int act) {
     if (media->model()) {
         Upnp::MediaServer *server=static_cast<Upnp::MediaServer *>(media->model());
         if (!server->hasCommand()) {
-            server->play(media->selectedIndexes(), -1,
-                         Core::Actions::Action_Add==act ? Upnp::MediaServer::PlayCommand::Append
-                                                        : Upnp::MediaServer::PlayCommand::ReplaceAndPlay);
+            switch (act) {
+            case Core::Actions::Action_Add:
+            case Core::Actions::Action_Play:
+                server->play(media->selectedIndexes(), -1,
+                             Core::Actions::Action_Add==act ? Upnp::MediaServer::PlayCommand::Append
+                                                            : Upnp::MediaServer::PlayCommand::ReplaceAndPlay);
+                break;
+            case Core::Actions::Action_Delete:
+                if (QMessageBox::Yes==QMessageBox::warning(this, tr("Delete"), tr("Delete the selected items?"), QMessageBox::Yes|QMessageBox::No)) {
+                    server->remove(media->selectedIndexes());
+                }
+                break;
+            }
         }
         // TODO: Else show error...
     }
