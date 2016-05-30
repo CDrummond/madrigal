@@ -75,7 +75,7 @@ void Upnp::LocalPlaylists::populate(const QModelIndex &index, int start) {
                             trackReader.readNext();
                             if (trackReader.isStartElement() && QLatin1String("item")==trackReader.name()) {
                                 beginInsertRows(index, pl->children.count(), pl->children.count());
-                                pl->children.append(new MusicTrack(objectValues(trackReader), pl, pl->children.count()));
+                                pl->children.append(new Track(QByteArray(), objectValues(trackReader), pl, pl->children.count()));
                                 endInsertRows();
                                 break;
                             }
