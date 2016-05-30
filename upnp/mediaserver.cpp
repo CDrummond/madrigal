@@ -49,7 +49,7 @@ Upnp::MediaServer::Track::Track(const QByteArray &i, const QMap<QString, QString
     : Upnp::Device::MusicTrack(values, p, r)
     , id(i)
 {
-    // Attemt to determine album-artist
+    // Attempt to determine album-artist
     if (albumArtist.isEmpty() && parent) {
         if (Collection::Type_Artist==parent->type()) {
             albumArtist=parent->name;
