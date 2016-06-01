@@ -210,7 +210,7 @@ void Ui::RendererView::setActive(const QModelIndex &idx) {
         disconnect(repeatAction, SIGNAL(toggled(bool)), queue->model(), SLOT(setRepeat(bool)));
         disconnect(shuffleAction, SIGNAL(toggled(bool)), queue->model(), SLOT(setShuffle(bool)));
         disconnect(queue, SIGNAL(doubleClicked(QModelIndex)), queue->model(), SLOT(play(QModelIndex)));
-        disconnect(queue, SIGNAL(activated(QModelIndex)), queue->model(), SLOT(play(QModelIndex)));
+//        disconnect(queue, SIGNAL(activated(QModelIndex)), queue->model(), SLOT(play(QModelIndex)));
         updateStats(0, 0);
         removeAction->setEnabled(false);
         queue->setModel(0);
@@ -225,7 +225,7 @@ void Ui::RendererView::setActive(const QModelIndex &idx) {
         connect(repeatAction, SIGNAL(toggled(bool)), renderer, SLOT(setRepeat(bool)));
         connect(shuffleAction, SIGNAL(toggled(bool)), renderer, SLOT(setShuffle(bool)));
         connect(queue, SIGNAL(doubleClicked(QModelIndex)), renderer, SLOT(play(QModelIndex)));
-        connect(queue, SIGNAL(activated(QModelIndex)), renderer, SLOT(play(QModelIndex)));
+//        connect(queue, SIGNAL(activated(QModelIndex)), renderer, SLOT(play(QModelIndex)));
         updateItems();
         rendererSelect->setText(idx.data().toString());
         rendererSelect->setIcon(Core::MonoIcon::icon(renderer->icon(), iconColor, iconColor));
