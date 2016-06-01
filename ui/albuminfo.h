@@ -54,6 +54,7 @@ private Q_SLOTS:
     void coverLoaded(const Core::ImageDetails &image);
 
 private:
+    QString albumName;
     SqueezedTextLabel *name;
     SqueezedTextLabel *artist;
     SqueezedTextLabel *details;

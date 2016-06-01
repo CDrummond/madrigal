@@ -89,17 +89,24 @@ Ui::AlbumInfo::AlbumInfo(QWidget *p)
 
 void Ui::AlbumInfo::update(const Upnp::MediaServer::Album *info) {
     if (info) {
-        QString currentAlbum=name->fullText();
+        QString currentAlbum=albumName;
         QString currentArtist=artist->fullText();
-        name->setText(info->name);
+        albumName=info->name;
         artist->setText(info->artist);
 
         quint32 dur=0;
         quint32 num=info->children.count();
+        quint16 year=0;
 
         foreach (Upnp::Device::Item *child, info->children) {
-            dur+=static_cast<Upnp::MediaServer::Track *>(child)->duration;
+            Upnp::MediaServer::Track *track=static_cast<Upnp::MediaServer::Track *>(child);
+            dur+=track->duration;
+            if (0==year && 0!=track->year) {
+                year=track->year;
+            }
         }
+
+        name->setText(0==year ? albumName : (albumName+QLatin1String(" (")+QString::number(year)+QLatin1Char(')')));
 
         if (0==num) {
             details->setText(tr("No Tracks"));
@@ -114,6 +121,7 @@ void Ui::AlbumInfo::update(const Upnp::MediaServer::Album *info) {
         }
     } else {
         name->setText(QString());
+        albumName=QString();
         artist->setText(QString());
         details->setText(QString());
         updateCover(0);
@@ -136,7 +144,7 @@ void Ui::AlbumInfo::updateCover(const Upnp::MediaServer::Album *info) {
 }
 
 void Ui::AlbumInfo::coverLoaded(const Core::ImageDetails &image) {
-    if (image.artist==artist->fullText() && image.album==name->fullText()) {
+    if (image.artist==artist->fullText() && image.album==albumName) {
         QImage *img=Core::Images::self()->get(image, cover->height(), true);
         if (img) {
             cover->setPixmap(QPixmap::fromImage(*img));
