@@ -107,7 +107,7 @@ Ui::PreferencesDialog::PreferencesDialog(QWidget *p, RendererView *rv)
         connect(autoScrollPlayQueue, SIGNAL(toggled(bool)), this, SLOT(save()));
     }
     #ifdef Q_OS_MAC
-    OSXStyle::self()->removeWindow(this);
+    Mac::OSXStyle::self()->removeWindow(this);
     #endif
 }
 
@@ -118,7 +118,7 @@ Ui::PreferencesDialog::~PreferencesDialog() {
 }
 
 #ifdef Q_OS_MAC
-void Ui::PreferencesDialog::showEvent(QHideEvent *e) {
+void Ui::PreferencesDialog::showEvent(QShowEvent *e) {
     if (!isModal()) {
         Mac::OSXStyle::self()->addWindow(this);
     }
@@ -154,6 +154,7 @@ void Ui::PreferencesDialog::buttonClicked(QAbstractButton *btn) {
     case QDialogButtonBox::Cancel:
     case QDialogButtonBox::Close:
         reject();
+    default:
         break;
     }
 }

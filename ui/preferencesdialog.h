@@ -42,7 +42,7 @@ public:
     virtual ~PreferencesDialog();
 
     #ifdef Q_OS_MAC
-    void showEvent(QHideEvent *e);
+    void showEvent(QShowEvent *e);
     void hideEvent(QHideEvent *e);
     void closeEvent(QCloseEvent *e);
     #endif
