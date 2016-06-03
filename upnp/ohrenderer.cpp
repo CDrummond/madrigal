@@ -90,7 +90,7 @@ void Upnp::OhRenderer::setActive(bool a) {
     if (!a) {
         clearCommand();
     }
-    Renderer::setActive(a);
+    Device::setActive(a);
 }
 
 void Upnp::OhRenderer::clear() {
@@ -112,11 +112,6 @@ void Upnp::OhRenderer::populate() {
         sendCommand("", "VolumeLimit", constVolumeService);
         sendCommand("", "Mute", constVolumeService);
     }
-}
-
-void Upnp::OhRenderer::sendPing() {
-    // TODO: If Receiver send TransportState
-    sendPingCommand("", "Id", constPlaylistService);
 }
 
 void Upnp::OhRenderer::commandResponse(QXmlStreamReader &reader, const QByteArray &type, Core::NetworkJob *job) {
@@ -150,7 +145,6 @@ void Upnp::OhRenderer::commandResponse(QXmlStreamReader &reader, const QByteArra
     } else if ("Mute"==type) {
         updateMute(getValue(reader));
     }
-    messageReceived();
 }
 
 void Upnp::OhRenderer::failedCommand(Core::NetworkJob *job, const QByteArray &type) {
@@ -233,7 +227,6 @@ void Upnp::OhRenderer::notification(const QByteArray &sid, const QByteArray &dat
              }
          }
     }
-    messageReceived();
 }
 
 void Upnp::OhRenderer::updateTransportState(const QString &val) {

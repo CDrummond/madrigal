@@ -137,7 +137,6 @@ public:
     bool hasSubscription(const QByteArray &sid) const { return -1!=subscriptions.values().indexOf(sid); }
     bool isEmpty() const { return items.isEmpty(); }
     int numItems() const { return items.count(); }
-    void setLost(bool l) { wasLost=l; }
 
     virtual void clear();
     virtual void populate() = 0;
@@ -145,7 +144,6 @@ public:
 
 Q_SIGNALS:
     void stateChanged(const QString &str);
-    void lost();
     void info(const QString &msg, quint8 id, int timeout=-1);
 
 public Q_SLOTS:
@@ -168,9 +166,7 @@ private:
 protected:
     Item * toItem(const QModelIndex &index) const { return index.isValid() ? static_cast<Item*>(index.internalPointer()) : 0; }
     Core::NetworkJob * sendCommand(const QByteArray &msg, const QByteArray &type, const QByteArray &service,
-                                   bool cancelOthers=false, bool isPing=false);
-    Core::NetworkJob * sendPingCommand(const QByteArray &msg, const QByteArray &type, const QByteArray &service)
-        { return sendCommand(msg, type, service, false, true); }
+                                   bool cancelOthers=false);
     void cancelCommands(const QByteArray &type);
     void cancelAllJobs();
     void setState(State s);
@@ -181,7 +177,6 @@ protected:
     QTimer *subTimer;
     DevicesModel *model;
     bool active;
-    bool wasLost;
     Ssdp::Device details;
     QList<Item *> items;
     QList<Core::NetworkJob *> jobs;

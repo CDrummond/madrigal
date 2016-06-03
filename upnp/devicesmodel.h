@@ -60,7 +60,6 @@ public Q_SLOTS:
     void notification(const QByteArray &sid, const QByteArray &data);
 
 private Q_SLOTS:
-    void lostDevice();
     void activateLast();
 
 private:

@@ -34,13 +34,6 @@ QString Upnp::Renderer::Track::subText() const {
     return artistName()+QLatin1String(" - ")+album;
 }
 
-void Upnp::Renderer::setActive(bool a) {
-    if (!a && pingTimer) {
-        pingTimer->stop();
-    }
-    Device::setActive(a);
-}
-
 QVariant Upnp::Renderer::data(const QModelIndex &index, int role) const {
     const Item *item = toItem(index);
     if (!item) {
@@ -136,15 +129,6 @@ QByteArray Upnp::Renderer::toXml() const {
     writer.writeEndElement();
     writer.writeEndDocument();
     return xml;
-}
-
-void Upnp::Renderer::messageReceived() {
-    if (!pingTimer) {
-        pingTimer=new QTimer(this);
-        connect(pingTimer, SIGNAL(timeout()), this, SLOT(sendPing()));
-        pingTimer->setSingleShot(true);
-    }
-    pingTimer->start(2000);
 }
 
 void Upnp::Renderer::updateStats() {

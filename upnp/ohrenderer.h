@@ -57,7 +57,6 @@ private:
     void setActive(bool a);
     void clear();
     void populate();
-    void sendPing();
     void commandResponse(QXmlStreamReader &reader, const QByteArray &type, Core::NetworkJob *job);
     void failedCommand(Core::NetworkJob *job, const QByteArray &type);
     void notification(const QByteArray &sid, const QByteArray &data);

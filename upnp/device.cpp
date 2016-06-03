@@ -39,7 +39,6 @@ const char * Upnp::Device::constObjectIdListMimeType=APP_REV_URL"/track-list";
 const char * Upnp::Device::constMsgServiceProperty="service";
 const char * Upnp::Device::constMsgTypeProperty="type";
 const int Upnp::Device::constNotifTimeout=2;
-const char * constIsPingProperty="isping";
 static const int constSubTimeout=1800;
 static const int constSubRenewTimeout=1740;
 static QColor monoIconColor=Qt::black;
@@ -234,7 +233,6 @@ Upnp::Device::Device(const Ssdp::Device &device, DevicesModel *parent)
     , subTimer(0)
     , model(parent)
     , active(false)
-    , wasLost(false)
     , details(device)
     , state(State_Initial)
 {
@@ -360,7 +358,7 @@ QMap<QString, QString> Upnp::Device::objectValues(QXmlStreamReader &reader) {
     return values;
 }
 
-Core::NetworkJob * Upnp::Device::sendCommand(const QByteArray &msg, const QByteArray &type, const QByteArray &service, bool cancelOthers, bool isPing) {
+Core::NetworkJob * Upnp::Device::sendCommand(const QByteArray &msg, const QByteArray &type, const QByteArray &service, bool cancelOthers) {
     Ssdp::Device::Services::ConstIterator srv=details.services.find(service);
 
     if (details.services.constEnd()!=srv) {
@@ -375,12 +373,11 @@ Core::NetworkJob * Upnp::Device::sendCommand(const QByteArray &msg, const QByteA
 
         headers.insert("CONTENT-TYPE", "text/xml; charset=\"utf-8\"");
         headers.insert("SOAPACTION", "\""+service+"#"+type+"\"");
-        Core::NetworkJob *job=Core::NetworkAccessManager::self()->post(QUrl(details.baseUrl+srv.value().controlUrl), data, headers, isPing ? 1000 : 0);
+        Core::NetworkJob *job=Core::NetworkAccessManager::self()->post(QUrl(details.baseUrl+srv.value().controlUrl), data, headers);
         connect(job, SIGNAL(finished()), this, SLOT(jobFinished()));
         connect(job, SIGNAL(destroyed(QObject*)), this, SLOT(jobDestroyed()));
         job->setProperty(constMsgTypeProperty, type);
         job->setProperty(constMsgServiceProperty, service);
-        job->setProperty(constIsPingProperty, isPing);
         jobs.append(job);
         DBUG(Devices) << (void *)job << type << service;
         return job;
@@ -437,13 +434,6 @@ void Upnp::Device::jobFinished() {
         }
 
         failedCommand(job, msgType);
-        if (job->property(constIsPingProperty).toBool()) {
-            DBUG(Devices) << "LOST" << uuid();
-            // If Device is LOST, then dont send unsubscribe messages.
-            // Otherwise Qt complains with: "QNetworkReplyImplPrivate::error: Internal problem, this method must only be called once."
-            wasLost=true;
-            emit lost();
-        }
         job->cancelAndDelete();
     }
 }
@@ -547,9 +537,6 @@ void Upnp::Device::renewSubscriptions() {
 }
 
 void Upnp::Device::cancelSubscriptions() {
-    if (wasLost) {
-        return;
-    }
     if (subTimer) {
         subTimer->stop();
     }

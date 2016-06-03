@@ -135,14 +135,6 @@ void Upnp::DevicesModel::added(const Ssdp::Device &device) {
         beginInsertRows(QModelIndex(), devices.size(), devices.size());
         devices.append(dev);
         endInsertRows();
-        connect(dev, SIGNAL(lost()), this, SLOT(lostDevice()), Qt::QueuedConnection);
-    }
-}
-
-void Upnp::DevicesModel::lostDevice() {
-    Device *dev=qobject_cast<Device *>(sender());
-    if (dev) {
-        removed(dev->uuid());
     }
 }
 
@@ -155,7 +147,6 @@ void Upnp::DevicesModel::removed(const QByteArray &uuid) {
             beginRemoveRows(QModelIndex(), i, i);
             devices.removeAt(i);
             endRemoveRows();
-            dev->setLost(true);
             dev->deleteLater();
             if (dev->isActive()) {
                 DBUG(Devices) << "unset" << (void *)dev << dev->uuid();

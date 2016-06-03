@@ -70,9 +70,8 @@ public:
 
 public:
     Renderer(const Ssdp::Device &device, DevicesModel *parent)
-        : Device (device, parent), pingTimer(0), currentTrackId(0) { }
+        : Device (device, parent), currentTrackId(0) { }
     virtual ~Renderer() { }
-    virtual void setActive(bool a);
     virtual Core::MonoIcon::Type icon() const { return Core::MonoIcon::no_icon==details.icon ? Core::MonoIcon::volumeup : details.icon; }
     QVariant data(const QModelIndex &index, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
@@ -100,12 +99,6 @@ public Q_SLOTS:
     virtual void removeTracks(const QModelIndexList &indexes) = 0;
     virtual void play(const QModelIndex &idx) = 0;
 
-protected:
-    void messageReceived();
-
-private Q_SLOTS:
-    virtual void sendPing() { }
-
 private:
     virtual void moveRows(const QList<quint32> &rows, qint32 to) = 0;
 
@@ -124,7 +117,6 @@ protected:
     void updateStats();
 
 protected:
-    QTimer *pingTimer;
     Volume volState;
     Playback playState;
     quint32 currentTrackId;
