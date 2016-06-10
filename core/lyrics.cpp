@@ -80,7 +80,7 @@ Core::Lyrics::Lyrics(QObject *p)
 void Core::Lyrics::setEnabled(bool en) {
     if (en!=enabled) {
         enabled=en;
-        if (enabled) {
+        if (enabled && !songWhenDisabled.artist.isEmpty()) {
             update(songWhenDisabled);
             songWhenDisabled=Upnp::Device::MusicTrack();
         }
