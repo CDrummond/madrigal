@@ -106,6 +106,8 @@ QVariant Upnp::DevicesModel::data(const QModelIndex &index, int role) const {
         return Device::monoIcon(device->icon());
     case Core::Role_IsCurrent:
         return device->isActive();
+    case Qt::ToolTipRole:
+        return device->name()+"<br/>"+device->host()+(device==LocalPlaylists::self() ? "" : ("<br/><i><small>"+device->uuid()+"</i></small>"));
     default:
         return QVariant();
     }
