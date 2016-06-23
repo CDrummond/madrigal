@@ -46,7 +46,11 @@ Ui::ActionCollection * Ui::ActionCollection::get() {
 }
 
 Ui::Action * Ui::ActionCollection::createAction(const QString &name, const QString &text, const char *icon, const QString &whatsThis) {
-    Action *act = static_cast<Action *>(addAction(name));
+    Action *act = static_cast<Action *>(action(name));
+    if (act) {
+        return act;
+    }
+    act = static_cast<Action *>(addAction(name));
     act->setText(text);
     if (0!=icon) {
         act->setIcon(QIcon(icon));
@@ -59,7 +63,11 @@ Ui::Action * Ui::ActionCollection::createAction(const QString &name, const QStri
 }
 
 Ui::Action * Ui::ActionCollection::createAction(const QString &name, const QString &text, const QIcon &icon, const QString &whatsThis) {
-    Action *act = static_cast<Action *>(addAction(name));
+    Action *act = static_cast<Action *>(action(name));
+    if (act) {
+        return act;
+    }
+    act = static_cast<Action *>(addAction(name));
     act->setText(text);
     if (!icon.isNull()) {
         act->setIcon(icon);
