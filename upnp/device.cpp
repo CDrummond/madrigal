@@ -78,6 +78,14 @@ Upnp::Device::MusicTrack::MusicTrack(const QMap<QString, QString> &values, Item 
             }
         }
     }
+    QMap<QString, QString>::ConstIterator it=values.constBegin();
+    QMap<QString, QString>::ConstIterator end=values.constEnd();
+    QString resKey=QLatin1String("res.");
+    for (; it!=end; ++it) {
+        if (it.key().startsWith(resKey)) {
+            res.insert(it.key().mid(4), it.value());
+        }
+    }
 }
 
 Core::ImageDetails Upnp::Device::MusicTrack::cover() const {
@@ -190,15 +198,16 @@ QByteArray Upnp::Device::MusicTrack::toXml() const {
         writer.writeCharacters(genre);
         writer.writeEndElement();
     }
-
-    if (!url.isEmpty()) {
+    if (!res.isEmpty() || !url.isEmpty()) {
         writer.writeStartElement(QLatin1String("res"));
         QMap<QString, QString>::ConstIterator it=res.constBegin();
         QMap<QString, QString>::ConstIterator end=res.constEnd();
         for (; it!=end; ++it) {
             writer.writeAttribute(it.key(), it.value());
         }
-        writer.writeCharacters(url);
+        if (!url.isEmpty()) {
+            writer.writeCharacters(url);
+        }
         writer.writeEndElement();
     }
     writer.writeStartElement(QLatin1String("upnp:class"));

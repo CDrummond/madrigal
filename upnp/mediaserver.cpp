@@ -66,15 +66,6 @@ Upnp::MediaServer::Track::Track(const QByteArray &i, const QMap<QString, QString
     if (parent && Collection::Type_Album==parent->type()) {
         artUrl=QString();
     }
-
-    QMap<QString, QString>::ConstIterator it=values.constBegin();
-    QMap<QString, QString>::ConstIterator end=values.constEnd();
-    QString resKey=QLatin1String("res.");
-    for (; it!=end; ++it) {
-        if (it.key().startsWith(resKey)) {
-            res.insert(it.key().mid(4), it.value());
-        }
-    }
 }
 
 Upnp::MediaServer::MediaServer(const Ssdp::Device &device, DevicesModel *parent)

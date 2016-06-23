@@ -468,6 +468,7 @@ void Upnp::OhRenderer::handleReadList(QXmlStreamReader &reader) {
                                 track->duration=meta.duration;
                                 track->artUrl=meta.artUrl;
                                 track->isBroadcast=meta.isBroadcast;
+                                track->res=meta.res;
                                 QModelIndex idx=createIndex(row, 0, track);
                                 emit dataChanged(idx, idx);
 
