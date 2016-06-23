@@ -82,7 +82,7 @@ public:
             : Collection(n, i, p, r) { }
         virtual ~Playlist() { }
         int type() const { return Type_Playlist; }
-        virtual Core::MonoIcon::Type icon() const { return Core::MonoIcon::listalt; }
+        virtual Core::MonoIcon::Type icon() const { return Core::MonoIcon::listul; }
         virtual QVariant actions() const {
             QVariant v;
             v.setValue< QList<int> >(QList<int>() << Core::Actions::Action_Play << Core::Actions::Action_Add);
