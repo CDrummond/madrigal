@@ -61,7 +61,7 @@ Ui::MainWindow::MainWindow(QWidget *p)
     QDBusConnection::sessionBus().registerObject("/MainWindow", this);
     #endif
 
-    Upnp::Device::setMonoIconCol(palette().windowText().color());
+    Upnp::Device::setMonoIconCol(Utils::clampColor(palette().windowText().color()));
     ActionCollection::get()->setMainWidget(this);
     QWidget *mainWidget=new QWidget(this);
     QVBoxLayout *mainLayout=new QVBoxLayout(mainWidget);
