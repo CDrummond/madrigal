@@ -85,7 +85,7 @@ Ui::ToolBar::ToolBar(QWidget *parent)
     }
     controlsLayout->setMargin(0);
 
-    int tbIconSize=Utils::scaleForDpi(22);
+    int tbIconSize=Utils::scaleForDpi(21);
     setIconSize(QSize(tbIconSize, tbIconSize));
 
     addWidget(controls);
