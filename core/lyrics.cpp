@@ -208,7 +208,7 @@ void Core::Lyrics::lyricsResponse(NetworkJob *reply) {
     DBUG(Lyrics) << contents;
 
     contents=extract(contents, QLatin1String("&lt;lyrics&gt;"), QLatin1String("&lt;/lyrics&gt;")).trimmed();
-    contents=contents.replace("\n\n\n", "\n\n");
+    contents=contents.replace("\n\n\n", "\n\n").replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">");
     if (contents.isEmpty()) {
         emit fetched(currentSong.artist, currentSong.name, tr("No lyrics found"));
     } else {
