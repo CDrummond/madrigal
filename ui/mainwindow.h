@@ -29,6 +29,7 @@
 namespace Ui {
 class ToolBar;
 class ThinSplitter;
+class ServerView;
 class RendererView;
 class LyricsView;
 class PreferencesDialog;
@@ -45,11 +46,13 @@ public Q_SLOTS:
 private Q_SLOTS:
     void showPreferences();
     void showAbout();
+    void showLyrics(bool s);
     void preferencesDestroyed();
 
 private:
     ToolBar *toolBar;
     ThinSplitter *splitter;
+    ServerView *server;
     RendererView *renderer;
     LyricsView *lyrics;
     PreferencesDialog *preferences;

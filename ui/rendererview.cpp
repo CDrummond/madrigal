@@ -110,7 +110,6 @@ Ui::RendererView::RendererView(QWidget *p)
     mainLayout->setSpacing(0);
     mainLayout->addWidget(toolbar);
     mainLayout->addWidget(stack);
-    setMinimumWidth(Utils::scaleForDpi(450));
 
     QColor red(220, 0, 0);
     iconColor=Utils::clampColor(palette().foreground().color());

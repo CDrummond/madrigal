@@ -67,13 +67,13 @@ Ui::MainWindow::MainWindow(QWidget *p)
     QVBoxLayout *mainLayout=new QVBoxLayout(mainWidget);
     Notification *notif=new Notification(this);
     splitter=new ThinSplitter(mainWidget);
-    ServerView *server=new ServerView(splitter);
+    server=new ServerView(splitter);
     renderer=new RendererView(splitter);
     lyrics=new LyricsView(splitter);
     toolBar=new ToolBar(this);
     server->setMinimumWidth(Utils::scaleForDpi(340));
     lyrics->setMinimumWidth(Utils::scaleForDpi(300));
-    setMinimumWidth(Utils::scaleForDpi(800));
+    renderer->setMinimumWidth(Utils::scaleForDpi(450));
 
     mainLayout->setMargin(0);
     mainLayout->setSpacing(0);
@@ -97,7 +97,7 @@ Ui::MainWindow::MainWindow(QWidget *p)
     }
 
     toolBar->setLyricsVisible(cfg.get("lyrics", false));
-    lyrics->setVisible(toolBar->isLyricsVisible());
+    showLyrics(toolBar->isLyricsVisible());
     toolBar->adjustSize();
     notif->setOffset(toolBar->height()+Utils::scaleForDpi(32));
 
@@ -133,7 +133,7 @@ Ui::MainWindow::MainWindow(QWidget *p)
     #endif
 
     connect(new Core::NotificationManager(this), SIGNAL(msg(QString)), notif, SLOT(show(QString)));
-    connect(toolBar, SIGNAL(showLyrics(bool)), lyrics, SLOT(setVisible(bool)));
+    connect(toolBar, SIGNAL(showLyrics(bool)), this, SLOT(showLyrics(bool)));
 }
 
 Ui::MainWindow::~MainWindow() {
@@ -176,7 +176,11 @@ void Ui::MainWindow::showAbout() {
                           "&copy; 2016 Craig Drummond<br/>"
                           "Released under the <a href=\"http://www.gnu.org/licenses/gpl.html\">GPLv3</a>").
                        arg(PACKAGE_NAME_CASE).arg(PACKAGE_VERSION_STRING));
+}
 
+void Ui::MainWindow::showLyrics(bool s) {
+    lyrics->setVisible(s);
+    setMinimumWidth(server->minimumWidth()+renderer->minimumWidth()+(s ? lyrics->minimumWidth() : 0));
 }
 
 void Ui::MainWindow::preferencesDestroyed() {

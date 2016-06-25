@@ -146,7 +146,6 @@ Ui::ServerView::ServerView(QWidget *p)
     searchAction->setEnabled(false);
     searchText->setVisible(false);
     searchText->setClearButtonEnabled(true);
-    setMinimumWidth(Utils::scaleForDpi(300));
     backIcon=Core::MonoIcon::icon(Qt::LeftToRight==layoutDirection() ? Core::MonoIcon::chevronleft : Core::MonoIcon::chevronright, iconColor, iconColor);
     Core::Actions::setColor(iconColor);
     connect(searchAction, SIGNAL(triggered(bool)), SLOT(toggleSearch()));
