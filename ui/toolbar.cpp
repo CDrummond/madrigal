@@ -56,7 +56,7 @@ Ui::ToolBar::ToolBar(QWidget *parent)
     prevAction=ActionCollection::get()->createAction("previous", tr("Previous Track"), Core::MonoIcon::icon(Core::MonoIcon::ex_mediaprevious, col, col));
     playPauseAction=ActionCollection::get()->createAction("play", tr("Play/Pause"), playIcon);
     nextAction=ActionCollection::get()->createAction("next", tr("Next Track"), Core::MonoIcon::icon(Core::MonoIcon::ex_medianext, col, col));
-    showLyricsAction=ActionCollection::get()->createAction("lyrics", tr("Show Lyrics"), Core::MonoIcon::icon(Core::MonoIcon::filetexto, col, col));
+    showLyricsAction=ActionCollection::get()->createAction("lyrics", tr("Show Lyrics"), Core::MonoIcon::icon(Core::MonoIcon::commento, col, col));
     showLyricsAction->setCheckable(true);
 
     playPauseAction->setShortcut(Qt::ControlModifier+Qt::Key_P);
