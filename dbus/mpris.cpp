@@ -262,18 +262,18 @@ void Dbus::Mpris::SetVolume(double v) {
 }
 
 bool Dbus::Mpris::CanPlay() const {
-    return renderer && Upnp::Renderer::Playing!=renderer->playback().state && !renderer->isEmpty();
+    return true; // renderer && Upnp::Renderer::Playing!=renderer->playback().state && !renderer->isEmpty();
 }
 
 bool Dbus::Mpris::CanPause() const {
-    return renderer && Upnp::Renderer::Playing==renderer->playback().state;
+    return true; // renderer && Upnp::Renderer::Playing==renderer->playback().state;
 }
 
 bool Dbus::Mpris::CanSeek() const {
-    return renderer && renderer->current().isValid();
+    return true; // renderer && renderer->current().isValid();
 }
 bool Dbus::Mpris::CanGoNext() const {
-    return renderer && Upnp::Renderer::Stopped!=renderer->playback().state && renderer->numItems()>1;
+    return true; // renderer && Upnp::Renderer::Stopped!=renderer->playback().state && renderer->numItems()>1;
 }
 
 bool Dbus::Mpris::CanGoPrevious() const {
