@@ -141,6 +141,7 @@ void Ui::ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     bool active=option.state&QStyle::State_Active;
     bool drawBgnd=true;
     bool iconMode = view && QListView::IconMode==view->viewMode();
+    QPalette::ColorGroup colorGroup=active ? QPalette::Active : QPalette::Inactive;
     QStyleOptionViewItemV4 opt(option);
     opt.showDecorationSelected=true;
 
@@ -212,7 +213,7 @@ void Ui::ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
         if (iconMode) {
             int xpos=r.x()+((r.width()-layoutSize.width())/2);
             painter->drawPixmap(xpos, r.y(), layoutSize.width(), layoutSize.height(), pix);
-            QColor color(option.palette.color(active ? QPalette::Active : QPalette::Inactive, QPalette::Text));
+            QColor color(option.palette.color(colorGroup, QPalette::Text));
             double alphas[]={0.25, 0.125, 0.061};
             QRect border(xpos, r.y(), layoutSize.width(), layoutSize.height());
             QRect shadow(border);
@@ -254,9 +255,9 @@ void Ui::ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 
     int otherTextWidth = otherText.isEmpty() ? 0 : textMetrics.width(otherText+" ");
     #ifdef Q_OS_WIN
-    QColor color(option.palette.color(active ? QPalette::Active : QPalette::Inactive, QPalette::Text));
+    QColor color(option.palette.color(colorGroup, QPalette::Text));
     #else
-    QColor color(option.palette.color(active ? QPalette::Active : QPalette::Inactive, selected ? QPalette::HighlightedText : QPalette::Text));
+    QColor color(option.palette.color(colorGroup, selected ? QPalette::HighlightedText : QPalette::Text));
     #endif
     QTextOption textOpt(iconMode ? Qt::AlignHCenter|Qt::AlignVCenter : Qt::AlignVCenter);
 

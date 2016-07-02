@@ -96,9 +96,11 @@ void Ui::GroupedItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
       Upnp::Device::MusicTrack *song=static_cast<Upnp::Device::MusicTrack *>(index.internalPointer());
       bool isCurrent=index.data(Core::Role_IsCurrent).toBool();
       bool selected=option.state&QStyle::State_Selected;
+      bool active=option.state&QStyle::State_Active;
       bool mouseOver=underMouse && option.state&QStyle::State_MouseOver;
       bool gtk=mouseOver && GtkStyle::isActive();
       bool rtl=QApplication::isRightToLeft();
+      QPalette::ColorGroup colorGroup=active ? QPalette::Active : QPalette::Inactive;
 
       if (isHdr) {
           if (mouseOver && gtk) {
@@ -143,9 +145,9 @@ void Ui::GroupedItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
       painter->save();
       painter->setFont(f);
       #ifdef Q_OS_WIN
-      QColor col(option.palette.color(QPalette::Text));
+      QColor col(option.palette.color(colorGroup, QPalette::Text));
       #else
-      QColor col(option.palette.color(option.state&QStyle::State_Selected ? QPalette::HighlightedText : QPalette::Text));
+      QColor col(option.palette.color(colorGroup, option.state&QStyle::State_Selected ? QPalette::HighlightedText : QPalette::Text));
       #endif
       QTextOption textOpt(Qt::AlignVCenter);
       QRect r(option.rect.adjusted(borderSize+4, borderSize, -(borderSize+4), -borderSize));
@@ -159,8 +161,8 @@ void Ui::GroupedItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
           QColor gradCol(Mac::OSXStyle::self()->viewPalette().color(QPalette::Highlight));
           QColor borderCol(Mac::OSXStyle::self()->viewPalette().color(selected ? QPalette::HighlightedText : QPalette::Highlight));
           #else
-          QColor gradCol(QApplication::palette().color(QPalette::Highlight));
-          QColor borderCol(QApplication::palette().color(selected ? QPalette::HighlightedText : QPalette::Highlight));
+          QColor gradCol(QApplication::palette().color(colorGroup, QPalette::Highlight));
+          QColor borderCol(QApplication::palette().color(colorGroup, selected ? QPalette::HighlightedText : QPalette::Highlight));
           #endif
           if (!selected) {
               borderCol.setAlphaF(0.5);
