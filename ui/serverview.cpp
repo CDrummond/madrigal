@@ -276,6 +276,9 @@ void Ui::ServerView::navSelected(int id) {
     if (-1==id) {
         nav->clear();
         setMediaIndex(QModelIndex());
+        if (Page_Media==stack->currentIndex()) {
+            Upnp::Model::self()->discoverDevices();
+        }
         stack->setCurrentIndex(Page_Servers);
         toolbar->showTitle(true);
         showButtons();

@@ -39,7 +39,7 @@ GLOBAL_STATIC(Upnp::Model, instance)
 Upnp::Model::Model() {
     Core::Thread *thread=new Core::Thread("Ssdp", this);
     Core::NetworkAccessManager *network=new Core::NetworkAccessManager(0);
-    Ssdp *ssdp=new Ssdp(0);
+    ssdp=new Ssdp(0);
     http=new HttpServer(this);
     servers=new Upnp::MediaServers(http, this);
     renderers=new Upnp::Renderers(http, this);
@@ -59,8 +59,17 @@ Upnp::Model::Model() {
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(clear()));
 }
 
+void Upnp::Model::discoverDevices() {
+    QMetaObject::invokeMethod(ssdp, "search", Qt::QueuedConnection);
+}
+
 void Upnp::Model::clear() {
     delete servers;
     delete renderers;
     delete http;
+    delete ssdp;
+    servers=0;
+    renderers=0;
+    http=0;
+    ssdp=0;
 }

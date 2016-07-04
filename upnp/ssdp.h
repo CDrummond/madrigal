@@ -71,9 +71,9 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void start();
+    void search();
 
 private Q_SLOTS:
-    void search();
     void readDatagrams();
     void jobFinished();
     void listingTimeout();

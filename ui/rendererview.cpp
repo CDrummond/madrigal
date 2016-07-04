@@ -258,6 +258,9 @@ void Ui::RendererView::useFirst() {
 void Ui::RendererView::selectRenderer() {
     DBUG(Ui);
     queue->setRootIndex(QModelIndex());
+    if (Page_Renderer==stack->currentIndex()) {
+        Upnp::Model::self()->discoverDevices();
+    }
     stack->setCurrentIndex(Page_Renderers);
     toolbar->showTitle(true);
 }

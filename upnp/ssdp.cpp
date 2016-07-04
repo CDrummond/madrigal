@@ -130,6 +130,10 @@ void Upnp::Ssdp::start() {
 }
 
 void Upnp::Ssdp::search() {
+    if (listTimer->isActive()) {
+        return;
+    }
+
     // Discover all UPnP devices
     QByteArray request=QByteArray("M-SEARCH * HTTP/1.1"LINE_SEP"HOST: ")+QByteArray(constMulticastGroup)+
                        QByteArray(":")+QByteArray::number(constPort)+

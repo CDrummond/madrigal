@@ -31,6 +31,7 @@ namespace Upnp {
 class HttpServer;
 class MediaServers;
 class Renderers;
+class Ssdp;
 
 class Model : public QObject {
     Q_OBJECT
@@ -40,6 +41,7 @@ public:
 
     Model();
 
+    void discoverDevices();
     MediaServers * serversModel() { return servers; }
     Renderers * renderersModel() { return renderers; }
 
@@ -47,6 +49,7 @@ private Q_SLOTS:
     void clear();
 
 private:
+    Ssdp *ssdp;
     HttpServer *http;
     MediaServers *servers;
     Renderers *renderers;
