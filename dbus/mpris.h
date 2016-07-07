@@ -124,6 +124,7 @@ public Q_SLOTS:
     void updateCurrentCover(const Core::ImageDetails &image);
 
 private Q_SLOTS:
+    void init();
     void update(const QModelIndex &idx);
     void updateStatus();
 

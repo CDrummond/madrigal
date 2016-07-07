@@ -27,6 +27,7 @@
 #include "playeradaptor.h"
 #include "rootadaptor.h"
 #include "config.h"
+#include <QTimer>
 
 static inline qlonglong convertTime(int t) {
     return t*1000000;
@@ -38,24 +39,28 @@ Dbus::Mpris::Mpris(QObject *p)
     : QObject(p)
     , renderer(0)
 {
+    if (mprisPath.isEmpty()) {
+        mprisPath=QLatin1String(APP_REV_URL);
+        mprisPath.replace(".", "/");
+        mprisPath="/"+mprisPath+"/Track/%1";
+    }
+    // Delay initialisation until after UI is visible. See Cantata #863
+    QTimer::singleShot(0, this, SLOT(init()));
+}
+
+Dbus::Mpris::~Mpris() {
+    QDBusConnection::sessionBus().unregisterService("org.mpris.MediaPlayer2." PACKAGE_NAME);
+}
+
+void Dbus::Mpris::init() {
     QDBusConnection::sessionBus().registerService("org.mpris.MediaPlayer2." PACKAGE_NAME);
 
     new PlayerAdaptor(this);
     new MediaPlayer2Adaptor(this);
 
     QDBusConnection::sessionBus().registerObject("/org/mpris/MediaPlayer2", this, QDBusConnection::ExportAdaptors);
-
-    if (mprisPath.isEmpty()) {
-        mprisPath=QLatin1String(APP_REV_URL);
-        mprisPath.replace(".", "/");
-        mprisPath="/"+mprisPath+"/Track/%1";
-    }
     connect(Core::Images::self(), SIGNAL(found(Core::ImageDetails)), this, SLOT(updateCurrentCover(Core::ImageDetails)));
     connect(Upnp::Model::self()->renderersModel(), SIGNAL(activeDevice(QModelIndex)), this, SLOT(setRenderer(QModelIndex)));
-}
-
-Dbus::Mpris::~Mpris() {
-    QDBusConnection::sessionBus().unregisterService("org.mpris.MediaPlayer2." PACKAGE_NAME);
 }
 
 void Dbus::Mpris::setRenderer(Upnp::Renderer *r) {
