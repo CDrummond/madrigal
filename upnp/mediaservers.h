@@ -46,6 +46,7 @@ public Q_SLOTS:
 
 private:
     Device * createDevice(const Ssdp::Device &device);
+    virtual int defaultActiveRow() const { return 1; }
 };
 
 }

@@ -65,6 +65,7 @@ private Q_SLOTS:
 private:
     void clear();
     virtual Device * createDevice(const Ssdp::Device &device)=0;
+    virtual int defaultActiveRow() const { return 0; }
     void setActiveDevice(Device *dev);
     Device * toDevice(const QModelIndex &index) const { return index.isValid() ? static_cast<Device*>(index.internalPointer()) : 0; }
 

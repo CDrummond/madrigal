@@ -27,7 +27,7 @@
 #include "core/utils.h"
 #include "config.h"
 #include <QPainter>
-#include <QStyleOptionViewItemV4>
+#include <QStyleOptionViewItem>
 #include <QApplication>
 #include <QMainWindow>
 #include <QMenuBar>
@@ -65,7 +65,7 @@ bool Ui::GtkStyle::isActive() {
     return usingGtkStyle;
 }
 
-void Ui::GtkStyle::drawSelection(const QStyleOptionViewItemV4 &opt, QPainter *painter, double opacity) {
+void Ui::GtkStyle::drawSelection(const QStyleOptionViewItem &opt, QPainter *painter, double opacity) {
     static const int constMaxDimension=32;
     static QCache<QString, QPixmap> cache(30000);
 
@@ -79,13 +79,13 @@ void Ui::GtkStyle::drawSelection(const QStyleOptionViewItemV4 &opt, QPainter *pa
 
     if (!pix) {
         pix=new QPixmap(width, opt.rect.height());
-        QStyleOptionViewItemV4 styleOpt(opt);
+        QStyleOptionViewItem styleOpt(opt);
         pix->fill(Qt::transparent);
         QPainter p(pix);
         styleOpt.state=opt.state;
         styleOpt.state&=~(QStyle::State_Selected|QStyle::State_MouseOver);
         styleOpt.state|=QStyle::State_Selected|QStyle::State_Enabled|QStyle::State_Active;
-        styleOpt.viewItemPosition = QStyleOptionViewItemV4::OnlyOne;
+        styleOpt.viewItemPosition = QStyleOptionViewItem::OnlyOne;
         styleOpt.rect=QRect(0, 0, opt.rect.width(), opt.rect.height());
         QApplication::style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &styleOpt, &p, 0);
         p.end();

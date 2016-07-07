@@ -36,6 +36,7 @@
 #include "upnp/model.h"
 #include "upnp/mediaservers.h"
 #include "upnp/mediaserver.h"
+#include "upnp/localplaylists.h"
 #include "core/debug.h"
 #include "core/configuration.h"
 #include "core/monoicon.h"
@@ -163,10 +164,10 @@ Ui::ServerView::~ServerView() {
 }
 
 void Ui::ServerView::setInfoLabel() {
-    infoLabel->setText("<i>"+(model->rowCount()>0
+    infoLabel->setText("<i>"+(model->rowCount()>1
                                 ? tr("Waiting for previous source...")
                                 : tr("Looking for music sources..."))+"</i>");
-    cancelButton->setVisible(model->rowCount()>0);
+    cancelButton->setVisible(model->rowCount()>1);
 }
 
 void Ui::ServerView::showButtons() {
@@ -186,8 +187,8 @@ void Ui::ServerView::updateItems(bool activeSet) {
         if (model->rowCount()<1) {
             setInfoLabel();
         }
-        if (!media->model() && servers->model()->rowCount()>0) {
-            serverSelected(proxy->index(0, 0));
+        if (!media->model() && servers->model()->rowCount()>1) {
+            useFirst();
         }
         showButtons();
     }
@@ -238,6 +239,13 @@ void Ui::ServerView::serverSelected(const QModelIndex &idx) {
 }
 
 void Ui::ServerView::useFirst() {
+    for (int i=0; i<proxy->rowCount(); ++i) {
+        QModelIndex idx=proxy->mapToSource(proxy->index(i, 0));
+        if (idx.internalPointer()!=Upnp::LocalPlaylists::self()) {
+            serverSelected(proxy->index(i, 0));
+            return;
+        }
+    }
     serverSelected(proxy->index(0, 0));
 }
 

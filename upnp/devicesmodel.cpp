@@ -201,12 +201,11 @@ void Upnp::DevicesModel::notification(const QByteArray &sid, const QByteArray &d
     }
 }
 
-void Upnp::DevicesModel::activateLast()
-{
+void Upnp::DevicesModel::activateLast() {
     int activeRow=-1;
 
     if (lastUuid.isEmpty()) {
-        activeRow=0;
+        activeRow=defaultActiveRow();
     } else {
         for (int row=0; row<devices.count() && -1==activeRow; ++row) {
             if (lastUuid==devices.at(row)->uuid()) {
@@ -220,7 +219,7 @@ void Upnp::DevicesModel::activateLast()
             timer->setProperty(constTimeoutProp, timer->property(constTimeoutProp).toInt()+1);
         } else {
             timer->stop();
-            activeRow=0;
+            activeRow=defaultActiveRow();
         }
     }
     if (-1!=activeRow) {

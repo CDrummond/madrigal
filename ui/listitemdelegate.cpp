@@ -142,7 +142,7 @@ void Ui::ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     bool drawBgnd=true;
     bool iconMode = view && QListView::IconMode==view->viewMode();
     QPalette::ColorGroup colorGroup=active ? QPalette::Active : QPalette::Inactive;
-    QStyleOptionViewItemV4 opt(option);
+    QStyleOptionViewItem opt(option);
     opt.showDecorationSelected=true;
 
     if (!underMouse) {

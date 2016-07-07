@@ -78,7 +78,7 @@ void Ui::BasicItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     bool active=option.state&QStyle::State_Active;
     if (GtkStyle::isActive()) {
         bool mouseOver=option.state&QStyle::State_MouseOver;
-        QStyleOptionViewItemV4 opt = option;
+        QStyleOptionViewItem opt = option;
         initStyleOption(&opt, index);
 
         if (trackMouse && !underMouse) {
@@ -104,18 +104,18 @@ void Ui::BasicItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     QColor col(option.palette.color(active ? QPalette::Active : QPalette::Inactive,
                                     selected ? QPalette::HighlightedText : QPalette::Text));
 
-    switch (((QStyleOptionViewItemV4 &)option).viewItemPosition) {
-    case QStyleOptionViewItemV4::Beginning:
+    switch (((QStyleOptionViewItem &)option).viewItemPosition) {
+    case QStyleOptionViewItem::Beginning:
         drawLine(painter, option.rect, col, true, false);
         break;
-    case QStyleOptionViewItemV4::Middle:
+    case QStyleOptionViewItem::Middle:
         drawLine(painter, option.rect, col, false, false);
         break;
-    case QStyleOptionViewItemV4::End:
+    case QStyleOptionViewItem::End:
         drawLine(painter, option.rect, col, false, true);
         break;
-    case QStyleOptionViewItemV4::Invalid:
-    case QStyleOptionViewItemV4::OnlyOne:
+    case QStyleOptionViewItem::Invalid:
+    case QStyleOptionViewItem::OnlyOne:
         drawLine(painter, option.rect, col, true, true);
     }
 }
