@@ -51,8 +51,8 @@ Upnp::Model::Model() {
     connect(ssdp, SIGNAL(deviceRemoved(QByteArray)), servers, SLOT(removed(QByteArray)));
     connect(ssdp, SIGNAL(deviceAdded(Ssdp::Device)), renderers, SLOT(added(Ssdp::Device)));
     connect(ssdp, SIGNAL(deviceRemoved(QByteArray)), renderers, SLOT(removed(QByteArray)));
-    connect(http, SIGNAL(notification(QByteArray,QByteArray)), servers, SLOT(notification(QByteArray,QByteArray)));
-    connect(http, SIGNAL(notification(QByteArray,QByteArray)), renderers, SLOT(notification(QByteArray,QByteArray)));
+    connect(http, SIGNAL(notification(QByteArray,QByteArray,int)), servers, SLOT(notification(QByteArray,QByteArray,int)));
+    connect(http, SIGNAL(notification(QByteArray,QByteArray,int)), renderers, SLOT(notification(QByteArray,QByteArray,int)));
     connect(thread, SIGNAL(started()), ssdp, SLOT(start()));
     connect(servers, SIGNAL(addTracks(Upnp::Command*)), renderers, SLOT(addTracks(Upnp::Command*)));
     connect(renderers, SIGNAL(acceptDrop(QByteArray,QList<QByteArray>,qint32)), servers, SLOT(play(QByteArray,QList<QByteArray>,qint32)));

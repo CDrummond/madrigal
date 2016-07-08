@@ -57,7 +57,7 @@ public Q_SLOTS:
     virtual void added(const Ssdp::Device &device);
     void removed(const QByteArray &uuid);
     void setActive(int row);
-    void notification(const QByteArray &sid, const QByteArray &data);
+    void notification(const QByteArray &sid, const QByteArray &data, int seq);
 
 private Q_SLOTS:
     void activateLast();

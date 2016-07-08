@@ -25,13 +25,7 @@
 #define UPNP_HTTP_SERVER_H
 
 #include <QTcpServer>
-#include <QDateTime>
 #include <QMap>
-
-class QThreadPool;
-namespace Core {
-class NetworkAccessManager;
-}
 
 namespace Upnp {
 
@@ -44,14 +38,13 @@ public:
     QByteArray getAddress(const QUrl &dest);
 
 Q_SIGNALS:
-    void notification(const QByteArray &sid, const QByteArray &data);
+    void notification(const QByteArray &sid, const QByteArray &data, int seq);
 
 private:
     void incomingConnection(qintptr handle);
 
 private:
     QMap<QString, QByteArray> addresses;
-    QThreadPool *pool;
 };
 
 }

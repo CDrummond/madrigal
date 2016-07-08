@@ -50,7 +50,7 @@ Upnp::HttpServer::~HttpServer() {
 
 void Upnp::HttpServer::incomingConnection(qintptr handle) {
     HttpConnection *conn=new HttpConnection(handle, this);
-    connect(conn, SIGNAL(notification(QByteArray,QByteArray)), SIGNAL(notification(QByteArray,QByteArray)));
+    connect(conn, SIGNAL(notification(QByteArray,QByteArray,int)), SIGNAL(notification(QByteArray,QByteArray,int)));
 }
 
 QByteArray Upnp::HttpServer::getAddress(const QUrl &dest) {

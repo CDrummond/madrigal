@@ -38,7 +38,7 @@ public:
     void close();
 
 Q_SIGNALS:
-    void notification(const QByteArray &sid, const QByteArray &data);
+    void notification(const QByteArray &sid, const QByteArray &data, int seq);
 
 private Q_SLOTS:
     void timeout();

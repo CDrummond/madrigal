@@ -192,10 +192,10 @@ void Upnp::DevicesModel::setActive(int row) {
     }
 }
 
-void Upnp::DevicesModel::notification(const QByteArray &sid, const QByteArray &data) {
+void Upnp::DevicesModel::notification(const QByteArray &sid, const QByteArray &data, int seq) {
     foreach (Device *dev, devices) {
         if (dev->isActive() && dev->hasSubscription(sid)) {
-            dev->notification(sid, data);
+            dev->notification(sid, data, seq);
             return;
         }
     }

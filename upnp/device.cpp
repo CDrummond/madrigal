@@ -318,6 +318,24 @@ void Upnp::Device::clear() {
     endResetModel();
 }
 
+void Upnp::Device::notification(const QByteArray &sid, const QByteArray &data, int seq) {
+    // If we recieve multiple notifications *very* close together, its possible for
+    // them to be read in the wrong order! So, if we a have actioned a new notification,
+    // skip any old ones
+    Subscription sub(sid);
+    QHash<QUrl, Subscription>::Iterator it=subscriptions.begin();
+    QHash<QUrl, Subscription>::Iterator end=subscriptions.end();
+    for(; it!=end; ++it) {
+        if (it.value()==sub) {
+            if (-1==it.value().lastSeq || it.value().lastSeq<seq) {
+                notification(sid, data);
+                it.value().lastSeq=seq;
+            }
+            return;
+        }
+    }
+}
+
 void Upnp::Device::setActive(bool a) {
     if (a==active) {
         return;
@@ -462,7 +480,7 @@ void Upnp::Device::subscriptionResponse() {
         QByteArray sid=job->actualJob()->rawHeader("SID");
         DBUG(Devices) << sid;
         if (!sid.isEmpty() && active) {
-            subscriptions.insert(job->origUrl(), sid);
+            subscriptions.insert(job->origUrl(), Subscription(sid));
         }
         jobs.removeAll(job);
         job->cancelAndDelete();
@@ -530,13 +548,13 @@ void Upnp::Device::requestSubscriptions() {
 
 void Upnp::Device::renewSubscriptions() {
     if (active) {
-        QHash<QUrl, QByteArray>::ConstIterator it=subscriptions.constBegin();
-        QHash<QUrl, QByteArray>::ConstIterator end=subscriptions.constEnd();
+        QHash<QUrl, Subscription>::ConstIterator it=subscriptions.constBegin();
+        QHash<QUrl, Subscription>::ConstIterator end=subscriptions.constEnd();
         for(; it!=end; ++it) {
             QUrl url(it.key());
             Core::NetworkAccessManager::RawHeaders headers;
             //        headers["HOST"]="????";
-            headers["SID"]=it.value();
+            headers["SID"]=it.value().sid;
             headers["TIMEOUT"]="Second-"+QByteArray::number(constSubTimeout);
             Core::NetworkJob *job=Core::NetworkAccessManager::self()->sendCustomRequest(url, "SUBSCRIBE", headers);
             connect(job, SIGNAL(finished()), this, SLOT(otherResponse()));
@@ -551,13 +569,13 @@ void Upnp::Device::cancelSubscriptions() {
     if (subTimer) {
         subTimer->stop();
     }
-    QHash<QUrl, QByteArray>::ConstIterator it=subscriptions.constBegin();
-    QHash<QUrl, QByteArray>::ConstIterator end=subscriptions.constEnd();
+    QHash<QUrl, Subscription>::ConstIterator it=subscriptions.constBegin();
+    QHash<QUrl, Subscription>::ConstIterator end=subscriptions.constEnd();
     for(; it!=end; ++it) {
         QUrl url(it.key());
         Core::NetworkAccessManager::RawHeaders headers;
         //        headers["HOST"]="????";
-        headers["SID"]=it.value();
+        headers["SID"]=it.value().sid;
         Core::NetworkJob *job=Core::NetworkAccessManager::self()->sendCustomRequest(url, "UNSUBSCRIBE", headers);
         connect(job, SIGNAL(finished()), this, SLOT(otherResponse()));
         connect(job, SIGNAL(destroyed(QObject*)), this, SLOT(jobDestroyed()));

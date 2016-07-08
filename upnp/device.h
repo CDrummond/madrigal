@@ -31,6 +31,7 @@
 #include <QAbstractItemModel>
 #include <QHash>
 #include <QUrl>
+#include <QQueue>
 
 class QXmlStreamReader;
 class QColor;
@@ -134,12 +135,13 @@ public:
     const QString & name() const { return details.name; }
     const QString & host() const { return details.host; }
     bool isActive() const { return active; }
-    bool hasSubscription(const QByteArray &sid) const { return -1!=subscriptions.values().indexOf(sid); }
+    bool hasSubscription(const QByteArray &sid) const { return -1!=subscriptions.values().indexOf(Subscription(sid)); }
     bool isEmpty() const { return items.isEmpty(); }
     int numItems() const { return items.count(); }
 
     virtual void clear();
     virtual void populate() = 0;
+    void notification(const QByteArray &sid, const QByteArray &data, int seq);
     virtual void notification(const QByteArray &sid, const QByteArray &data) = 0;
 
 Q_SIGNALS:
@@ -174,13 +176,20 @@ protected:
     void cancelSubscriptions();
 
 protected:
+    struct Subscription {
+        Subscription(const QByteArray &id) : sid(id), lastSeq(-1) { }
+        bool operator==(const Subscription &o) const { return sid==o.sid; }
+        QByteArray sid;
+        int lastSeq;
+    };
+
     QTimer *subTimer;
     DevicesModel *model;
     bool active;
     Ssdp::Device details;
     QList<Item *> items;
     QList<Core::NetworkJob *> jobs;
-    QHash<QUrl, QByteArray> subscriptions;
+    QHash<QUrl, Subscription> subscriptions;
     State state;
 };
 

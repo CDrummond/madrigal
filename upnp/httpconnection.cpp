@@ -85,7 +85,7 @@ void Upnp::HttpConnection::readData() {
             }
             if ( (chunked && allChunksReceived) || (!chunked && (body.size()>=size || (body.size()==size-1 && body.at(body.size()-1)=='>')))) {
                 DBUG(Http) << "finished" << body.size() << size;
-                emit notification(headers["SID"], body.replace("\r", ""));
+                emit notification(headers["SID"], body.replace("\r", ""), headers["SEQ"].toUInt());
                 QByteArray resp="HTTP/1.1 200 OK\r\nCONNECTION: close\r\nCONTENT-LENGTH: 41\r\nCONTENT-TYPE: text/html\r\n\r\n"
                                 "<html><body><h1>200 OK</h1></body></html>";
                 write(resp);
