@@ -212,7 +212,7 @@ void Ui::GroupedItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
           }
 
           int td=totalDuration(index);
-          QString totalDuration=td>0 ? Core::Utils::formatTime(td) : QString();
+          QString totalDuration=td>0 && td!=song->duration ? Core::Utils::formatTime(td) : QString();
           QRect duratioRect(r.x(), r.y(), r.width(), r.height()/2);
           int totalDurationWidth=fm.width(totalDuration)+8;
           QRect textRect(r.x(), r.y(), r.width()-(rtl ? (4*borderSize) : totalDurationWidth), r.height()/2);
