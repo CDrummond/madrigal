@@ -728,9 +728,12 @@ QModelIndex Upnp::MediaServer::parseBrowse(QXmlStreamReader &reader) {
                                 item=new Track(id, values, parentItem, list->count());
                             } else if (QLatin1String("object.container.playlistContainer")==type) {
                                 item=new Playlist(values["title"], id, parentItem, list->count());
-                            } else if (type.startsWith(QLatin1String("object.container"))) {
+                            } else if (Man_Minim==manufacturer && QLatin1String("object.container")==type) {
                                 // MinimServer...
-                                if (QLatin1String(">> Hide Contents")!=values["title"]) {
+                                if (parentItem && QRegExp("^\\d+ albums$").exactMatch(parentItem->name) && values.contains("albumArtURI")) {
+                                    item=new Album(values["title"], values[values.contains("artist") ? "artist" : "creator"],
+                                                   albumArt(values["albumArtURI"]), id, parentItem, list->count());
+                                } else if (QLatin1String(">> Hide Contents")!=values["title"]) {
                                     Folder *folder=new Folder(values["title"], id, parentItem, list->count());
                                     fixFolder(folder, manufacturer);
                                     item=folder;
