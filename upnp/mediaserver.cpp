@@ -734,7 +734,6 @@ QModelIndex Upnp::MediaServer::parseBrowse(QXmlStreamReader &reader) {
                                                            : &items;
 
                             DBUG(MediaServers) << type << values["title"] << id << parentId;
-                            qWarning() << type << values["title"] << id << parentId;
 
                             if (QLatin1String("object.container.storageFolder")==type) {
                                 Folder *folder=new Folder(values["title"], id, parentItem, list->count());
