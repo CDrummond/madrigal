@@ -37,23 +37,27 @@
 GLOBAL_STATIC(Upnp::Model, instance)
 
 Upnp::Model::Model() {
-    Core::Thread *thread=new Core::Thread("Ssdp", this);
+    Core::Thread *ssdpThread=new Core::Thread("Ssdp", this);
+    Core::Thread *httpThread=new Core::Thread("Http", this);
     Core::NetworkAccessManager *network=new Core::NetworkAccessManager(0);
     ssdp=new Ssdp(0);
-    http=new HttpServer(this);
+    http=new HttpServer(0);
     servers=new Upnp::MediaServers(http, this);
     renderers=new Upnp::Renderers(http, this);
-    network->moveToThread(thread);
+    network->moveToThread(ssdpThread);
     ssdp->setNetwork(network);
-    ssdp->moveToThread(thread);
-    thread->start();
+    ssdp->moveToThread(ssdpThread);
+    http->moveToThread(httpThread);
+    ssdpThread->start();
+    httpThread->start();
     connect(ssdp, SIGNAL(deviceAdded(Ssdp::Device)), servers, SLOT(added(Ssdp::Device)));
     connect(ssdp, SIGNAL(deviceRemoved(QByteArray)), servers, SLOT(removed(QByteArray)));
     connect(ssdp, SIGNAL(deviceAdded(Ssdp::Device)), renderers, SLOT(added(Ssdp::Device)));
     connect(ssdp, SIGNAL(deviceRemoved(QByteArray)), renderers, SLOT(removed(QByteArray)));
     connect(http, SIGNAL(notification(QByteArray,QByteArray,int)), servers, SLOT(notification(QByteArray,QByteArray,int)));
     connect(http, SIGNAL(notification(QByteArray,QByteArray,int)), renderers, SLOT(notification(QByteArray,QByteArray,int)));
-    connect(thread, SIGNAL(started()), ssdp, SLOT(start()));
+    connect(ssdpThread, SIGNAL(started()), ssdp, SLOT(start()));
+    connect(httpThread, SIGNAL(started()), http, SLOT(start()));
     connect(servers, SIGNAL(addTracks(Upnp::Command*)), renderers, SLOT(addTracks(Upnp::Command*)));
     connect(renderers, SIGNAL(acceptDrop(QByteArray,QList<QByteArray>,qint32)), servers, SLOT(play(QByteArray,QList<QByteArray>,qint32)));
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(clear()));

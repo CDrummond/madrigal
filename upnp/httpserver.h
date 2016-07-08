@@ -40,6 +40,9 @@ public:
 Q_SIGNALS:
     void notification(const QByteArray &sid, const QByteArray &data, int seq);
 
+public Q_SLOTS:
+    void start();
+
 private:
     void incomingConnection(qintptr handle);
 

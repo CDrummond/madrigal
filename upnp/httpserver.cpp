@@ -31,6 +31,12 @@
 Upnp::HttpServer::HttpServer(QObject *p)
     : QTcpServer(p)
 {
+}
+
+Upnp::HttpServer::~HttpServer() {
+}
+
+void Upnp::HttpServer::start() {
     // Try to use previous port...
     quint16 port=Core::Configuration(metaObject()->className()).get("port", 0, 0, 65535);
     if (0!=port && !listen(QHostAddress::Any, port)) {
@@ -41,11 +47,8 @@ Upnp::HttpServer::HttpServer(QObject *p)
         qWarning() << "Could not start HTTP server";
         ::exit(0);
     }
-    DBUG(Http) << "Started on port" << serverPort();
-}
-
-Upnp::HttpServer::~HttpServer() {
     Core::Configuration(metaObject()->className()).set("port", serverPort());
+    DBUG(Http) << "Started on port" << serverPort();
 }
 
 void Upnp::HttpServer::incomingConnection(qintptr handle) {
@@ -60,7 +63,7 @@ QByteArray Upnp::HttpServer::getAddress(const QUrl &dest) {
         return it.value();
     }
 
-    QUdpSocket testSocket(this);
+    QUdpSocket testSocket(0);
     testSocket.connectToHost(host, 1, QIODevice::ReadOnly);
     QByteArray address=testSocket.localAddress().toString().toLatin1();
     testSocket.close();
