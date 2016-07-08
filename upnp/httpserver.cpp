@@ -27,7 +27,6 @@
 #include "core/networkaccessmanager.h"
 #include "core/configuration.h"
 #include <QUdpSocket>
-#include <QThreadPool>
 
 Upnp::HttpServer::HttpServer(QObject *p)
     : QTcpServer(p)
@@ -43,8 +42,6 @@ Upnp::HttpServer::HttpServer(QObject *p)
         ::exit(0);
     }
     DBUG(Http) << "Started on port" << serverPort();
-    pool=new QThreadPool(this);
-    pool->setMaxThreadCount(10);
 }
 
 Upnp::HttpServer::~HttpServer() {
