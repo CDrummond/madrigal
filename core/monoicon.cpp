@@ -50,6 +50,8 @@ public:
         case MonoIcon::ex_medianext:     fileName=":media-next";  break;
         case MonoIcon::ex_mediastop:     fileName=":media-stop"; break;
         case MonoIcon::ex_radio:         fileName=":radio"; break;
+        case MonoIcon::ex_genre:         fileName=":genre"; break;
+        case MonoIcon::ex_conductor:     fileName=":conductor"; break;
         default: break;
         }
     }

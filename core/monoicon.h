@@ -46,6 +46,8 @@ namespace MonoIcon {
       ex_medianext         = 0x0006,
       ex_mediastop         = 0x0007,
       ex_radio             = 0x0008,
+      ex_genre             = 0x0009,
+      ex_conductor         = 0x000a,
 
       fa_500px             = 0xf26e,
       adjust               = 0xf042,

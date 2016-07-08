@@ -95,20 +95,21 @@ public:
             : Collection(n, i, p, r) { }
         virtual ~Genre() { }
         int type() const { return Type_Genre; }
-        virtual Core::MonoIcon::Type icon() const { return Core::MonoIcon::tags; }
+        virtual Core::MonoIcon::Type icon() const { return Core::MonoIcon::ex_genre; }
     };
 
     struct Artist : public Collection {
         Artist(const QString &n=QString(), const QByteArray &i=QByteArray(), Item *p=0, int r=0)
-            : Collection(n, i, p, r) { }
+            : Collection(n, i, p, r), icn(Core::MonoIcon::user) { }
         virtual ~Artist() { }
         int type() const { return Type_Artist; }
-        virtual Core::MonoIcon::Type icon() const { return Core::MonoIcon::user; }
+        virtual Core::MonoIcon::Type icon() const { return icn; }
         virtual QVariant actions() const {
             QVariant v;
             v.setValue< QList<int> >(QList<int>() << Core::Actions::Action_Play << Core::Actions::Action_Add);
             return v;
         }
+        Core::MonoIcon::Type icn;
     };
 
     struct Album : public Collection {

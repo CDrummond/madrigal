@@ -11,6 +11,8 @@
 <file alias="cd32">mono-cd32.svg</file>
 <file alias="no-cover">no-cover.svg</file>
 <file alias="radio">radio.svg</file>
+<file alias="genre">genre.svg</file>
+<file alias="conductor">conductor.svg</file>
 </qresource>
 </RCC>
 

@@ -643,24 +643,38 @@ static void fixFolder(Upnp::MediaServer::Folder *folder, Upnp::MediaServer::Manu
     if (Upnp::MediaServer::Man_Minim==man) {
         if (QLatin1String("[folder view]")==folder->name) {
             folder->name=QObject::tr("Folders");
+            return;
         } else if (QLatin1String("AlbumArtist")==folder->name) {
             folder->name=QObject::tr("Album Artist");
             folder->icn=Core::MonoIcon::user;
+            return;
         } else if (QLatin1String(">> Complete Album")==folder->name) {
             folder->icn=Core::MonoIcon::ex_cd;
             folder->name=QObject::tr("Show Complete Album");
+            return;
+        } else if (QLatin1String(">> Tag View")==folder->name) {
+            folder->icn=Core::MonoIcon::tags;
+            folder->name=QObject::tr("Tag View");
+            return;
+        } else if (QLatin1String("All Artists")==folder->name) {
+            folder->icn=Core::MonoIcon::users;
+            return;
+        } else if (QLatin1String("Composer")==folder->name) {
+            folder->icn=Core::MonoIcon::pencil;
+            return;
+        } else if (QLatin1String("Conductor")==folder->name) {
+            folder->icn=Core::MonoIcon::ex_conductor;
+            return;
         }
     }
 
     if (QLatin1String("Artist")==folder->name || QLatin1String("Artists")==folder->name ||
-        QLatin1String("Album Artist")==folder->name || QLatin1String("Album Artists")==folder->name ||
-        QLatin1String("All Artists")==folder->name ||
-        QLatin1String("Composer")==folder->name || QLatin1String("Conductor")==folder->name) {
+        QLatin1String("Album Artist")==folder->name || QLatin1String("Album Artists")==folder->name) {
         folder->icn=Core::MonoIcon::user;
     } else if (QLatin1String("Album")==folder->name || QLatin1String("Albums")==folder->name) {
         folder->icn=Core::MonoIcon::ex_cd;
     } else if (QLatin1String("Genre")==folder->name) {
-        folder->icn=Core::MonoIcon::tags;
+        folder->icn=Core::MonoIcon::ex_genre;
     } else if (QLatin1String("Radio")==folder->name) {
         folder->icn=Core::MonoIcon::ex_radio;
     } else if (QLatin1String("Date")==folder->name) {
@@ -680,6 +694,15 @@ static void fixFolder(Upnp::MediaServer::Folder *folder, Upnp::MediaServer::Manu
         } else if (QLatin1String("1 item")==folder->name || QRegExp("^\\d+ items$").exactMatch(folder->name)) {
             folder->icn=Core::MonoIcon::music;
 //            folder->name=QObject::tr("Tracks");
+        }
+    }
+}
+
+static void fixArtist(Upnp::MediaServer::Artist *artist, Upnp::MediaServer::Manufacturer man) {
+    if (Upnp::MediaServer::Man_Minim==man) {
+        if (artist->parent && (Core::MonoIcon::ex_conductor==artist->parent->icon() ||
+                               Core::MonoIcon::pencil==artist->parent->icon())) {
+            artist->icn=artist->parent->icon();
         }
     }
 }
@@ -711,6 +734,7 @@ QModelIndex Upnp::MediaServer::parseBrowse(QXmlStreamReader &reader) {
                                                            : &items;
 
                             DBUG(MediaServers) << type << values["title"] << id << parentId;
+                            qWarning() << type << values["title"] << id << parentId;
 
                             if (QLatin1String("object.container.storageFolder")==type) {
                                 Folder *folder=new Folder(values["title"], id, parentItem, list->count());
@@ -719,7 +743,9 @@ QModelIndex Upnp::MediaServer::parseBrowse(QXmlStreamReader &reader) {
                             } else if (QLatin1String("object.container.genre.musicGenre")==type) {
                                 item=new Genre(values["title"], id, parentItem, list->count());
                             } else if (QLatin1String("object.container.person.musicArtist")==type) {
-                                item=new Artist(values["title"], id, parentItem, list->count());
+                                Artist *artist=new Artist(values["title"], id, parentItem, list->count());
+                                fixArtist(artist, manufacturer);
+                                item=artist;
                             } else if (QLatin1String("object.container.album.musicAlbum")==type) {
                                 item=new Album(values["title"], values[values.contains("artist") ? "artist" : "creator"],
                                         albumArt(values["albumArtURI"]), id, parentItem, list->count());
