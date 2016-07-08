@@ -956,13 +956,14 @@ void Upnp::MediaServer::checkCommand() {
             Command *cmd=new Command;
             QSet<QString> trackUrls;
             foreach (const QModelIndex &idx, sorted) {
-                MusicTrack *trk=new MusicTrack(*static_cast<MusicTrack *>(idx.internalPointer()));
-                if (!trackUrls.contains(trk->url)) {
-                    trackUrls.insert(trk->url);
-                    if (trk->artUrl.isEmpty() && trk->parent && Collection::Type_Album==trk->parent->type()) {
-                        trk->artUrl=static_cast<Album *>(trk->parent)->artUrl;
+                MusicTrack *track=static_cast<MusicTrack *>(idx.internalPointer());
+                if (!trackUrls.contains(track->url)) {
+                    MusicTrack *copy=new MusicTrack(*track);
+                    trackUrls.insert(track->url);
+                    if (copy->artUrl.isEmpty() && copy->parent && Collection::Type_Album==copy->parent->type()) {
+                        copy->artUrl=static_cast<Album *>(copy->parent)->artUrl;
                     }
-                    cmd->tracks.append(trk);
+                    cmd->tracks.append(copy);
                 }
             }
             cmd->pos=command.pos;
