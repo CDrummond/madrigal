@@ -28,9 +28,13 @@
 #include "ui/viewtoolbar.h"
 #include <QGridLayout>
 #include <QVBoxLayout>
+#include <QEvent>
+#include <QMouseEvent>
+#include <QApplication>
 
 Ui::AlbumInfo::AlbumInfo(QWidget *p)
     : QWidget(p)
+    , btnDown(false)
 {
     QGridLayout *layout=new QGridLayout(this);
     QWidget *controls=new QWidget(this);
@@ -126,6 +130,23 @@ void Ui::AlbumInfo::update(const Upnp::MediaServer::Album *info) {
         details->setText(QString());
         updateCover(0);
     }
+}
+
+bool Ui::AlbumInfo::event(QEvent *ev) {
+    switch (ev->type()) {
+    case QEvent::MouseButtonPress:
+        if (Qt::LeftButton==static_cast<QMouseEvent *>(ev)->button() && Qt::NoModifier==static_cast<QMouseEvent *>(ev)->modifiers()) {
+            btnDown=true;
+        }
+        break;
+    case QEvent::MouseButtonRelease:
+        if (btnDown && Qt::LeftButton==static_cast<QMouseEvent *>(ev)->button() && !QApplication::overrideCursor()) {
+            emit clicked();
+        }
+        btnDown=false;
+        break;
+    }
+    return QWidget::event(ev);
 }
 
 void Ui::AlbumInfo::updateCover(const Upnp::MediaServer::Album *info) {

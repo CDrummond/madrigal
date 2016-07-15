@@ -42,10 +42,12 @@ public:
     virtual ~AlbumInfo() { }
 
     void update(const Upnp::MediaServer::Album *info);
+    bool event(QEvent *ev);
 
 Q_SIGNALS:
     void play();
     void add();
+    void clicked();
 
 private:
     void updateCover(const Upnp::MediaServer::Album *info);
@@ -61,6 +63,7 @@ private:
     QLabel *cover;
     ToolButton *playButton;
     ToolButton *addButton;
+    bool btnDown;
 };
 }
 #endif

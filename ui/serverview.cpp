@@ -111,6 +111,7 @@ Ui::ServerView::ServerView(QWidget *p)
     connect(nav, SIGNAL(clicked(bool)), SLOT(goBack()));
     connect(albumInfo, SIGNAL(add()), this, SLOT(addAlbum()));
     connect(albumInfo, SIGNAL(play()), this, SLOT(playAlbum()));
+    connect(albumInfo, SIGNAL(clicked()), SLOT(goBack()));
     Action *addSelAction=ActionCollection::get()->createAction("addsel", Core::Actions::toolTip(Core::Actions::Action_Add));
     Action *playSelAction=ActionCollection::get()->createAction("playsel", Core::Actions::toolTip(Core::Actions::Action_Play));
     media->addAction(playSelAction);
