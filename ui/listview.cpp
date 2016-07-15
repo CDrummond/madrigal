@@ -30,6 +30,7 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include <QModelIndex>
+#include <QScroller>
 
 Ui::ListView::ListView(QWidget *parent)
     : QListView(parent)
@@ -46,6 +47,7 @@ Ui::ListView::ListView(QWidget *parent)
     setAttribute(Qt::WA_MacShowFocusRect, 0);
     #endif
     setWordWrap(false);
+    QScroller::grabGesture(this);
 }
 
 Ui::ListView::~ListView() {
