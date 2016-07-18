@@ -113,11 +113,11 @@ Ui::RendererView::RendererView(QWidget *p)
 
     QColor red(220, 0, 0);
     iconColor=Utils::clampColor(palette().foreground().color());
-    repeatAction=ActionCollection::get()->createAction("repeat", tr("Repeat"), Core::MonoIcon::icon(Core::MonoIcon::refresh, iconColor, iconColor));
-    shuffleAction=ActionCollection::get()->createAction("random", tr("Random"), Core::MonoIcon::icon(Core::MonoIcon::random, iconColor, iconColor));
+    repeatAction=ActionCollection::get()->createAction("repeat", tr("Repeat"), Core::MonoIcon::icon(Core::MonoIcon::refresh, iconColor));
+    shuffleAction=ActionCollection::get()->createAction("random", tr("Random"), Core::MonoIcon::icon(Core::MonoIcon::random, iconColor));
     clearAction=ActionCollection::get()->createAction("clear", tr("Clear"), Core::MonoIcon::icon(Core::MonoIcon::timescircle, red, red));
     removeAction=ActionCollection::get()->createAction("remove", tr("Remove Selected Tracks"), Core::MonoIcon::icon(Core::MonoIcon::scissors, red, red));
-    saveAction=ActionCollection::get()->createAction("save", tr("Save To Playlist"), Core::MonoIcon::icon(Core::MonoIcon::save, iconColor, iconColor));
+    saveAction=ActionCollection::get()->createAction("save", tr("Save To Playlist"), Core::MonoIcon::icon(Core::MonoIcon::save, iconColor));
 
     clearAction->setShortcut(Qt::ControlModifier+Qt::Key_K);
     removeAction->setShortcut(Qt::ControlModifier+Qt::Key_X);
@@ -149,7 +149,7 @@ Ui::RendererView::RendererView(QWidget *p)
     toolbar->addSpacer(Utils::layoutSpacing(this), false);
     toolbar->addWidget(removeButton, false);
     toolbar->addWidget(clearButton, false);
-    backIcon=Core::MonoIcon::icon(Qt::LeftToRight==layoutDirection() ? Core::MonoIcon::chevronleft : Core::MonoIcon::chevronright, iconColor, iconColor);
+    backIcon=Core::MonoIcon::icon(Qt::LeftToRight==layoutDirection() ? Core::MonoIcon::chevronleft : Core::MonoIcon::chevronright, iconColor);
     connect(Core::Images::self(), SIGNAL(found(Core::ImageDetails)), queue, SLOT(coverFound(Core::ImageDetails)));
     updateStats(0, 0);
     removeAction->setEnabled(false);
@@ -227,7 +227,7 @@ void Ui::RendererView::setActive(const QModelIndex &idx) {
 //        connect(queue, SIGNAL(activated(QModelIndex)), renderer, SLOT(play(QModelIndex)));
         updateItems();
         rendererSelect->setText(idx.data().toString());
-        rendererSelect->setIcon(Core::MonoIcon::icon(renderer->icon(), iconColor, iconColor));
+        rendererSelect->setIcon(Core::MonoIcon::icon(renderer->icon(), iconColor));
         removeAction->setEnabled(!queue->selectedIndexes().isEmpty());
         repeatAction->setChecked(renderer->playback().repeat);
         shuffleAction->setChecked(renderer->playback().shuffle);

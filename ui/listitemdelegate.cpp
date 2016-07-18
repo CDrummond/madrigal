@@ -164,6 +164,11 @@ void Ui::ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     if (text.isEmpty()) {
         text=index.data(Qt::DisplayRole).toString();
     }
+    #ifdef Q_OS_WIN
+    QColor textColor(option.palette.color(colorGroup, QPalette::Text));
+    #else
+    QColor textColor(option.palette.color(colorGroup, selected ? QPalette::HighlightedText : QPalette::Text));
+    #endif
     QRect r(option.rect);
     QRect r2(r);
     QString childText = index.data(Core::Role_SubText).toString();
@@ -179,7 +184,9 @@ void Ui::ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     }
     if (pix.isNull()) {
         int size=iconMode ? gridCoverSize : listIconSize;
-        pix=index.data(Qt::DecorationRole).value<QIcon>().pixmap(size, size);
+        pix=index.data(Qt::DecorationRole).value<QIcon>().pixmap(size, size,
+                                                                 selected && textColor==qApp->palette().color(QPalette::HighlightedText)
+                                                                    ? QIcon::Selected : QIcon::Normal);
     }
 
     bool oneLine = childText.isEmpty();
@@ -254,11 +261,6 @@ void Ui::ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     }
 
     int otherTextWidth = otherText.isEmpty() ? 0 : textMetrics.width(otherText+" ");
-    #ifdef Q_OS_WIN
-    QColor color(option.palette.color(colorGroup, QPalette::Text));
-    #else
-    QColor color(option.palette.color(colorGroup, selected ? QPalette::HighlightedText : QPalette::Text));
-    #endif
     QTextOption textOpt(iconMode ? Qt::AlignHCenter|Qt::AlignVCenter : Qt::AlignVCenter);
 
     textOpt.setWrapMode(QTextOption::NoWrap);
@@ -266,7 +268,7 @@ void Ui::ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     if (oneLine) {
         textRect=QRect(r.x(), r.y()+((r.height()-textHeight)/2), r.width()-otherTextWidth, textHeight);
         text = textMetrics.elidedText(text, Qt::ElideRight, textRect.width(), QPalette::WindowText);
-        painter->setPen(color);
+        painter->setPen(textColor);
         painter->setFont(textFont);
         painter->drawText(textRect, text, textOpt);
         if (0!=otherTextWidth) {
@@ -285,7 +287,7 @@ void Ui::ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
                         (iconMode ? childHeight-(2*borderSize) : childHeight));
 
         text = textMetrics.elidedText(text, Qt::ElideRight, textRect.width(), QPalette::WindowText);
-        painter->setPen(color);
+        painter->setPen(textColor);
         painter->setFont(textFont);
         painter->drawText(textRect, text, textOpt);
         if (0!=otherTextWidth) {
@@ -295,8 +297,8 @@ void Ui::ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 
         if (!childText.isEmpty()) {
             childText = childMetrics.elidedText(childText, Qt::ElideRight, childRect.width(), QPalette::WindowText);
-            color.setAlphaF(subTextAlpha(selected));
-            painter->setPen(color);
+            textColor.setAlphaF(subTextAlpha(selected));
+            painter->setPen(textColor);
             painter->setFont(childFont);
             painter->drawText(childRect, childText, textOpt);
         }
@@ -309,7 +311,7 @@ void Ui::ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
         }
     }
     if (!iconMode) {
-        BasicItemDelegate::drawLine(painter, option.rect, color);
+        BasicItemDelegate::drawLine(painter, option.rect, textColor);
         if (isCurrent) {
             drawPlayState(painter, option, textRect, index.data(Core::Role_PlayState).toInt());
         }

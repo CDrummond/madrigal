@@ -51,12 +51,12 @@ Ui::ToolBar::ToolBar(QWidget *parent)
     lbl.ensurePolished();
     QColor col=Utils::clampColor(lbl.palette().text().color());
 
-    playIcon=Core::MonoIcon::icon(Core::MonoIcon::ex_mediaplay, col, col);
-    pauseIcon=Core::MonoIcon::icon(Core::MonoIcon::ex_mediapause, col, col);
-    prevAction=ActionCollection::get()->createAction("previous", tr("Previous Track"), Core::MonoIcon::icon(Core::MonoIcon::ex_mediaprevious, col, col));
+    playIcon=Core::MonoIcon::icon(Core::MonoIcon::ex_mediaplay, col);
+    pauseIcon=Core::MonoIcon::icon(Core::MonoIcon::ex_mediapause, col);
+    prevAction=ActionCollection::get()->createAction("previous", tr("Previous Track"), Core::MonoIcon::icon(Core::MonoIcon::ex_mediaprevious, col));
     playPauseAction=ActionCollection::get()->createAction("play", tr("Play/Pause"), playIcon);
-    nextAction=ActionCollection::get()->createAction("next", tr("Next Track"), Core::MonoIcon::icon(Core::MonoIcon::ex_medianext, col, col));
-    showLyricsAction=ActionCollection::get()->createAction("lyrics", tr("Show Lyrics"), Core::MonoIcon::icon(Core::MonoIcon::commento, col, col));
+    nextAction=ActionCollection::get()->createAction("next", tr("Next Track"), Core::MonoIcon::icon(Core::MonoIcon::ex_medianext, col));
+    showLyricsAction=ActionCollection::get()->createAction("lyrics", tr("Show Lyrics"), Core::MonoIcon::icon(Core::MonoIcon::commento, col));
     showLyricsAction->setCheckable(true);
 
     playPauseAction->setShortcut(Qt::ControlModifier+Qt::Key_P);
@@ -115,7 +115,7 @@ void Ui::ToolBar::addMenuButton(QMenu *mnu) {
     QColor col=Utils::clampColor(lbl.palette().text().color());
     MenuButton *btn=new MenuButton(this);
     btn->setAlignedMenu(mnu);
-    btn->setIcon(Core::MonoIcon::icon(Core::MonoIcon::bars, col, col));
+    btn->setIcon(Core::MonoIcon::icon(Core::MonoIcon::bars, col));
     btn->setFixedSize(QSize(btnSize, btnSize));
     addWidget(btn);
 }

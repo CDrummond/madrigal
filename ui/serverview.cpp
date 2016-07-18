@@ -140,7 +140,7 @@ Ui::ServerView::ServerView(QWidget *p)
 
     searchButton=new ToolButton(toolbar);
     iconColor=Utils::clampColor(palette().foreground().color());
-    searchAction=ActionCollection::get()->createAction("search", tr("Search"), Core::MonoIcon::icon(Core::MonoIcon::search, iconColor, iconColor));
+    searchAction=ActionCollection::get()->createAction("search", tr("Search"), Core::MonoIcon::icon(Core::MonoIcon::search, iconColor));
     searchAction->setShortcut(Qt::ControlModifier+Qt::Key_F);
     searchButton->setDefaultAction(searchAction);
     toolbar->addWidget(searchButton, false);
@@ -148,7 +148,7 @@ Ui::ServerView::ServerView(QWidget *p)
     searchAction->setEnabled(false);
     searchText->setVisible(false);
     searchText->setClearButtonEnabled(true);
-    backIcon=Core::MonoIcon::icon(Qt::LeftToRight==layoutDirection() ? Core::MonoIcon::chevronleft : Core::MonoIcon::chevronright, iconColor, iconColor);
+    backIcon=Core::MonoIcon::icon(Qt::LeftToRight==layoutDirection() ? Core::MonoIcon::chevronleft : Core::MonoIcon::chevronright, iconColor);
     Core::Actions::setColor(iconColor);
     connect(searchAction, SIGNAL(triggered(bool)), SLOT(toggleSearch()));
     connect(searchText, SIGNAL(textChanged(QString)), SLOT(startSearchTimer()));
@@ -208,7 +208,7 @@ void Ui::ServerView::setActive(const QModelIndex &idx) {
         Upnp::MediaServer *dev=static_cast<Upnp::MediaServer *>(idx.internalPointer());
         media->setModel(dev);
         updateItems();
-        nav->add(idx.data().toString(), QModelIndex(), Core::MonoIcon::icon(dev->icon(), iconColor, iconColor));
+        nav->add(idx.data().toString(), QModelIndex(), Core::MonoIcon::icon(dev->icon(), iconColor));
         if (media->model()) {
             connect(media->model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateView(QModelIndex)));
             connect(media->model(), SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(aboutToRemove(QModelIndex,int,int)));
@@ -343,7 +343,7 @@ void Ui::ServerView::modelReset() {
     if (dev) {
         nav->clear();
         media->setRootIndex(QModelIndex());
-        nav->add(dev->name(), QModelIndex(), Core::MonoIcon::icon(dev->icon(), iconColor, iconColor));
+        nav->add(dev->name(), QModelIndex(), Core::MonoIcon::icon(dev->icon(), iconColor));
         updateView(QModelIndex());
     }
 }

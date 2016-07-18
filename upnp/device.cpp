@@ -232,7 +232,7 @@ QIcon Upnp::Device::monoIcon(Core::MonoIcon::Type icon) {
     if (monoIcons.end()!=it) {
         return it.value();
     }
-    QIcon icn=Core::MonoIcon::icon(icon, monoIconColor, monoIconColor);
+    QIcon icn=Core::MonoIcon::icon(icon, monoIconColor);
     monoIcons.insert(icon, icn);
     return icn;
 }

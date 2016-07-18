@@ -31,6 +31,7 @@
 #include <QRect>
 #include <QFontDatabase>
 #include <QApplication>
+#include <QPalette>
 
 namespace Core {
 
@@ -66,6 +67,9 @@ public:
         Q_UNUSED(state)
 
         QColor col=QIcon::Selected==mode ? selectedColor : color;
+        if (QIcon::Selected==mode && !col.isValid()) {
+            col=QApplication::palette().highlightedText().color();
+        }
         QString key=(fileName.isEmpty() ? QString::number(type) : fileName)+
                     QLatin1Char('-')+QString::number(rect.width())+QLatin1Char('-')+QString::number(rect.height())+QLatin1Char('-')+col.name();
         QPixmap pix;
