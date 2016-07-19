@@ -234,11 +234,6 @@ extern void Ui::GtkStyle::setThemeName(const QString &n) {
 static Ui::WindowManager *wm=0;
 #endif
 static QProxyStyle *proxyStyle=0;
-static bool thinSbar=false;
-
-bool Ui::GtkStyle::thinScrollbars() {
-    return thinSbar;
-}
 
 void Ui::GtkStyle::applyTheme(QWidget *widget) {
     #ifdef NO_GTK_SUPPORT
@@ -246,7 +241,6 @@ void Ui::GtkStyle::applyTheme(QWidget *widget) {
     #else
     if (widget && isActive()) {
         QString theme=Ui::GtkStyle::themeName().toLower();
-        bool touchStyleSpin=false;
         int modViewFrame=0;
         QMap<QString, QString> css;
         if (!theme.isEmpty()) {
@@ -266,10 +260,6 @@ void Ui::GtkStyle::applyTheme(QWidget *widget) {
                                 wm->registerWidgetAndChildren(win->menuBar());
                             }
                         }
-                        if (line.contains("scrollbar:overlay") || line.contains("scrollbar:thin")) {
-                            thinSbar=true;
-                        }
-                        touchStyleSpin=line.contains("spinbox:touch");
                         modViewFrame=line.contains("modview:ts")
                                         ? ProxyStyle::VF_Side|ProxyStyle::VF_Top
                                         : line.contains("modview:true")
@@ -285,7 +275,7 @@ void Ui::GtkStyle::applyTheme(QWidget *widget) {
             }
         }
         if (!proxyStyle) {
-            proxyStyle=new GtkProxyStyle(modViewFrame, thinSbar, touchStyleSpin, css);
+            proxyStyle=new GtkProxyStyle(modViewFrame, true, true, css);
         }
     }
     #endif

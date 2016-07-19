@@ -37,7 +37,6 @@ namespace GtkStyle {
     extern void drawSelection(const QStyleOptionViewItem &opt, QPainter *painter, double opacity);
     extern QString themeName();
     extern void setThemeName(const QString &n);
-    extern bool thinScrollbars();
     extern void applyTheme(QWidget *widget);
     extern void registerWidget(QWidget *widget);
 }
