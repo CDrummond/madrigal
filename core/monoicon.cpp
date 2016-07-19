@@ -23,6 +23,9 @@
 
 #include "core/monoicon.h"
 #include "core/utils.h"
+#ifdef Q_OS_MAC
+#include "mac/osxstyle.h"
+#endif
 #include <QFile>
 #include <QIconEngine>
 #include <QSvgRenderer>
@@ -69,6 +72,11 @@ public:
         QColor col=QIcon::Selected==mode ? selectedColor : color;
         if (QIcon::Selected==mode && !col.isValid()) {
             col=QApplication::palette().highlightedText().color();
+            #ifdef Q_OS_MAC
+            col=Mac::OSXStyle::self()->viewPalette().highlightedText().color();
+            #else
+            col=QApplication::palette().highlightedText().color();
+            #endif
         }
         QString key=(fileName.isEmpty() ? QString::number(type) : fileName)+
                     QLatin1Char('-')+QString::number(rect.width())+QLatin1Char('-')+QString::number(rect.height())+QLatin1Char('-')+col.name();
