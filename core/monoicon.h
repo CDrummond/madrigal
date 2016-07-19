@@ -745,8 +745,9 @@ namespace MonoIcon {
       youtubesquare        = 0xf166
   };
 
-    QIcon icon(const QString &fileName, const QColor &col, const QColor &sel=QColor(QColor::Invalid));
-    QIcon icon(Type icon, const QColor &col, const QColor &sel=QColor(QColor::Invalid));
+    extern const QColor constRed;
+    extern QIcon icon(const QString &fileName, const QColor &col, const QColor &sel=QColor(QColor::Invalid));
+    extern QIcon icon(Type icon, const QColor &col, const QColor &sel=QColor(QColor::Invalid));
 }
 }
 

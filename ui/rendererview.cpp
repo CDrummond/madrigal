@@ -111,12 +111,11 @@ Ui::RendererView::RendererView(QWidget *p)
     mainLayout->addWidget(toolbar);
     mainLayout->addWidget(stack);
 
-    QColor red(220, 0, 0);
     iconColor=Utils::clampColor(palette().foreground().color());
     repeatAction=ActionCollection::get()->createAction("repeat", tr("Repeat"), Core::MonoIcon::icon(Core::MonoIcon::refresh, iconColor));
     shuffleAction=ActionCollection::get()->createAction("random", tr("Random"), Core::MonoIcon::icon(Core::MonoIcon::random, iconColor));
-    clearAction=ActionCollection::get()->createAction("clear", tr("Clear"), Core::MonoIcon::icon(Core::MonoIcon::timescircle, red, red));
-    removeAction=ActionCollection::get()->createAction("remove", tr("Remove Selected Tracks"), Core::MonoIcon::icon(Core::MonoIcon::scissors, red, red));
+    clearAction=ActionCollection::get()->createAction("clear", tr("Clear"), Core::MonoIcon::icon(Core::MonoIcon::timescircle, Core::MonoIcon::constRed, Core::MonoIcon::constRed));
+    removeAction=ActionCollection::get()->createAction("remove", tr("Remove Selected Tracks"), Core::MonoIcon::icon(Core::MonoIcon::scissors, Core::MonoIcon::constRed, Core::MonoIcon::constRed));
     saveAction=ActionCollection::get()->createAction("save", tr("Save To Playlist"), Core::MonoIcon::icon(Core::MonoIcon::save, iconColor));
 
     clearAction->setShortcut(Qt::ControlModifier+Qt::Key_K);
