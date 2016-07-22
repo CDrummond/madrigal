@@ -374,7 +374,7 @@ static void drawBgnd(QPainter *painter, const QRect &rx, bool light)
 void Ui::ListItemDelegate::drawIcons(QPainter *painter, const QRect &r, bool mouseOver, bool rtl, bool onTop, const QModelIndex &index) const
 {
     QColor textCol=QApplication::palette().color(QPalette::Normal, QPalette::WindowText);
-    bool lightBgnd=textCol.red()<=100 && textCol.green()<=100 && textCol.blue()<=100;
+    bool lightBgnd=textCol.red()<=128 && textCol.green()<=128 && textCol.blue()<=128;
     double opacity=painter->opacity();
     bool adjustOpacity=!mouseOver;
     if (adjustOpacity) {
