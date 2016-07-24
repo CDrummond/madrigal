@@ -79,6 +79,7 @@ private Q_SLOTS:
     void doSearch();
     void searching(bool status);
     void controlSearch(bool enabled);
+    void discover();
 
 private:
     void addAlbumToQueue(bool andPlay);

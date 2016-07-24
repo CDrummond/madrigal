@@ -72,6 +72,7 @@ Q_SIGNALS:
 public Q_SLOTS:
     void start();
     void search();
+    void urgentSearch(bool s, int t);
 
 private Q_SLOTS:
     void readDatagrams();
@@ -90,6 +91,8 @@ private:
     QSet<QByteArray> listedDevices;
     QTimer *refreshTimer;
     QTimer *listTimer;
+    int refreshTimeout;
+    QSet<int> urgent;
 };
 
 }

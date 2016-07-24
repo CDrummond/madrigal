@@ -64,6 +64,7 @@ private Q_SLOTS:
     void saveQueue();
     void removeSelectedTracks();
     void scrollTo(const QModelIndex &idx);
+    void discover();
 
 private:
     bool autoScrollQueue;

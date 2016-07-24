@@ -63,8 +63,8 @@ Upnp::Model::Model() {
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(clear()));
 }
 
-void Upnp::Model::discoverDevices() {
-    QMetaObject::invokeMethod(ssdp, "search", Qt::QueuedConnection);
+void Upnp::Model::discoverDevices(bool dis, int type) {
+    QMetaObject::invokeMethod(ssdp, "urgentSearch", Qt::QueuedConnection, Q_ARG(bool, dis), Q_ARG(int, type));
 }
 
 void Upnp::Model::clear() {

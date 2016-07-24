@@ -41,7 +41,7 @@ public:
 
     Model();
 
-    void discoverDevices();
+    void discoverDevices(bool dis, int type);
     MediaServers * serversModel() { return servers; }
     Renderers * renderersModel() { return renderers; }
 

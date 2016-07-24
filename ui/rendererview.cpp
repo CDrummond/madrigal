@@ -157,6 +157,7 @@ Ui::RendererView::RendererView(QWidget *p)
     connect(clearAction, SIGNAL(triggered(bool)), this, SLOT(clearQueue()));
     connect(saveAction, SIGNAL(triggered(bool)), this, SLOT(saveQueue()));
     autoScrollQueue=Core::Configuration(this).get("scroll", true);
+    connect(stack, SIGNAL(currentChanged(int)), SLOT(discover()));
 }
 
 Ui::RendererView::~RendererView() {
@@ -257,9 +258,6 @@ void Ui::RendererView::useFirst() {
 void Ui::RendererView::selectRenderer() {
     DBUG(Ui);
     queue->setRootIndex(QModelIndex());
-    if (Page_Renderer==stack->currentIndex()) {
-        Upnp::Model::self()->discoverDevices();
-    }
     stack->setCurrentIndex(Page_Renderers);
     toolbar->showTitle(true);
 }
@@ -332,4 +330,8 @@ void Ui::RendererView::scrollTo(const QModelIndex &idx) {
     if (idx.isValid() && autoScrollQueue) {
         queue->scrollTo(idx, QAbstractItemView::PositionAtCenter);
     }
+}
+
+void Ui::RendererView::discover() {
+    Upnp::Model::self()->discoverDevices(Page_Renderer!=stack->currentIndex(), 1);
 }

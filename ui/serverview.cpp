@@ -159,6 +159,8 @@ Ui::ServerView::ServerView(QWidget *p)
     nav->setToolTip(backAction->toolTip());
     nav->addAction(backAction);
     connect(backAction, SIGNAL(triggered(bool)), SLOT(goBack()));
+
+    connect(stack, SIGNAL(currentChanged(int)), SLOT(discover()));
 }
 
 Ui::ServerView::~ServerView() {
@@ -285,9 +287,6 @@ void Ui::ServerView::navSelected(int id) {
     if (-1==id) {
         nav->clear();
         setMediaIndex(QModelIndex());
-        if (Page_Media==stack->currentIndex()) {
-            Upnp::Model::self()->discoverDevices();
-        }
         stack->setCurrentIndex(Page_Servers);
         toolbar->showTitle(true);
         showButtons();
@@ -441,4 +440,8 @@ void Ui::ServerView::setMediaIndex(const QModelIndex &idx) {
     if (!navBack) {
         updateView(idx);
     }
+}
+
+void Ui::ServerView::discover() {
+    Upnp::Model::self()->discoverDevices(Page_Media!=stack->currentIndex(), 0);
 }

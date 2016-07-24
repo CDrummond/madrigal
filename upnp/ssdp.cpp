@@ -42,8 +42,8 @@
 static const quint16 constPort = 1900;
 static const char *constMulticastGroup = "239.255.255.250";
 static const char * constUuidProp="uuid";
-static const int constSearchPeriod=30*1000;
-static const int constListingTimeout=10*1000;
+static const int constBackgroundSearchPeriod=30*1000;
+static const int constUrgentSearchPeriod=10*1000;
 
 static Core::MonoIcon::Type fontawesomeIcon(const QByteArray &name) {
     if (name=="chrome") {
@@ -102,6 +102,7 @@ Upnp::Ssdp::Ssdp(QObject *p)
     : QObject(p)
     , network(0)
     , socket(0)
+    , refreshTimeout(constBackgroundSearchPeriod)
 {
     QNetworkConfigurationManager *mgr=new QNetworkConfigurationManager(this);
     connect(mgr, SIGNAL(onlineStateChanged(bool)), this, SLOT(onlineStateChanged(bool)));
@@ -119,8 +120,8 @@ void Upnp::Ssdp::start() {
 
     refreshTimer=new QTimer(this);
     connect(refreshTimer, SIGNAL(timeout()), SLOT(search()));
-    refreshTimer->setSingleShot(false);
-    refreshTimer->start(constSearchPeriod);
+    refreshTimer->setSingleShot(true);
+    refreshTimer->start(constBackgroundSearchPeriod);
 
     listTimer=new QTimer(this);
     listTimer->setSingleShot(true);
@@ -141,11 +142,34 @@ void Upnp::Ssdp::search() {
 
     DBUG(Ssdp) << request;
     socket->writeDatagram(request, QHostAddress(constMulticastGroup), constPort);
-    listTimer->start(constListingTimeout*0.8);
+    listTimer->start(refreshTimeout>10000 ? 10000 : (refreshTimeout-750));
+    refreshTimer->start(refreshTimeout);
+}
+
+/*
+ * When servers, or renderers, list is displayed (or requested) we need
+ * to search more often - so that new devices are discovered quickly.
+ * For other UI views, we can poll less frequently.
+ * s = view wants to search
+ * t = ID of view (dont actually care what its type is, just needs to be unique)
+ */
+void Upnp::Ssdp::urgentSearch(bool s, int t) {
+    // Add, or remove, view type from urgent set
+    if (s) {
+        urgent.insert(t);
+    } else {
+        urgent.remove(t);
+    }
+    DBUG(Ssdp) << s << t << urgent.count();
+    // Modify refresh timer dependent upon whether we have any urgent requests
+    refreshTimeout=urgent.isEmpty() ? constBackgroundSearchPeriod : constUrgentSearchPeriod;
+    if (s) {
+        search();
+    }
 }
 
 void Upnp::Ssdp::readDatagrams() {
-    DBUG(Ssdp);
+//    DBUG(Ssdp);
 
     while (socket->hasPendingDatagrams()) {
         QByteArray datagram;
