@@ -31,7 +31,14 @@
 static const char * constRowListMimeType=APP_REV_URL"/row-list";
 
 QString Upnp::Renderer::Track::subText() const {
-    return artistName()+QLatin1String(" - ")+album;
+    QString ar=artistName();
+    return ar.isEmpty()
+                ? album.isEmpty()
+                    ? QString()
+                    : album
+                : album.isEmpty()
+                    ? ar
+                    : (ar+QLatin1String(" - ")+album);
 }
 
 QVariant Upnp::Renderer::data(const QModelIndex &index, int role) const {

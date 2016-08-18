@@ -302,8 +302,12 @@ QVariant Upnp::Device::data(const QModelIndex &index, int role) const {
         return item->mainText();
     case Qt::DecorationRole:
         return monoIcon(item->icon());
-    case Qt::ToolTipRole:
-        return item->mainText()+"<br/>"+item->subText();
+    case Qt::ToolTipRole: {
+        QString sub=item->subText();
+        return sub.isEmpty()
+                    ? item->mainText()
+                    : (item->mainText()+"<br/>"+sub);
+    }
     default:
         break;
     }
