@@ -568,6 +568,7 @@ void Upnp::OhRenderer::updateTracks(const QList<quint32> &update) {
     }
     ids=newIds;
     updateStats();
+    sendCommand("", "Id", constPlaylistService);
 }
 
 QMap<QString, QString> Upnp::OhRenderer::parseTrackMetadata(const QString &xml) {
