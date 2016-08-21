@@ -38,6 +38,9 @@ const char * Upnp::Device::constBroadcastClass="object.item.audioItem.audioBroad
 const char * Upnp::Device::constObjectIdListMimeType=APP_REV_URL"/track-list";
 const char * Upnp::Device::constMsgServiceProperty="service";
 const char * Upnp::Device::constMsgTypeProperty="type";
+static const char * constMsgBodyProperty="body";
+static const char * constAttemptProperty="attempt";
+static const int constMaxMsgAttempts=3;
 const int Upnp::Device::constNotifTimeout=2;
 static const int constSubTimeout=1800;
 static const int constSubRenewTimeout=1740;
@@ -411,6 +414,8 @@ Core::NetworkJob * Upnp::Device::sendCommand(const QByteArray &msg, const QByteA
         connect(job, SIGNAL(destroyed(QObject*)), this, SLOT(jobDestroyed()));
         job->setProperty(constMsgTypeProperty, type);
         job->setProperty(constMsgServiceProperty, service);
+        job->setProperty(constMsgBodyProperty, data);
+        job->setProperty(constAttemptProperty, 1);
         jobs.append(job);
         DBUG(Devices) << (void *)job << type << service;
         return job;
@@ -440,6 +445,7 @@ void Upnp::Device::jobFinished() {
     if (job) {
         jobs.removeAll(job);
         QByteArray msgType=job->property(constMsgTypeProperty).toByteArray();
+        qint64 responseSize=job->actualJob()->bytesAvailable();
         #ifdef DISPLAY_XML
         QByteArray data=job->readAll();
         DBUG(Devices) << (void *)job << data;
@@ -466,7 +472,31 @@ void Upnp::Device::jobFinished() {
             }
         }
 
-        failedCommand(job, msgType);
+        if (job->property(constAttemptProperty).toUInt()<constMaxMsgAttempts) {
+            Core::NetworkAccessManager::RawHeaders headers;
+
+            headers.insert("CONTENT-TYPE", "text/xml; charset=\"utf-8\"");
+            headers.insert("SOAPACTION", "\""+job->property(constMsgServiceProperty).toByteArray()+"#"+
+                           job->property(constMsgTypeProperty).toByteArray()+"\"");
+            Core::NetworkJob *newJob=Core::NetworkAccessManager::self()->post(job->url(), job->property(constMsgBodyProperty).toByteArray(), headers);
+
+            QList<QByteArray> props=job->dynamicPropertyNames();
+            foreach (const QByteArray &prop, props) {
+                newJob->setProperty(prop, job->property(prop));
+            }
+            newJob->setProperty(constAttemptProperty, job->property(constAttemptProperty).toUInt()+1);
+            connect(newJob, SIGNAL(finished()), this, SLOT(jobFinished()));
+            connect(newJob, SIGNAL(destroyed(QObject*)), this, SLOT(jobDestroyed()));
+            jobs.append(newJob);
+            DBUG(Devices) << "Re-trying" << newJob->property(constAttemptProperty).toUInt()
+                          << (void *)newJob << newJob->property(constMsgTypeProperty).toByteArray()
+                          << newJob->property(constMsgServiceProperty).toByteArray();
+        } else {
+            DBUG(Devices) << "Failed" << job->property(constAttemptProperty).toUInt()
+                          << (void *)job << job->property(constMsgTypeProperty).toByteArray()
+                          << job->property(constMsgServiceProperty).toByteArray();
+            failedCommand(job, msgType);
+        }
         job->cancelAndDelete();
     }
 }
