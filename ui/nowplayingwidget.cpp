@@ -274,9 +274,14 @@ void Ui::NowPlayingWidget::update(const QModelIndex &idx) {
         updatePos(0);
         updateDuration(0);
         updateCover(0);
+        slider->setEnabled(false);
     } else {
         track->setText(song->name);
         artist->setText(song->artistAndAlbum());
+        if (artist->text().isEmpty() && song->isBroadcast) {
+            artist->setText("<i><small>"+tr("Stream")+"</small></i>");
+        }
+        slider->setEnabled(!song->isBroadcast);
         Core::ImageDetails cover=song->cover();
         if (currentCover.artist!=cover.artist || currentCover.album!=cover.album) {
             updateCover(&cover);
