@@ -43,7 +43,7 @@ public:
     VolumeSlider(QWidget *p=0);
     virtual ~VolumeSlider() { }
 
-    void showEvent(QShowEvent *ev);
+    void setColor(QColor col);
     void paintEvent(QPaintEvent *ev);
     void mousePressEvent(QMouseEvent *ev);
     void mouseReleaseEvent(QMouseEvent *ev);
@@ -69,7 +69,6 @@ private:
 
 private:
     int lineWidth;
-    bool shown;
     bool down;
     bool isMuted;
     QColor textCol;

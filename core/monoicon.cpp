@@ -71,7 +71,6 @@ public:
 
         QColor col=QIcon::Selected==mode ? selectedColor : color;
         if (QIcon::Selected==mode && !col.isValid()) {
-            col=QApplication::palette().highlightedText().color();
             #ifdef Q_OS_MAC
             col=Mac::OSXStyle::self()->viewPalette().highlightedText().color();
             #else

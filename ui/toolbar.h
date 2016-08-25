@@ -43,6 +43,7 @@ public:
     ToolBar(QWidget *parent);
     virtual ~ToolBar() { }
 
+    void init();
     void addMenuButton(QMenu *mnu);
     void setLyricsVisible(bool v);
     bool isLyricsVisible() const;

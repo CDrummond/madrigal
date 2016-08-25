@@ -58,7 +58,6 @@ static int constHeightStep=2;
 Ui::VolumeSlider::VolumeSlider(QWidget *p)
     : QSlider(p)
     , lineWidth(0)
-    , shown(false)
     , down(false)
     , isMuted(false)
     , muteAction(0)
@@ -99,19 +98,12 @@ Ui::VolumeSlider::VolumeSlider(QWidget *p)
     addAction(decreaseAction);
 }
 
-void Ui::VolumeSlider::showEvent(QShowEvent *ev) {
-    if (!shown) {
-        shown=true;
-        QLabel lbl(parentWidget());
-        lbl.ensurePolished();
-        QColor col=Utils::clampColor(lbl.palette().text().color());
-
-        if (col!=textCol) {
-            textCol=col;
-            generatePixmaps();
-        }
+void Ui::VolumeSlider::setColor(QColor col) {
+    col=Utils::clampColor(col);
+    if (col!=textCol) {
+        textCol=col;
+        generatePixmaps();
     }
-    QSlider::showEvent(ev);
 }
 
 void Ui::VolumeSlider::paintEvent(QPaintEvent *) {

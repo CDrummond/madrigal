@@ -82,6 +82,9 @@ Ui::MainWindow::MainWindow(QWidget *p)
     setCentralWidget(mainWidget);
     setWindowTitle(PACKAGE_NAME_CASE);
 
+    addToolBar(toolBar);
+    toolBar->init();
+
     Core::Configuration cfg(this);
     resize(cfg.get("size", QSize(Utils::scaleForDpi(640), Utils::scaleForDpi(480))));
 
@@ -118,7 +121,6 @@ Ui::MainWindow::MainWindow(QWidget *p)
     }
     #endif
     #ifdef Q_OS_MAC
-    addToolBar(toolBar);
     WindowManager *wm=new WindowManager(toolBar);
     wm->registerWidgetAndChildren(toolBar);
     toolBar->setMovable(false);

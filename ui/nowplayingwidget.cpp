@@ -22,7 +22,6 @@
  */
 
 #include "ui/nowplayingwidget.h"
-#include "ui/squeezedtextlabel.h"
 #include "ui/utils.h"
 #include "core/utils.h"
 #include "core/configuration.h"
@@ -117,7 +116,7 @@ bool Ui::TimeLabel::event(QEvent *e) {
         break;
     case QEvent::HoverLeave:
         if (isEnabled()) {
-            setStyleSheet(QString());
+            setStyleSheet(QString("QLabel{color:%1;}").arg(((NowPlayingWidget *)parentWidget())->textColor().name()));
         }
     default:
         break;

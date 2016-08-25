@@ -29,11 +29,11 @@
 #include <QLabel>
 #include "upnp/device.h"
 #include "core/images.h"
+#include "ui/squeezedtextlabel.h"
 
 class QTimer;
 
 namespace Ui {
-class SqueezedTextLabel;
 
 class TimeLabel : public QLabel {
     Q_OBJECT
@@ -76,6 +76,7 @@ public:
     int value() const;
     void setEnabled(bool e) { slider->setEnabled(e); }
     bool isEnabled() const { return slider->isEnabled(); }
+    QColor textColor() const { return track->palette().windowText().color(); }
 
 public Q_SLOTS:
     void update(const QModelIndex &idx);
