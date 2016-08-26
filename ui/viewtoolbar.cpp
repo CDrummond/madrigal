@@ -35,7 +35,7 @@ Ui::ViewToolBar::ViewToolBar(QWidget *p)
     QWidget *main=new QWidget(this);
     layout=new QHBoxLayout(main);
     layout->setMargin(0);
-    layout->setSpacing(0);
+    layout->setSpacing(1);
     QStackedWidget::addWidget(main);
     showTitle(true);
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
