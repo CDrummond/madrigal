@@ -39,7 +39,6 @@ public:
     void setTitle(const QString &str);
     void addWidget(QWidget *w, bool left=true);
     void addSpacer(int space, bool left=true);
-    void paintEvent(QPaintEvent *ev);
     void showTitle(bool s) { setCurrentIndex(s ? 0 : 1); }
 private:
     QHBoxLayout *layout;

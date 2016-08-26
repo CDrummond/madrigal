@@ -42,18 +42,6 @@ Ui::ViewToolBar::ViewToolBar(QWidget *p)
     setFixedHeight(buttonSize());
 }
 
-static bool isDark(const QColor &col) {
-    return col.red()<64 && col.green()<64 && col.blue()<64;
-}
-
-void Ui::ViewToolBar::paintEvent(QPaintEvent *ev) {
-    QPainter p(this);
-    QColor col(isDark(palette().color(QPalette::Window)) ? Qt::white : Qt::black);
-    col.setAlphaF(0.06);
-    p.fillRect(rect(), col);
-    QStackedWidget::paintEvent(ev);
-}
-
 void Ui::ViewToolBar::setTitle(const QString &str) {
     title->setText("  "+str);
 }
