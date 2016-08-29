@@ -368,10 +368,10 @@ void Upnp::Ssdp::onlineStateChanged(bool on) {
         connectSocket();
         search();
     } else {
-        foreach (const QByteArray &uuid, knownDevices) {
-            DBUG(Ssdp) << "deviceRemoved" << uuid;
-            emit deviceRemoved(uuid);
-        }
+//        foreach (const QByteArray &uuid, knownDevices) {
+//            DBUG(Ssdp) << "deviceRemoved" << uuid;
+//            emit deviceRemoved(uuid);
+//        }
         if (refreshTimer) {
             refreshTimer->stop();
         }
