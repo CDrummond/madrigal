@@ -55,6 +55,7 @@ private Q_SLOTS:
     void setRenderer(const QModelIndex &idx);
     void playbackState(Upnp::Renderer::State state);
     void modelReset();
+    void controlButtons();
 
 private:
     void addSpacer();

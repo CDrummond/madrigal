@@ -147,6 +147,7 @@ void Ui::ToolBar::setRenderer(const QModelIndex &idx) {
         disconnect(renderer, SIGNAL(playbackPos(quint32)), nowPlaying, SLOT(updatePos(quint32)));
         disconnect(renderer, SIGNAL(playbackState(Upnp::Renderer::State)), this, SLOT(playbackState(Upnp::Renderer::State)));
         disconnect(renderer, SIGNAL(modelReset()), this, SLOT(modelReset()));
+        disconnect(renderer, SIGNAL(queueDetails(quint32,quint32)), this, SLOT(controlButtons()));
     }
     renderer=r;
     enableControls(0!=renderer);
@@ -163,6 +164,7 @@ void Ui::ToolBar::setRenderer(const QModelIndex &idx) {
         connect(renderer, SIGNAL(playbackPos(quint32)), nowPlaying, SLOT(updatePos(quint32)));
         connect(renderer, SIGNAL(playbackState(Upnp::Renderer::State)), this, SLOT(playbackState(Upnp::Renderer::State)));
         connect(renderer, SIGNAL(modelReset()), this, SLOT(modelReset()));
+        connect(renderer, SIGNAL(queueDetails(quint32,quint32)), this, SLOT(controlButtons()));
         nowPlaying->update(renderer->current());
         nowPlaying->updatePos(renderer->playback().seconds);
         nowPlaying->updateDuration(renderer->playback().duration);
@@ -178,7 +180,7 @@ void Ui::ToolBar::setRenderer(const QModelIndex &idx) {
 }
 
 void Ui::ToolBar::playbackState(Upnp::Renderer::State state) {
-    int tracks=renderer ? renderer->rowCount() : 0;
+    controlButtons();
     switch (state) {
     case Upnp::Renderer::Null:
         prevAction->setEnabled(false);
@@ -187,28 +189,28 @@ void Ui::ToolBar::playbackState(Upnp::Renderer::State state) {
         nextAction->setEnabled(false);
         break;
     case Upnp::Renderer::Stopped:
-        prevAction->setEnabled(tracks>1);
-        playPauseAction->setEnabled(tracks>0);
+        playPauseAction->setEnabled(renderer && renderer->rowCount()>0);
         playPauseAction->setIcon(playIcon);
-        nextAction->setEnabled(tracks>1);
         break;
     case Upnp::Renderer::Playing:
-        prevAction->setEnabled(tracks>1);
         playPauseAction->setEnabled(true);
         playPauseAction->setIcon(pauseIcon);
-        nextAction->setEnabled(tracks>1);
         break;
     case Upnp::Renderer::Paused:
-        prevAction->setEnabled(tracks>1);
         playPauseAction->setEnabled(true);
         playPauseAction->setIcon(playIcon);
-        nextAction->setEnabled(tracks>1);
         break;
     }
 }
 
 void Ui::ToolBar::modelReset() {
     playbackState(renderer && renderer->rowCount()>0 ? Upnp::Renderer::Stopped : Upnp::Renderer::Null);
+}
+
+void Ui::ToolBar::controlButtons() {
+    int tracks=renderer ? renderer->rowCount() : 0;
+    prevAction->setEnabled(tracks>1);
+    nextAction->setEnabled(tracks>1);
 }
 
 void Ui::ToolBar::addSpacer() {
