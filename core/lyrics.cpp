@@ -198,7 +198,7 @@ void Core::Lyrics::searchResponse(NetworkJob *reply) {
         DBUG(Lyrics) << (u+titles);
         connect(job, SIGNAL(finished()), this, SLOT(jobFinished()));
     } else {
-        emit fetched(currentSong.artist, currentSong.name, tr("No lyrics found"));
+        emit fetched(currentSong.artist, currentSong.name, "<i>"+tr("No lyrics found")+"</i>");
     }
 }
 
@@ -210,8 +210,12 @@ void Core::Lyrics::lyricsResponse(NetworkJob *reply) {
     contents=extract(contents, QLatin1String("&lt;lyrics&gt;"), QLatin1String("&lt;/lyrics&gt;")).trimmed();
     contents=contents.replace("\n\n\n", "\n\n").replace("&quot;", "\'").replace("&amp;", "&")
                      .replace("&lt;", "<").replace("&gt;", ">").replace("\"", "'").replace("''", "'").replace("''", "'");
+    if (QLatin1String("{{Instrumental}}")==contents) {
+        contents="<i>"+tr("Instrumental")+"</i>";
+    }
+
     if (contents.isEmpty()) {
-        emit fetched(currentSong.artist, currentSong.name, tr("No lyrics found"));
+        emit fetched(currentSong.artist, currentSong.name, "<i>"+tr("No lyrics found")+"</i>");
     } else {
         emit fetched(currentSong.artist, currentSong.name, contents);
     }
