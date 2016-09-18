@@ -58,6 +58,7 @@ public Q_SLOTS:
     void removed(const QByteArray &uuid);
     void setActive(int row);
     void notification(const QByteArray &sid, const QByteArray &data, int seq);
+    void connectionStateChanged(bool on);
 
 private Q_SLOTS:
     void activateLast();

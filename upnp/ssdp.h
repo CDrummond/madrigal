@@ -68,6 +68,7 @@ public:
 Q_SIGNALS:
     void deviceAdded(const Ssdp::Device &details);
     void deviceRemoved(const QByteArray &uuid);
+    void connectionStateChanged(bool on);
 
 public Q_SLOTS:
     void start();

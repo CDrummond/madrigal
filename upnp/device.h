@@ -191,6 +191,8 @@ protected:
     QList<Core::NetworkJob *> jobs;
     QHash<QUrl, Subscription> subscriptions;
     State state;
+
+    friend class DevicesModel;
 };
 
 }

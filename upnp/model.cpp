@@ -52,8 +52,10 @@ Upnp::Model::Model() {
     httpThread->start();
     connect(ssdp, SIGNAL(deviceAdded(Ssdp::Device)), servers, SLOT(added(Ssdp::Device)));
     connect(ssdp, SIGNAL(deviceRemoved(QByteArray)), servers, SLOT(removed(QByteArray)));
+    connect(ssdp, SIGNAL(connectionStateChanged(bool)), servers, SLOT(connectionStateChanged(bool)));
     connect(ssdp, SIGNAL(deviceAdded(Ssdp::Device)), renderers, SLOT(added(Ssdp::Device)));
     connect(ssdp, SIGNAL(deviceRemoved(QByteArray)), renderers, SLOT(removed(QByteArray)));
+    connect(ssdp, SIGNAL(connectionStateChanged(bool)), renderers, SLOT(connectionStateChanged(bool)));
     connect(http, SIGNAL(notification(QByteArray,QByteArray,int)), servers, SLOT(notification(QByteArray,QByteArray,int)));
     connect(http, SIGNAL(notification(QByteArray,QByteArray,int)), renderers, SLOT(notification(QByteArray,QByteArray,int)));
     connect(ssdpThread, SIGNAL(started()), ssdp, SLOT(start()));

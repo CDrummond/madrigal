@@ -201,6 +201,14 @@ void Upnp::DevicesModel::notification(const QByteArray &sid, const QByteArray &d
     }
 }
 
+void Upnp::DevicesModel::connectionStateChanged(bool on) {
+    if (on) {
+        foreach (Device *dev, devices) {
+            dev->renewSubscriptions();
+        }
+    }
+}
+
 void Upnp::DevicesModel::activateLast() {
     int activeRow=-1;
 

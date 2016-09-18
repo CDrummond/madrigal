@@ -106,6 +106,7 @@ Upnp::Ssdp::Ssdp(QObject *p)
 {
     QNetworkConfigurationManager *mgr=new QNetworkConfigurationManager(this);
     connect(mgr, SIGNAL(onlineStateChanged(bool)), this, SLOT(onlineStateChanged(bool)));
+    connect(mgr, SIGNAL(onlineStateChanged(bool)), this, SIGNAL(connectionStateChanged(bool)));
 }
 
 void Upnp::Ssdp::start() {
