@@ -28,6 +28,7 @@
 #include <QVBoxLayout>
 #include <QTextEdit>
 #include <QLabel>
+#include <QScroller>
 
 Ui::LyricsView::LyricsView(QWidget *p)
     : QWidget(p)
@@ -45,6 +46,7 @@ Ui::LyricsView::LyricsView(QWidget *p)
     text->setText(tr("No lyrics"));
     connect(lyrics, SIGNAL(fetched(QString,QString,QString)), this, SLOT(fetched(QString,QString,QString)));
     toolbar->setTitle(tr("Lyrics"));
+    QScroller::grabGesture(text->viewport());
 }
 
 void Ui::LyricsView::showEvent(QShowEvent *ev) {
