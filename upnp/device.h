@@ -141,6 +141,7 @@ public:
 
     virtual void clear();
     virtual void populate() = 0;
+    virtual void reset();
     void notification(const QByteArray &sid, const QByteArray &data, int seq);
     virtual void notification(const QByteArray &sid, const QByteArray &data) = 0;
 

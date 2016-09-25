@@ -325,6 +325,12 @@ void Upnp::Device::clear() {
     endResetModel();
 }
 
+void Upnp::Device::reset() {
+    clear();
+    renewSubscriptions();
+    populate();
+}
+
 void Upnp::Device::notification(const QByteArray &sid, const QByteArray &data, int seq) {
     // If we recieve multiple notifications *very* close together, its possible for
     // them to be read in the wrong order! So, if we a have actioned a new notification,
