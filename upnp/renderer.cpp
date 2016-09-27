@@ -117,7 +117,9 @@ bool Upnp::Renderer::dropMimeData(const QMimeData *data,
             stream >> id;
             ids.append(id);
         }
-        emit acceptDrop(src, ids, row);
+        // Not 100% about this -1, however if don't do this tracks that are
+        // drag'n'dropped are inserted at the wrong position!
+        emit acceptDrop(src, ids, row-1);
         return true;
     }
     return false;
