@@ -520,7 +520,12 @@ void Upnp::Device::subscriptionResponse() {
         QByteArray sid=job->actualJob()->rawHeader("SID");
         DBUG(Devices) << sid;
         if (!sid.isEmpty() && active) {
-            subscriptions.insert(job->origUrl(), Subscription(sid));
+            // Store this subscription, if it is new or its ID has changed.
+            // This way we can keep track of sequence IDs accross subscription renewals.
+            QHash<QUrl, Subscription>::iterator sub=subscriptions.find(job->origUrl());
+            if (sub==subscriptions.end() || sub.value().sid!=sid) {
+                subscriptions.insert(job->origUrl(), Subscription(sid));
+            }
         }
         jobs.removeAll(job);
         job->cancelAndDelete();
