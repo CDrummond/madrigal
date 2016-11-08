@@ -140,10 +140,11 @@ void Upnp::Ssdp::search() {
     QByteArray request=QByteArray("M-SEARCH * HTTP/1.1" LINE_SEP "HOST: ")+QByteArray(constMulticastGroup)+
                        QByteArray(":")+QByteArray::number(constPort)+
                        QByteArray(LINE_SEP "MAN: \"ssdp:discover\"" LINE_SEP "MX: 3" LINE_SEP "ST: upnp:rootdevice" LINE_SEP LINE_SEP);
+    int timeout=refreshTimeout>10000 ? 10000 : (refreshTimeout-750);
 
-    DBUG(Ssdp) << request;
+    DBUG(Ssdp) << request << timeout;
     socket->writeDatagram(request, QHostAddress(constMulticastGroup), constPort);
-    listTimer->start(refreshTimeout>10000 ? 10000 : (refreshTimeout-750));
+    listTimer->start(timeout);
     refreshTimer->start(refreshTimeout);
 }
 
