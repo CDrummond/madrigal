@@ -239,12 +239,12 @@ Ui::NowPlayingWidget::NowPlayingWidget(QWidget *p)
     track->setFont(f);
     artist->setFont(small);
     time->setFont(small);
-    int coverSize=Utils::scaleForDpi(56);
+    int space=Utils::layoutSpacing(this);
+    int pad=Utils::scaleForDpi(2);
+    int coverSize=qMax(QFontMetrics(f).height()+QFontMetrics(small).height()+(space*2)+slider->height(), Utils::scaleForDpi(56));
     cover->setFixedSize(QSize(coverSize, coverSize));
     slider->setOrientation(Qt::Horizontal);
     QGridLayout *layout=new QGridLayout(this);
-    int space=Utils::layoutSpacing(this);
-    int pad=Utils::scaleForDpi(2);
     layout->setContentsMargins(pad, pad, pad, pad);
     layout->setSpacing((space/2)+pad);
     layout->addWidget(cover, 0, 0, 5, 1);

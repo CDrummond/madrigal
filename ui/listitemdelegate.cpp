@@ -45,9 +45,10 @@ static int actionIconSize=14;
 
 static void setupSizes() {
     if (-1==listCoverSize) {
-        listIconSize=Ui::Utils::scaleForDpi(28);
-        listCoverSize=Ui::Utils::scaleForDpi(32);
-        gridCoverSize=Ui::Utils::scaleForDpi(128);
+        int fontSize=QApplication::fontMetrics().height();
+        listIconSize=qMax(fontSize*1.1, Ui::Utils::scaleForDpi(28)*1.0);
+        listCoverSize=qMax(fontSize*2.25, Ui::Utils::scaleForDpi(32)*1.0);
+        gridCoverSize=qMax(fontSize*6, Ui::Utils::scaleForDpi(128));
         borderSize=listCoverSize>48 ? 2 : 1;
         actionIconSize=Ui::ViewToolBar::iconSize();
         actionBorder=Ui::ViewToolBar::buttonSize()-actionIconSize;
