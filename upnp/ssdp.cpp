@@ -137,9 +137,9 @@ void Upnp::Ssdp::search() {
     }
 
     // Discover all UPnP devices
-    QByteArray request=QByteArray("M-SEARCH * HTTP/1.1"LINE_SEP"HOST: ")+QByteArray(constMulticastGroup)+
+    QByteArray request=QByteArray("M-SEARCH * HTTP/1.1" LINE_SEP "HOST: ")+QByteArray(constMulticastGroup)+
                        QByteArray(":")+QByteArray::number(constPort)+
-                       QByteArray(LINE_SEP"MAN: \"ssdp:discover\""LINE_SEP"MX: 3\r\nST: upnp:rootdevice"LINE_SEP LINE_SEP);
+                       QByteArray(LINE_SEP "MAN: \"ssdp:discover\"" LINE_SEP "MX: 3" LINE_SEP "ST: upnp:rootdevice" LINE_SEP LINE_SEP);
 
     DBUG(Ssdp) << request;
     socket->writeDatagram(request, QHostAddress(constMulticastGroup), constPort);

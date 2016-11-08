@@ -356,7 +356,7 @@ QString Core::Utils::systemDir(const QString &sub) {
     #elif defined Q_OS_MAC
     return fixPath(QCoreApplication::applicationDirPath())+QLatin1String("../Resources/")+(sub.isEmpty() ? QString() : (sub+constDirSep));
     #else
-    return fixPath(QString(SHARE_INSTALL_PREFIX"/")+QCoreApplication::applicationName()+constDirSep+(sub.isEmpty() ? QString() : sub));
+    return fixPath(QString(SHARE_INSTALL_PREFIX "/")+QCoreApplication::applicationName()+constDirSep+(sub.isEmpty() ? QString() : sub));
     #endif
 }
 
@@ -366,7 +366,7 @@ QString Core::Utils::helper(const QString &app) {
     #elif defined Q_OS_MAC
     return fixPath(QCoreApplication::applicationDirPath())+app;
     #else
-    return QString(INSTALL_PREFIX "/"LINUX_LIB_DIR"/")+QCoreApplication::applicationName()+constDirSep+app;
+    return QString(INSTALL_PREFIX "/" LINUX_LIB_DIR "/")+QCoreApplication::applicationName()+constDirSep+app;
     #endif
 }
 
