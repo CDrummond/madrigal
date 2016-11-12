@@ -67,6 +67,9 @@ static Core::MonoIcon::Type fontawesomeIcon(const QByteArray &name) {
     if (name=="windows") {
         return Core::MonoIcon::windows;
     }
+    if (name=="chevron-circle-right") {
+        return Core::MonoIcon::chevroncircleright;
+    }
     return Core::MonoIcon::no_icon;
 }
 
