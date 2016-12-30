@@ -43,7 +43,6 @@
 
 #ifndef NO_GTK_SUPPORT
 #include "ui/gtkproxystyle.h"
-#include "ui/windowmanager.h"
 #if QT_VERSION < 0x050000
 #include <QGtkStyle>
 #endif
@@ -106,177 +105,14 @@ void Ui::GtkStyle::drawSelection(const QStyleOptionViewItem &opt, QPainter *pain
     painter->setOpacity(opacityB4);
 }
 
-QString Ui::GtkStyle::readDconfSetting(const QString &setting, const QString &scheme) {
-    #ifdef NO_GTK_SUPPORT
-    Q_UNUSED(setting)
-    Q_UNUSED(scheme)
-    #else
-    // For some reason, dconf does not seem to terminate correctly when run under some desktops (e.g. KDE)
-    // Destroying the QProcess seems to block, causing the app to appear to hang before starting.
-    // So, create QProcess on the heap - and only wait 1.5s for response. Connect finished to deleteLater
-    // so that the object is destroyed.
-    static bool first=true;
-    static bool ok=true;
-
-    if (first) {
-        first=false;
-    } else if (!ok) { // Failed before, so dont bothe rcalling dconf again!
-        return QString();
-    }
-
-    QString schemeToUse=scheme.isEmpty() ? QLatin1String("/org/gnome/desktop/interface/") : scheme;
-    QProcess *process=new QProcess();
-    process->start(QLatin1String("dconf"), QStringList() << QLatin1String("read") << schemeToUse+setting);
-    QObject::connect(process, SIGNAL(finished(int)), process, SLOT(deleteLater()));
-
-    if (process->waitForFinished(1500)) {
-        QString resp = process->readAllStandardOutput();
-        resp = resp.trimmed();
-        resp.remove('\'');
-
-        if (resp.isEmpty()) {
-            // Probably set to the default, and dconf does not store defaults! Therefore, need to read via gsettings...
-            schemeToUse=schemeToUse.mid(1, schemeToUse.length()-2).replace("/", ".");
-            QProcess *gsettingsProc=new QProcess();
-            gsettingsProc->start(QLatin1String("gsettings"), QStringList() << QLatin1String("get") << schemeToUse << setting);
-            QObject::connect(gsettingsProc, SIGNAL(finished(int)), process, SLOT(deleteLater()));
-            if (gsettingsProc->waitForFinished(1500)) {
-                resp = gsettingsProc->readAllStandardOutput();
-                resp = resp.trimmed();
-                resp.remove('\'');
-            } else {
-                gsettingsProc->kill();
-            }
-        }
-        return resp;
-    } else { // If we failed 1 time, dont bother next time!
-        ok=false;
-    }
-    process->kill();
-    #endif
-    return QString();
-}
-
-#ifndef NO_GTK_SUPPORT
-static QString themeNameSetting;
-#endif
-
-// Copied from musique
-QString Ui::GtkStyle::themeName() {
-    #ifdef NO_GTK_SUPPORT
-    return QString();
-    #else
-
-    if (themeNameSetting.isEmpty()) {
-        static bool read=false;
-
-        if (read) {
-            return themeNameSetting;
-        }
-        read=true;
-
-        if (themeNameSetting.isEmpty()) {
-            themeNameSetting=readDconfSetting(QLatin1String("gtk-theme"));
-            if (!themeNameSetting.isEmpty()) {
-                return themeNameSetting;
-            }
-
-            QString rcPaths = QString::fromLocal8Bit(qgetenv("GTK2_RC_FILES"));
-            if (!rcPaths.isEmpty()) {
-                QStringList paths = rcPaths.split(QLatin1String(":"));
-                foreach (const QString &rcPath, paths) {
-                    if (!rcPath.isEmpty()) {
-                        QFile rcFile(rcPath);
-                        if (rcFile.exists() && rcFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                            QTextStream in(&rcFile);
-                            while(!in.atEnd()) {
-                                QString line = in.readLine();
-                                if (line.contains(QLatin1String("gtk-theme-name"))) {
-                                    line = line.right(line.length() - line.indexOf(QLatin1Char('=')) - 1);
-                                    line.remove(QLatin1Char('\"'));
-                                    line = line.trimmed();
-                                    themeNameSetting = line;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (!themeNameSetting.isEmpty()) {
-                        break;
-                    }
-                }
-            }
-
-            #if QT_VERSION < 0x050000
-            // Fall back to gconf
-            if (themeNameSetting.isEmpty()) {
-                themeNameSetting = QUi::GtkStyle::getGConfString(QLatin1String("/desktop/gnome/interface/gtk_theme"));
-            }
-            #endif
-            if (themeNameSetting.isEmpty() && Ui::Utils::Unity==Ui::Utils::currentDe()) {
-                themeNameSetting=QLatin1String("Ambiance");
-            }
-        }
-    }
-    return themeNameSetting;
-    #endif
-}
-
-extern void Ui::GtkStyle::setThemeName(const QString &n) {
-    #ifdef NO_GTK_SUPPORT
-    Q_UNUSED(n)
-    #else
-    themeNameSetting=n;
-    #endif
-}
-
-#ifndef NO_GTK_SUPPORT
-static Ui::WindowManager *wm=0;
-#endif
 static QProxyStyle *proxyStyle=0;
 
 void Ui::GtkStyle::applyTheme(QWidget *widget) {
     #ifdef NO_GTK_SUPPORT
     Q_UNUSED(widget)
     #else
-    if (widget && isActive()) {
-        QString theme=Ui::GtkStyle::themeName().toLower();
-        int modViewFrame=0;
-        QMap<QString, QString> css;
-        if (!theme.isEmpty()) {
-            QFile cssFile(Core::Utils::systemDir(QLatin1String("themes"))+theme+QLatin1String(".css"));
-            if (cssFile.open(QFile::ReadOnly|QFile::Text)) {
-                while (!cssFile.atEnd()) {
-                    QString line = cssFile.readLine().trimmed();
-                    if (line.isEmpty()) {
-                        continue;
-                    }
-                    if (line.startsWith(QLatin1String("/*"))) {
-                        if (!wm && line.contains("drag:toolbar")) {
-                            wm=new WindowManager(widget);
-                            wm->registerWidgetAndChildren(widget);
-                            QMainWindow *win=qobject_cast<QMainWindow *>(widget->window());
-                            if (win && win->menuBar()) {
-                                wm->registerWidgetAndChildren(win->menuBar());
-                            }
-                        }
-                        modViewFrame=line.contains("modview:ts")
-                                        ? ProxyStyle::VF_Side|ProxyStyle::VF_Top
-                                        : line.contains("modview:true")
-                                            ? ProxyStyle::VF_Side
-                                            : 0;
-                    } else {
-                        int space=line.indexOf(' ');
-                        if (space>2) {
-                            css.insert(line.left(space), line);
-                        }
-                    }
-                }
-            }
-        }
-        if (!proxyStyle) {
-            proxyStyle=new GtkProxyStyle(modViewFrame, true, true, css);
-        }
+    if (widget && isActive() && !proxyStyle) {
+        proxyStyle=new GtkProxyStyle();
     }
     #endif
 
@@ -301,12 +137,3 @@ void Ui::GtkStyle::applyTheme(QWidget *widget) {
     }
 }
 
-void Ui::GtkStyle::registerWidget(QWidget *widget) {
-    #ifdef NO_GTK_SUPPORT
-    Q_UNUSED(widget)
-    #else
-    if (widget && wm) {
-        wm->registerWidgetAndChildren(widget);
-    }
-    #endif
-}

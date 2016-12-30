@@ -36,19 +36,9 @@
 #include <QStyledItemDelegate>
 #include <QApplication>
 
-static bool useOverlayStyleScrollbars(bool use) {
-    if (use) {
-        QByteArray env=qgetenv("LIBOVERLAY_SCROLLBAR");
-        if (!env.isEmpty() && env!="1") {
-            return false;
-        }
-        QString mode=Ui::GtkStyle::readDconfSetting(QLatin1String("scrollbar-mode"), QLatin1String("/com/canonical/desktop/interface/"));
-        return mode!=QLatin1String("normal");
-    }
-    return use;
-}
-
 static const char * constOnCombo="on-combo";
+static const int constSpinButtonRatio=1.25;
+
 
 static bool isOnCombo(const QWidget *w)
 {
@@ -74,22 +64,13 @@ static void drawSpinButton(QPainter *painter, const QRect &r, const QColor &col,
     painter->restore();
 }
 
-Ui::GtkProxyStyle::GtkProxyStyle(int modView, bool thinSb, bool styleSpin, const QMap<QString, QString> &c)
-    : ProxyStyle(modView, true)
-    , css(c)
-    , touchStyleSpin(styleSpin)
-    , spinButtonRatio(1.25)
-    , sbarPlainViewWidth(-1)
+Ui::GtkProxyStyle::GtkProxyStyle()
+    : ProxyStyle(0, true)
 {
     setBaseStyle(qApp->style());
 
-    if (useOverlayStyleScrollbars(thinSb)) {
-        sbarType=SB_Gtk;
-        sbarPlainViewWidth=QApplication::fontMetrics().height()/1.75;
-    } else {
-        sbarType=SB_Standard;
-    }
-    setModifyViewFrame(modView && (SB_Gtk==sbarType || !qApp->style()->styleHint(SH_ScrollView_FrameOnlyAroundContents, 0, 0, 0)) ? modView : 0);
+    sbarPlainViewWidth=QApplication::fontMetrics().height()/1.75;
+    //setModifyViewFrame(!qApp->style()->styleHint(SH_ScrollView_FrameOnlyAroundContents, 0, 0, 0) ? modView : 0);
 }
 
 Ui::GtkProxyStyle::~GtkProxyStyle() {
@@ -98,7 +79,7 @@ Ui::GtkProxyStyle::~GtkProxyStyle() {
 QSize Ui::GtkProxyStyle::sizeFromContents(ContentsType type, const QStyleOption *option,  const QSize &size, const QWidget *widget) const {
     QSize sz=baseStyle()->sizeFromContents(type, option, size, widget);
 
-    if (SB_Standard!=sbarType && CT_ScrollBar==type) {
+    if (CT_ScrollBar==type) {
         if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             int extent(pixelMetric(PM_ScrollBarExtent, option, widget)),
                 sliderMin(pixelMetric(PM_ScrollBarSliderMin, option, widget));
@@ -111,7 +92,7 @@ QSize Ui::GtkProxyStyle::sizeFromContents(ContentsType type, const QStyleOption 
         }
     }
 
-    if (touchStyleSpin && CT_SpinBox==type) {
+    if (CT_SpinBox==type) {
         if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
             if (QAbstractSpinBox::NoButtons!=spinBox->buttonSymbols) {
                 // Qt5 does not seem to be taking special value, or suffix, into account when calculatng width...
@@ -129,7 +110,7 @@ QSize Ui::GtkProxyStyle::sizeFromContents(ContentsType type, const QStyleOption 
 
                     if (minWidth>0) {
                         int frameWidth=baseStyle()->pixelMetric(QStyle::PM_DefaultFrameWidth, option, 0);
-                        int buttonWidth=(sz.height()-(frameWidth*2))*spinButtonRatio;
+                        int buttonWidth=(sz.height()-(frameWidth*2))*constSpinButtonRatio;
                         minWidth=((minWidth+(buttonWidth+frameWidth)*2)*1.05)+0.5;
                         if (sz.width()<minWidth) {
                             sz.setWidth(minWidth);
@@ -149,9 +130,7 @@ int Ui::GtkProxyStyle::styleHint(StyleHint hint, const QStyleOption *option, con
     case SH_DialogButtonBox_ButtonsHaveIcons:
         return false;
     case SH_ScrollView_FrameOnlyAroundContents:
-        if (SB_Standard!=sbarType) {
-            return false;
-        }
+        return false;
         break;
     default:
         break;
@@ -161,14 +140,14 @@ int Ui::GtkProxyStyle::styleHint(StyleHint hint, const QStyleOption *option, con
 }
 
 int Ui::GtkProxyStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const {
-    if (SB_Standard!=sbarType && PM_ScrollBarExtent==metric) {
+    if (PM_ScrollBarExtent==metric) {
         return sbarPlainViewWidth;
     }
     return baseStyle()->pixelMetric(metric, option, widget);
 }
 
 QRect Ui::GtkProxyStyle::subControlRect(ComplexControl control, const QStyleOptionComplex *option, SubControl subControl, const QWidget *widget) const {
-    if (SB_Standard!=sbarType && CC_ScrollBar==control) {
+    if (CC_ScrollBar==control) {
         if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(option))  {
             QRect ret;
             bool  horizontal(Qt::Horizontal==sb->orientation);
@@ -230,13 +209,13 @@ QRect Ui::GtkProxyStyle::subControlRect(ComplexControl control, const QStyleOpti
         }
     }
 
-    if (touchStyleSpin && CC_SpinBox==control) {
+    if (CC_SpinBox==control) {
         if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
             if (QAbstractSpinBox::NoButtons!=spinBox->buttonSymbols) {
                 int border=2;
                 int padBeforeButtons=GtkStyle::isActive() ? 0 : 2;
                 int internalHeight=spinBox->rect.height()-(border*2);
-                int internalWidth=internalHeight*spinButtonRatio;
+                int internalWidth=internalHeight*constSpinButtonRatio;
                 switch (subControl) {
                 case SC_SpinBoxUp:
                     return Qt::LeftToRight==spinBox->direction
@@ -262,7 +241,7 @@ QRect Ui::GtkProxyStyle::subControlRect(ComplexControl control, const QStyleOpti
 }
 
 void Ui::GtkProxyStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option, QPainter *painter, const QWidget *widget) const {
-    if (SB_Standard!=sbarType && CC_ScrollBar==control) {
+    if (CC_ScrollBar==control) {
         if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             QRect r=option->rect;
             QRect slider=subControlRect(control, option, SC_ScrollBarSlider, widget);
@@ -286,31 +265,27 @@ void Ui::GtkProxyStyle::drawComplexControl(ComplexControl control, const QStyleO
                 if (!(option->state&State_Active)) {
                     col=col.darker(115);
                 }
-                if (SB_Gtk==sbarType) {
-                    int adjust=inactive ? 3 : 1;
-                    if (Qt::Horizontal==sb->orientation) {
-                        slider.adjust(1, adjust, -1, -adjust);
-                    } else {
-                        slider.adjust(adjust, 1, -adjust, -1);
-                    }
-                    int dimension=(Qt::Horizontal==sb->orientation ? slider.height() : slider.width());
-                    QPainterPath path=Ui::Utils::buildPath(QRectF(slider.x()+0.5, slider.y()+0.5, slider.width()-1, slider.height()-1),
-                                                           dimension>6 ? (dimension/4.0) : (dimension/8.0));
-                    painter->save();
-                    painter->setRenderHint(QPainter::Antialiasing, true);
-                    painter->fillPath(path, col);
-                    painter->setPen(col);
-                    painter->drawPath(path);
-                    painter->restore();
+                int adjust=inactive ? 3 : 1;
+                if (Qt::Horizontal==sb->orientation) {
+                    slider.adjust(1, adjust, -1, -adjust);
                 } else {
-                    painter->fillRect(slider, col);
+                    slider.adjust(adjust, 1, -adjust, -1);
                 }
+                int dimension=(Qt::Horizontal==sb->orientation ? slider.height() : slider.width());
+                QPainterPath path=Ui::Utils::buildPath(QRectF(slider.x()+0.5, slider.y()+0.5, slider.width()-1, slider.height()-1),
+                                                       dimension>6 ? (dimension/4.0) : (dimension/8.0));
+                painter->save();
+                painter->setRenderHint(QPainter::Antialiasing, true);
+                painter->fillPath(path, col);
+                painter->setPen(col);
+                painter->drawPath(path);
+                painter->restore();
             }
             return;
         }
     }
 
-    if (touchStyleSpin && CC_SpinBox==control) {
+    if (CC_SpinBox==control) {
         if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
             if (QAbstractSpinBox::NoButtons!=spinBox->buttonSymbols) {
                 QStyleOptionFrame opt;
@@ -366,7 +341,7 @@ void Ui::GtkProxyStyle::drawComplexControl(ComplexControl control, const QStyleO
 }
 
 void Ui::GtkProxyStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const {
-    if (PE_PanelScrollAreaCorner==element && option && SB_Standard!=sbarType) {
+    if (PE_PanelScrollAreaCorner==element && option) {
         painter->fillRect(option->rect, option->palette.brush(QPalette::Base));
     } else {
         ProxyStyle::drawPrimitive(element, option, painter, widget);
@@ -374,35 +349,19 @@ void Ui::GtkProxyStyle::drawPrimitive(PrimitiveElement element, const QStyleOpti
 }
 
 void Ui::GtkProxyStyle::polish(QWidget *widget) {
-    // Apply CSS only to particular widgets. With Qt5.2 if we apply CSS to whole application, then QStyleSheetStyle does
-    // NOT call sizeFromContents for spinboxes :-(
-    if (widget->styleSheet().isEmpty()) {
-        QMap<QString, QString>::ConstIterator it=css.end();
-        if (qobject_cast<QToolBar *>(widget)) {
-            it=css.find(QLatin1String("QToolBar#")+widget->objectName());
-        } else if (qobject_cast<QMenu *>(widget)) {
-            it=css.find(QLatin1String(widget->metaObject()->className()));
+    if (qobject_cast<QScrollBar *>(widget)) {
+        if (isOnCombo(widget)) {
+            widget->setProperty(constOnCombo, true);
         }
-        if (css.end()!=it) {
-            widget->setStyleSheet(it.value());
+    } else if (qobject_cast<QAbstractScrollArea *>(widget) && widget->inherits("QComboBoxListView")) {
+        QAbstractScrollArea *sa=static_cast<QAbstractScrollArea *>(widget);
+        QWidget *sb=sa->horizontalScrollBar();
+        if (sb) {
+            sb->setProperty(constOnCombo, true);
         }
-    }
-
-    if (SB_Standard!=sbarType) {
-        if (qobject_cast<QScrollBar *>(widget)) {
-            if (isOnCombo(widget)) {
-                widget->setProperty(constOnCombo, true);
-            }
-        } else if (qobject_cast<QAbstractScrollArea *>(widget) && widget->inherits("QComboBoxListView")) {
-            QAbstractScrollArea *sa=static_cast<QAbstractScrollArea *>(widget);
-            QWidget *sb=sa->horizontalScrollBar();
-            if (sb) {
-                sb->setProperty(constOnCombo, true);
-            }
-            sb=sa->verticalScrollBar();
-            if (sb) {
-                sb->setProperty(constOnCombo, true);
-            }
+        sb=sa->verticalScrollBar();
+        if (sb) {
+            sb->setProperty(constOnCombo, true);
         }
     }
 

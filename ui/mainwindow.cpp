@@ -33,7 +33,7 @@
 #include "ui/utils.h"
 #include "ui/preferencesdialog.h"
 #ifdef Q_OS_MAC
-#include "ui/windowmanager.h"
+#include "mac/windowmanager.h"
 #include "mac/osxstyle.h"
 #endif
 #include "upnp/device.h"
@@ -121,7 +121,7 @@ Ui::MainWindow::MainWindow(QWidget *p)
     }
     #endif
     #ifdef Q_OS_MAC
-    WindowManager *wm=new WindowManager(toolBar);
+    Mac::WindowManager *wm=new Mac::WindowManager(toolBar);
     wm->registerWidgetAndChildren(toolBar);
     toolBar->setMovable(false);
     toolBar->setContextMenuPolicy(Qt::PreventContextMenu);

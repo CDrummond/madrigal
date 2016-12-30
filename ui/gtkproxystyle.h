@@ -40,7 +40,7 @@ public:
         SB_Gtk
     };
 
-    GtkProxyStyle(int modView, bool thinSb, bool styleSpin, const QMap<QString, QString> &c);
+    GtkProxyStyle();
     ~GtkProxyStyle();
     QSize sizeFromContents(ContentsType type, const QStyleOption *option,  const QSize &size, const QWidget *widget) const;
     int styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget, QStyleHintReturn *returnData) const;
@@ -58,10 +58,6 @@ private:
     #if defined HAVE_SHORTCUT_HANDLER
     ShortcutHandler *shortcutHander;
     #endif
-    QMap<QString, QString> css;
-    bool touchStyleSpin;
-    double spinButtonRatio;
-    SbType sbarType;
     int sbarPlainViewWidth;
 };
 

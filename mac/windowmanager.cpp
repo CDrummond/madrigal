@@ -59,7 +59,7 @@ static inline void addEventFilter(QObject *object, QObject *filter) {
     object->installEventFilter(filter);
 }
 
-Ui::WindowManager::WindowManager(QObject *parent)
+Mac::WindowManager::WindowManager(QObject *parent)
     : QObject(parent)
     , _dragDistance(QApplication::startDragDistance())
     , _dragDelay(QApplication::startDragTime())
@@ -75,7 +75,7 @@ Ui::WindowManager::WindowManager(QObject *parent)
     qApp->installEventFilter(_appEventFilter);
 }
 
-void Ui::WindowManager::registerWidgetAndChildren(QWidget *w) {
+void Mac::WindowManager::registerWidgetAndChildren(QWidget *w) {
     QObjectList children=w->children();
 
     foreach (QObject *o, children) {
@@ -86,19 +86,19 @@ void Ui::WindowManager::registerWidgetAndChildren(QWidget *w) {
     registerWidget(w);
 }
 
-void Ui::WindowManager::registerWidget(QWidget *widget) {
+void Mac::WindowManager::registerWidget(QWidget *widget) {
     if (isDragable(widget)) {
         addEventFilter(widget, this);
     }
 }
 
-void Ui::WindowManager::unregisterWidget(QWidget *widget) {
+void Mac::WindowManager::unregisterWidget(QWidget *widget) {
     if (widget) {
         widget->removeEventFilter(this);
     }
 }
 
-bool Ui::WindowManager::eventFilter(QObject *object, QEvent *event) {
+bool Mac::WindowManager::eventFilter(QObject *object, QEvent *event) {
     switch (event->type()) {
     case QEvent::MouseButtonPress:
         return mousePressEvent(object, event);
@@ -119,7 +119,7 @@ bool Ui::WindowManager::eventFilter(QObject *object, QEvent *event) {
     return false;
 }
 
-void Ui::WindowManager::timerEvent(QTimerEvent *event) {
+void Mac::WindowManager::timerEvent(QTimerEvent *event) {
     if (event->timerId() == _dragTimer.timerId()) {
         _dragTimer.stop();
         if (_target) {
@@ -130,7 +130,7 @@ void Ui::WindowManager::timerEvent(QTimerEvent *event) {
     }
 }
 
-bool Ui::WindowManager::mousePressEvent(QObject *object, QEvent *event) {
+bool Mac::WindowManager::mousePressEvent(QObject *object, QEvent *event) {
     // cast event and check buttons/modifiers
     QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
     if (!(Qt::NoModifier==mouseEvent->modifiers() && Qt::LeftButton==mouseEvent->button())) {
@@ -179,7 +179,7 @@ bool Ui::WindowManager::mousePressEvent(QObject *object, QEvent *event) {
     return false;
 }
 
-bool Ui::WindowManager::mouseMoveEvent(QObject *object, QEvent *event) {
+bool Mac::WindowManager::mouseMoveEvent(QObject *object, QEvent *event) {
     Q_UNUSED(object)
 
     // stop timer
@@ -215,14 +215,14 @@ bool Ui::WindowManager::mouseMoveEvent(QObject *object, QEvent *event) {
     }
 }
 
-bool Ui::WindowManager::mouseReleaseEvent(QObject *object, QEvent *event) {
+bool Mac::WindowManager::mouseReleaseEvent(QObject *object, QEvent *event) {
     Q_UNUSED(object)
     Q_UNUSED(event)
     resetDrag();
     return false;
 }
 
-bool Ui::WindowManager::isDragable(QWidget *widget) {
+bool Mac::WindowManager::isDragable(QWidget *widget) {
     // check widget
     if (!widget) {
         return false;
@@ -248,7 +248,7 @@ bool Ui::WindowManager::isDragable(QWidget *widget) {
     return false;
 }
 
-bool Ui::WindowManager::canDrag(QWidget *widget) {
+bool Mac::WindowManager::canDrag(QWidget *widget) {
     // assume isDragable widget is already passed
     // check some special cases where drag should not be effective
 
@@ -270,7 +270,7 @@ bool Ui::WindowManager::canDrag(QWidget *widget) {
     return true;
 }
 
-bool Ui::WindowManager::canDrag(QWidget *widget, QWidget *child, const QPoint &position) {
+bool Mac::WindowManager::canDrag(QWidget *widget, QWidget *child, const QPoint &position) {
     // retrieve child at given position and check cursor again
     if (child && Qt::ArrowCursor!=child->cursor().shape()) {
         return false;
@@ -316,7 +316,7 @@ bool Ui::WindowManager::canDrag(QWidget *widget, QWidget *child, const QPoint &p
     return isToolBar(widget);
 }
 
-void Ui::WindowManager::resetDrag() {
+void Mac::WindowManager::resetDrag() {
     #ifndef Q_OS_MAC
     if (_target && _cursorOverride) {
         qApp->restoreOverrideCursor();
@@ -335,7 +335,7 @@ void Ui::WindowManager::resetDrag() {
     _dragInProgress = false;
 }
 
-void Ui::WindowManager::startDrag(QWidget *widget, const QPoint &position) {
+void Mac::WindowManager::startDrag(QWidget *widget, const QPoint &position) {
     if (QWidget::mouseGrabber()) {
         return;
     }
@@ -351,7 +351,7 @@ void Ui::WindowManager::startDrag(QWidget *widget, const QPoint &position) {
     return;
 }
 
-bool Ui::WindowManager::AppEventFilter::eventFilter(QObject *object, QEvent *event) {
+bool Mac::WindowManager::AppEventFilter::eventFilter(QObject *object, QEvent *event) {
     Q_UNUSED(object)
     if (QEvent::MouseButtonRelease==event->type()) {
         // stop drag timer
@@ -368,7 +368,7 @@ bool Ui::WindowManager::AppEventFilter::eventFilter(QObject *object, QEvent *eve
     return false;
 }
 
-bool Ui::WindowManager::isDockWidgetTitle(const QWidget *widget) const {
+bool Mac::WindowManager::isDockWidgetTitle(const QWidget *widget) const {
     if (!widget) {
         return false;
     }
@@ -379,7 +379,7 @@ bool Ui::WindowManager::isDockWidgetTitle(const QWidget *widget) const {
     }
 }
 
-bool Ui::WindowManager::AppEventFilter::appMouseEvent(QObject *object, QEvent *event) {
+bool Mac::WindowManager::AppEventFilter::appMouseEvent(QObject *object, QEvent *event) {
     Q_UNUSED(object)
 
     // store target window (see later)

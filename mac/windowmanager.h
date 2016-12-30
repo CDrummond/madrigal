@@ -36,8 +36,8 @@
 // IN THE SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef UI_WINDOW_MANAGER_H
-#define UI_WINDOW_MANAGER_H
+#ifndef MAC_WINDOW_MANAGER_H
+#define MAC_WINDOW_MANAGER_H
 
 #include <QEvent>
 #include <QBasicTimer>
@@ -47,7 +47,7 @@
 #include <QPointer>
 #include <QWidget>
 
-namespace Ui {
+namespace Mac {
 class WindowManager: public QObject {
     Q_OBJECT
 
