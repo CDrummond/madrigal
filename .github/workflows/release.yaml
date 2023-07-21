@@ -1,0 +1,51 @@
+name: Publish Package
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:  # Manually start a workflow
+
+jobs:
+  release-windows:
+    runs-on: windows-2019
+    env:
+      QT_VERSION: 5.15.2
+      QT_INSTALL_DIR: C:/Qt
+      QT_MODULES: "qtbase qtdeclarative qtlocation qtmultimedia qtsensors qtwebchannel qtsvg qtxmlpatterns"
+      CMAKE_GENERATOR: "MinGW Makefiles"
+    steps:
+      - uses: actions/checkout@master
+      - name: Cache Qt directory
+        id: cache-qt
+        uses: actions/cache@v2
+        with:
+          path: |
+            C:\Qt
+          key: ${{ runner.os }}-qt-mingw81-win64
+      - name: Install prerequisites
+        shell: bash
+        run: "if [ ! -d \"${QT_INSTALL_DIR}\" ]; then ./scripts/install-qt.sh -d ${QT_INSTALL_DIR} --version ${QT_VERSION} --toolchain win64_mingw81 ${QT_MODULES} qtwinextras qttools; fi"
+      - name: Building
+        shell: bash
+        run: export QTDIR="${QT_INSTALL_DIR}/${QT_VERSION}/mingw81_64" && export QT_QPA_PLATFORM_PLUGIN_PATH="$(cygpath -u $QTDIR/plugins)" && export CMAKE_PREFIX_PATH=${QT_INSTALL_DIR}/${QT_VERSION}/mingw81_64/lib/cmake && export PATH="$(cygpath -u ${QTDIR})/bin:$PATH" && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-DQ_OS_WIN" && cmake --build . -v --config Release
+      - uses: actions/upload-artifact@v3
+        name: Upload artifact
+        with:
+          name: windows
+          path: build/madrigal*
+
+  release-macos:
+    runs-on: macOS-11
+    steps:
+      - uses: actions/checkout@master
+      - name: Install prerequisites
+        run: HOMEBREW_NO_AUTO_UPDATE=1 brew install qt5
+      - name: Building
+        run: export Qt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5 && export export CMAKE_PREFIX_PATH=$(brew --prefix qt5)/${QT_VERSION}/lib/cmake/ && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-std=c++17" && cmake --build . -v --config Release
+      - uses: actions/upload-artifact@v3
+        name: Upload artifact
+        with:
+          name: mac
+          path: build/madrigal*
