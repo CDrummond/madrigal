@@ -52,7 +52,11 @@ namespace Utils {
         return (fabs(d1 - d2) < precision);
     }
     inline int random(int max=0) { return max ? (qrand()%max) : qrand(); }
+#ifdef __MINGW32__
+    inline void initRand() { timeval time; mingw_gettimeofday(&time, NULL); qsrand((time.tv_sec*1000)+(time.tv_usec/1000)); }
+#else
     inline void initRand() { timeval time; gettimeofday(&time, NULL); qsrand((time.tv_sec*1000)+(time.tv_usec/1000)); }
+#endif
 
     extern QString fixPath(const QString &d, bool ensureEndsInSlash=true);
     #ifdef Q_OS_WIN
